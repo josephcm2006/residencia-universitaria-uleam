@@ -1,13 +1,103 @@
 ---
+import "@styles/index.css";
+
+const anioActual = 2026;
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-</head>
-<body>
-	
-</body>
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal Estudiantil - Residencias ULEAM</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="header-brand">
+        <img
+          src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg"
+          alt="Logo ULEAM"
+        />
+        <div>
+          <h4>Residencia Universitaria</h4>
+          <p>Universidad Laica Eloy Alfaro de Manabí</p>
+        </div>
+        <div class="divider"></div>
+        <div>
+          <p>Portal Estudiantil</p>
+        </div>
+      </div>
+      <a href="#ayuda">ⓘ Ayuda</a>
+    </header>
+
+    <main class="split-layout">
+      <section class="hero-panel">
+        <div class="hero-text">
+          <h1>Tu hogar para<br />avanzar en la<br />universidad</h1>
+          <p>
+            Accede con tu identidad ULEAM para postular, consultar tu habitación
+            y gestionar tu vida en la residencia.
+          </p>
+        </div>
+        <div class="hero-badges">
+          <span>✓ Acceso seguro</span>
+          <span>✓ Cuenta Verificada</span>
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div class="logo-container">
+          <img
+            src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg"
+            alt="ULEAM Alfaro"
+            onerror="this.style.display='none'"
+          />
+        </div>
+
+        <div class="card-login">
+          <span class="tag-acceso">Acceso para estudiantes</span>
+          <h2>Ingresa con tu cuenta institucional</h2>
+          <p class="desc">
+            Usamos Microsoft 365 para confirmar que eres estudiante activo y
+            proteger tus datos sin crear otra contraseña.
+          </p>
+
+          <div class="info-box">
+            <span class="info-label">@ Correo esperado</span>
+            <div class="info-email">e[Cédula]@live.uleam.edu.ec</div>
+            <div class="info-note">
+              También puedes usar el alias institucional asignado por la
+              secretaría.
+            </div>
+          </div>
+
+          <a href="/api/auth/login" class="btn-microsoft">
+            <span
+              ><img
+                src="/public/assets/icons/microsoft-logo.svg"
+                alt=""
+              /></span
+            > Continuar con Microsoft 365 &rarr;
+          </a>
+
+          <p class="disclaimer">
+            Solo recibimos tu nombre, correo y estado de matrícula. No vemos tu
+            contraseña. Consulta la <a href="#politica"
+              >Política de privacidad</a
+            >.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© {anioActual} Universidad Laica Eloy Alfaro de Manabí</span>
+      <div class="footer-links">
+        <a href="#privacidad">Privacidad</a>
+        <a href="#contacto">Contacto de residencia</a>
+        <a href="#accesibilidad">Accesibilidad</a>
+      </div>
+    </footer>
+  </body>
 </html>

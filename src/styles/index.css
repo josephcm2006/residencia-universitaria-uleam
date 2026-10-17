@@ -1,0 +1,342 @@
+/* Importación de fuente Sans Serif (Palo Seco) moderna */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ===================================================
+   VARIABLES Y RESET
+=================================================== */
+:root {
+  --uleam-rojo: #BA181B;
+  --uleam-rojo-oscuro: #850E10;
+  --bg-oscuro: #121418;
+  --bg-gris-claro: #F8FAFC;
+  --borde-color: #E2E8F0;
+  --texto-principal: #0F172A;
+  --texto-secundario: #64748B;
+  --tarjeta-info-bg: #F1ECE6;
+  --fuente-palo-seco: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--fuente-palo-seco);
+}
+
+body {
+  background-color: var(--bg-oscuro);
+  color: var(--texto-principal);
+  font-family: var(--fuente-palo-seco);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===================================================
+   1. HEADER SUPERIOR
+=================================================== */
+header {
+  background-color: #ffffff;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--borde-color);
+  z-index: 10;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+}
+
+.header-brand h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texto-principal);
+  line-height: 1.2;
+}
+
+.header-brand p {
+  font-size: 12px;
+  color: var(--texto-secundario);
+}
+
+.divider {
+  width: 1px;
+  height: 28px;
+  background-color: var(--borde-color);
+}
+
+header a {
+  font-size: 13px;
+  color: var(--texto-secundario);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+header a:hover {
+  color: var(--uleam-rojo);
+}
+
+/* ===================================================
+   2. CONTENEDOR DIVIDIDO (SPLIT LAYOUT)
+=================================================== */
+main.split-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 120px);
+}
+
+/* --- Panel Izquierdo: Imagen de fondo y texto --- */
+.hero-panel {
+  position: relative;
+  /* Ruta a tu imagen dentro de la carpeta public/ */
+  background-image: url('/public/assets/images/apartamento-imagen.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 60px;
+  color: #ffffff;
+}
+
+/* Capa de contraste oscuro sobre la imagen */
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.35) 60%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 1;
+}
+
+.hero-panel > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-text {
+  margin-top: auto;
+  margin-bottom: 30px;
+}
+
+.hero-text h1 {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+
+.hero-text p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #E2E8F0;
+  max-width: 440px;
+}
+
+.hero-badges {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #CBD5E1;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Panel Derecho: Tarjeta de Acceso --- */
+.login-panel {
+  background-color: var(--bg-gris-claro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.logo-container {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.logo-container img {
+  max-width: 140px;
+  height: auto;
+}
+
+.card-login {
+  background: #ffffff;
+  border: 1px solid var(--borde-color);
+  border-radius: 8px;
+  padding: 36px 32px;
+  max-width: 430px;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.tag-acceso {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--uleam-rojo);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.card-login h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--texto-principal);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+
+.card-login .desc {
+  font-size: 13px;
+  color: var(--texto-secundario);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.info-box {
+  background-color: var(--tarjeta-info-bg);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.info-email {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.info-note {
+  font-size: 11px;
+  color: var(--texto-secundario);
+  margin-top: 4px;
+}
+
+.btn-microsoft {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background-color: var(--uleam-rojo);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 20px;
+  border-radius: 99px;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-microsoft span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-microsoft img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+
+.btn-microsoft:hover {
+  background-color: var(--uleam-rojo-oscuro);
+  transform: translateY(-1px);
+}
+
+.disclaimer {
+  margin-top: 18px;
+  font-size: 11px;
+  color: var(--texto-secundario);
+  line-height: 1.45;
+}
+
+.disclaimer a {
+  color: var(--uleam-rojo);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.disclaimer a:hover {
+  text-decoration: underline;
+}
+
+/* ===================================================
+   3. FOOTER
+=================================================== */
+footer {
+  background-color: #0b0d10;
+  color: #94A3B8;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  border-top: 1px solid #1E293B;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  color: #94A3B8;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+/* ===================================================
+   4. RESPONSIVIDAD (Móviles / Tablets)
+=================================================== */
+@media (max-width: 900px) {
+  main.split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    display: none; /* En teléfonos da prioridad a la tarjeta de login */
+  }
+
+  .card-login {
+    padding: 24px 20px;
+  }
+
+  footer {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
