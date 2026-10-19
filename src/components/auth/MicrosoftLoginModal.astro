@@ -1,0 +1,707 @@
+---
+// src/components/auth/MicrosoftLoginModal.astro
+---
+
+<div id="ms-login-modal" class="ms-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="ms-modal-title">
+  <div class="ms-modal-container">
+    <div class="ms-modal-card">
+      <!-- Botón cerrar -->
+      <button type="button" class="ms-modal-close" id="btn-close-ms-modal" aria-label="Cerrar ventana">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Encabezado con Logo Microsoft -->
+      <div class="ms-header">
+        <div class="ms-brand-row">
+          <svg class="ms-logo" width="22" height="22" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#f25022" d="M1 1h10v10H1z"/>
+            <path fill="#00a4ef" d="M1 12h10v10H1z"/>
+            <path fill="#7fba00" d="M12 1h10v10H12z"/>
+            <path fill="#ffb900" d="M12 12h10v10H12z"/>
+          </svg>
+          <span class="ms-service-name">Microsoft 365 · ULEAM</span>
+        </div>
+        <h2 id="ms-modal-title" class="ms-title">Iniciar sesión</h2>
+        <p class="ms-subtitle">Usa tu cuenta institucional de estudiante para acceder al portal de residencia.</p>
+      </div>
+
+      <!-- Tarjeta rápida de prueba -->
+      <div class="ms-test-helper">
+        <div class="ms-test-info">
+          <span class="ms-test-badge">Estudiante Registrado</span>
+          <p class="ms-test-email">e0953920949@live.uleam.edu.ec</p>
+        </div>
+        <button type="button" id="btn-fill-student-creds" class="btn-fill-creds" title="Rellenar campos con este estudiante">
+          ⚡ Autocompletar
+        </button>
+      </div>
+
+      <!-- Alerta de Error / Éxito -->
+      <div id="ms-alert" class="ms-alert" style="display: none;" role="alert">
+        <span class="ms-alert-icon">⚠️</span>
+        <span id="ms-alert-text">Error al iniciar sesión</span>
+      </div>
+
+      <!-- Formulario de Inicio de Sesión -->
+      <form id="ms-login-form" class="ms-form" novalidate>
+        <div class="ms-field">
+          <label for="ms-input-email" class="ms-label">Correo electrónico institucional</label>
+          <div class="ms-input-wrapper">
+            <input
+              type="email"
+              id="ms-input-email"
+              name="email"
+              class="ms-input"
+              placeholder="e0953920949@live.uleam.edu.ec"
+              autocomplete="username"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="ms-field">
+          <label for="ms-input-password" class="ms-label">Contraseña</label>
+          <div class="ms-input-wrapper">
+            <input
+              type="password"
+              id="ms-input-password"
+              name="password"
+              class="ms-input"
+              placeholder="Contraseña institucional"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" id="btn-toggle-password" class="ms-toggle-pwd" aria-label="Mostrar u ocultar contraseña">
+              <span id="pwd-icon-eye">👁️</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="ms-options-row">
+          <label class="ms-checkbox-label">
+            <input type="checkbox" id="ms-remember" checked />
+            <span>Mantener la sesión iniciada</span>
+          </label>
+          <a href="#olvide-contrasena" class="ms-link-forgot" tabindex="-1">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="ms-actions">
+          <button type="button" id="btn-cancel-ms" class="ms-btn-secondary">Cancelar</button>
+          <button type="submit" id="btn-submit-ms" class="ms-btn-primary">
+            <span class="btn-text">Iniciar sesión</span>
+            <span class="btn-spinner" style="display: none;">
+              <span class="spinner-dot"></span>
+              Procesando...
+            </span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Pie del modal -->
+      <div class="ms-footer">
+        <span class="ms-secure-tag">🔒 Autenticación Institucional Segura ULEAM</span>
+        <div class="ms-footer-links">
+          <a href="#terminos">Términos de uso</a>
+          <span>·</span>
+          <a href="#privacidad">Privacidad y cookies</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ===================================================
+     VENTANA EMERGENTE (MODAL) MICROSOFT 365
+     =================================================== */
+  .ms-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .ms-modal-overlay.active {
+    display: flex;
+    animation: msFadeIn 0.2s ease-out;
+  }
+
+  @keyframes msFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .ms-modal-container {
+    width: 100%;
+    max-width: 440px;
+    animation: msSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes msSlideUp {
+    from {
+      transform: translateY(16px) scale(0.97);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .ms-modal-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 36px 32px 28px 32px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+    color: #1b1b1b;
+    box-sizing: border-box;
+  }
+
+  .ms-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: #5c5c5c;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .ms-modal-close:hover {
+    background-color: #f3f3f3;
+    color: #111111;
+  }
+
+  /* Header */
+  .ms-header {
+    margin-bottom: 20px;
+  }
+
+  .ms-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .ms-logo {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .ms-service-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    letter-spacing: 0.02em;
+  }
+
+  .ms-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1b1b1b;
+    margin: 0 0 6px 0;
+    line-height: 1.25;
+  }
+
+  .ms-subtitle {
+    font-size: 13px;
+    color: #5f6368;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  /* Quick Helper Card */
+  .ms-test-helper {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
+  .ms-test-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #15803D;
+    letter-spacing: 0.04em;
+  }
+
+  .ms-test-email {
+    font-size: 12px;
+    font-weight: 600;
+    color: #166534;
+    margin: 2px 0 0 0;
+    word-break: break-all;
+  }
+
+  .btn-fill-creds {
+    background: #16A34A;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s, transform 0.1s;
+  }
+
+  .btn-fill-creds:hover {
+    background: #15803D;
+    transform: translateY(-1px);
+  }
+
+  /* Alerta */
+  .ms-alert {
+    background-color: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ms-alert.success {
+    background-color: #ECFDF5;
+    border-color: #6EE7B7;
+    color: #065F46;
+  }
+
+  /* Formulario */
+  .ms-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ms-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ms-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #323130;
+  }
+
+  .ms-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .ms-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #1b1b1b;
+    border: 1px solid #797775;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background-color: #ffffff;
+    box-sizing: border-box;
+  }
+
+  .ms-input:focus {
+    border-color: #0067b8;
+    box-shadow: 0 0 0 1px #0067b8;
+  }
+
+  .ms-toggle-pwd {
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    color: #605e5c;
+    border-radius: 4px;
+  }
+
+  .ms-toggle-pwd:hover {
+    background: #f3f3f3;
+  }
+
+  .ms-options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+
+  .ms-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #323130;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .ms-link-forgot {
+    color: #0067b8;
+    text-decoration: none;
+  }
+
+  .ms-link-forgot:hover {
+    text-decoration: underline;
+  }
+
+  /* Actions */
+  .ms-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .ms-btn-secondary {
+    background: #f3f2f1;
+    color: #201f1e;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 9px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .ms-btn-secondary:hover {
+    background: #edebe9;
+  }
+
+  .ms-btn-primary {
+    background: #0067b8;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 9px 24px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 130px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.15s, box-shadow 0.15s;
+  }
+
+  .ms-btn-primary:hover:not(:disabled) {
+    background: #005da6;
+  }
+
+  .ms-btn-primary:disabled {
+    background: #99c2e8;
+    cursor: not-allowed;
+  }
+
+  .spinner-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ffffff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: msSpin 0.7s linear infinite;
+    margin-right: 4px;
+  }
+
+  @keyframes msSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Footer */
+  .ms-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #edebe9;
+    font-size: 11px;
+    color: #605e5c;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ms-secure-tag {
+    color: #4b5563;
+    font-weight: 500;
+  }
+
+  .ms-footer-links {
+    display: flex;
+    gap: 6px;
+  }
+
+  .ms-footer-links a {
+    color: #605e5c;
+    text-decoration: none;
+  }
+
+  .ms-footer-links a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    function getElements() {
+      return {
+        modal: document.getElementById('ms-login-modal'),
+        form: document.getElementById('ms-login-form'),
+        inputEmail: document.getElementById('ms-input-email'),
+        inputPassword: document.getElementById('ms-input-password'),
+        btnTogglePwd: document.getElementById('btn-toggle-password'),
+        alertBox: document.getElementById('ms-alert'),
+        alertText: document.getElementById('ms-alert-text'),
+        btnSubmit: document.getElementById('btn-submit-ms'),
+        btnFillCreds: document.getElementById('btn-fill-student-creds')
+      };
+    }
+
+    function showAlert(message, isSuccess) {
+      var els = getElements();
+      if (!els.alertBox || !els.alertText) return;
+      els.alertText.textContent = message;
+      els.alertBox.style.display = 'flex';
+      var icon = els.alertBox.querySelector('.ms-alert-icon');
+      if (isSuccess) {
+        els.alertBox.classList.add('success');
+        if (icon) icon.textContent = '✅';
+      } else {
+        els.alertBox.classList.remove('success');
+        if (icon) icon.textContent = '⚠️';
+      }
+    }
+
+    function hideAlert() {
+      var els = getElements();
+      if (!els.alertBox) return;
+      els.alertBox.style.display = 'none';
+      els.alertBox.classList.remove('success');
+    }
+
+    function openModal() {
+      var els = getElements();
+      if (!els.modal) return;
+      els.modal.classList.add('active');
+      els.modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      hideAlert();
+      setTimeout(function () {
+        if (els.inputEmail && !els.inputEmail.value) {
+          els.inputEmail.focus();
+        } else if (els.inputPassword) {
+          els.inputPassword.focus();
+        }
+      }, 50);
+    }
+
+    function closeModal() {
+      var els = getElements();
+      if (!els.modal) return;
+      els.modal.classList.remove('active');
+      els.modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      hideAlert();
+    }
+
+    // Exponer funciones globalmente
+    window.openMicrosoftModal = openModal;
+    window.closeMicrosoftModal = closeModal;
+
+    // Delegación global de clics para abrir y cerrar
+    document.addEventListener('click', function (e) {
+      var target = e.target;
+      if (!target) return;
+
+      // Abrir modal al hacer clic en cualquier botón de Microsoft o disparador
+      var openBtn = target.closest('#btn-open-microsoft-login, .btn-microsoft, [data-open-ms-modal]');
+      if (openBtn) {
+        e.preventDefault();
+        openModal();
+        return;
+      }
+
+      // Cerrar modal al hacer clic en la X o Cancelar
+      var closeBtn = target.closest('#btn-close-ms-modal, #btn-cancel-ms');
+      if (closeBtn) {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      // Cerrar si se hace clic fuera de la tarjeta (en el backdrop)
+      var els = getElements();
+      if (els.modal && target === els.modal) {
+        closeModal();
+        return;
+      }
+
+      // Toggle ver/ocultar contraseña
+      var toggleBtn = target.closest('#btn-toggle-password');
+      if (toggleBtn) {
+        e.preventDefault();
+        var pwdInput = document.getElementById('ms-input-password');
+        var eyeIcon = document.getElementById('pwd-icon-eye');
+        if (pwdInput) {
+          var isPwd = pwdInput.type === 'password';
+          pwdInput.type = isPwd ? 'text' : 'password';
+          if (eyeIcon) eyeIcon.textContent = isPwd ? '🙈' : '👁️';
+        }
+        return;
+      }
+
+      // Autocompletar credenciales del estudiante
+      var fillBtn = target.closest('#btn-fill-student-creds');
+      if (fillBtn) {
+        e.preventDefault();
+        var emailInput = document.getElementById('ms-input-email');
+        var passwordInput = document.getElementById('ms-input-password');
+        if (emailInput) emailInput.value = 'e0953920949@live.uleam.edu.ec';
+        if (passwordInput) {
+          passwordInput.value = 'contraUSER123';
+          passwordInput.focus();
+        }
+        hideAlert();
+        return;
+      }
+    });
+
+    // Cerrar con Escape
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var els = getElements();
+        if (els.modal && els.modal.classList.contains('active')) {
+          closeModal();
+        }
+      }
+    });
+
+    // Manejar envío del formulario
+    document.addEventListener('submit', async function (e) {
+      var form = e.target.closest('#ms-login-form');
+      if (!form) return;
+      e.preventDefault();
+      hideAlert();
+
+      var els = getElements();
+      var email = (els.inputEmail ? els.inputEmail.value : '').trim();
+      var password = els.inputPassword ? els.inputPassword.value : '';
+
+      if (!email) {
+        showAlert('Por favor ingresa tu correo institucional ULEAM.', false);
+        if (els.inputEmail) els.inputEmail.focus();
+        return;
+      }
+
+      if (!password) {
+        showAlert('Por favor ingresa tu contraseña.', false);
+        if (els.inputPassword) els.inputPassword.focus();
+        return;
+      }
+
+      if (els.btnSubmit) {
+        els.btnSubmit.disabled = true;
+        var btnText = els.btnSubmit.querySelector('.btn-text');
+        var btnSpinner = els.btnSubmit.querySelector('.btn-spinner');
+        if (btnText) btnText.style.display = 'none';
+        if (btnSpinner) btnSpinner.style.display = 'inline-flex';
+      }
+
+      try {
+        var response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password })
+        });
+
+        var data = await response.json();
+
+        if (response.ok && data.success) {
+          showAlert('¡Autenticación exitosa! Redirigiendo al portal...', true);
+          if (data.user) {
+            try {
+              localStorage.setItem('uleam_session', JSON.stringify(data.user));
+            } catch (err) {}
+          }
+          setTimeout(function () {
+            window.location.href = data.redirectTo || '/portal-init';
+          }, 500);
+        } else {
+          showAlert(data.message || 'El usuario o la contraseña son incorrectos.', false);
+          if (els.btnSubmit) {
+            els.btnSubmit.disabled = false;
+            var text = els.btnSubmit.querySelector('.btn-text');
+            var spin = els.btnSubmit.querySelector('.btn-spinner');
+            if (text) text.style.display = 'inline';
+            if (spin) spin.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        showAlert('Error de conexión con el servidor. Intente nuevamente.', false);
+        if (els.btnSubmit) {
+          els.btnSubmit.disabled = false;
+          var textEl = els.btnSubmit.querySelector('.btn-text');
+          var spinEl = els.btnSubmit.querySelector('.btn-spinner');
+          if (textEl) textEl.style.display = 'inline';
+          if (spinEl) spinEl.style.display = 'none';
+        }
+      }
+    });
+
+    // Auto-abrir si la URL tiene ?login=microsoft o ?requireAuth=1
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === 'microsoft' || urlParams.get('requireAuth') === '1') {
+      openModal();
+      if (urlParams.get('requireAuth') === '1') {
+        showAlert('Por favor inicia sesión con tu cuenta institucional para ingresar al portal.', false);
+      }
+    }
+  })();
+</script>

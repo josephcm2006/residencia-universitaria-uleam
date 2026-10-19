@@ -9,8 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "postinstall": "prisma skills sync || exit 0"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.8",

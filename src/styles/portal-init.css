@@ -1,0 +1,404 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --uleam-rojo: #B21614;
+  --uleam-rojo-footer: #8C110F;
+  --uleam-verde: #1F7A4C;
+  --uleam-verde-bg: #EAF5EF;
+  --bg-pagina: #FBFBF9;
+  --texto-oscuro: #18181B;
+  --texto-gris: #71717A;
+  --borde-suave: #E4E4E7;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-pagina);
+  color: var(--texto-oscuro);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   1. HEADER SUPERIOR
+========================================= */
+.topbar {
+  background: #ffffff;
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--borde-suave);
+}
+
+.header-brand, .header-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand img {
+  height: 38px;
+  width: auto;
+}
+
+.header-brand h4 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.header-brand p {
+  font-size: 11px;
+  color: var(--texto-gris);
+}
+
+.divider {
+  width: 1px;
+  height: 26px;
+  background-color: var(--borde-suave);
+}
+
+.portal-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3F3F46;
+}
+
+.help-link {
+  font-size: 13px;
+  color: var(--texto-gris);
+  text-decoration: none;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #F1ECE6;
+}
+
+.user-text strong {
+  display: block;
+  font-size: 13px;
+}
+
+.user-text span {
+  font-size: 11px;
+  color: var(--texto-gris);
+}
+
+.logout-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--uleam-rojo);
+  text-decoration: none;
+  margin-left: 8px;
+}
+
+/* =========================================
+   2. CONTENEDOR CENTRAL
+========================================= */
+.main-container {
+  flex: 1;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 24px;
+}
+
+.welcome-header {
+  margin-bottom: 24px;
+}
+
+.welcome-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.welcome-header p {
+  font-size: 14px;
+  color: var(--texto-gris);
+}
+
+/* =========================================
+   3. TARJETA DIVIDIDA (ROJO / BLANCO)
+========================================= */
+.postulacion-card {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--borde-suave);
+  margin-bottom: 24px;
+}
+
+/* --- Mitad Izquierda Roja --- */
+.card-left-red {
+  background-color: var(--uleam-rojo);
+  color: #ffffff;
+  padding: 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.convocatoria-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+  margin-bottom: 14px;
+}
+
+.card-left-red h2 {
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.12;
+  margin-bottom: 16px;
+}
+
+.card-left-red .desc {
+  font-size: 14px;
+  line-height: 1.55;
+  opacity: 0.92;
+  max-width: 480px;
+  margin-bottom: 28px;
+}
+
+.btn-postular {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  color: var(--uleam-rojo);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 15px 24px;
+  border-radius: 999px;
+  max-width: 340px;
+  transition: transform 0.15s;
+}
+
+.btn-postular:hover {
+  transform: translateY(-2px);
+}
+
+.steps-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 36px 0 16px;
+}
+
+.steps-time {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--uleam-rojo);
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.step-item strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.step-item p {
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+/* --- Mitad Derecha Blanca --- */
+.card-right-white {
+  padding: 44px 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-right-white h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.right-subtitle {
+  font-size: 13px;
+  color: var(--texto-gris);
+  margin-bottom: 24px;
+}
+
+.req-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.req-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.check-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--uleam-verde-bg);
+  color: var(--uleam-verde);
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.req-list strong {
+  display: block;
+  font-size: 13px;
+  color: var(--texto-oscuro);
+}
+
+.req-list span {
+  font-size: 12px;
+  color: var(--texto-gris);
+}
+
+/* Caja de fecha límite */
+.deadline-box {
+  background-color: #FAF5F4;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.deadline-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--uleam-rojo);
+  margin-bottom: 4px;
+}
+
+.deadline-date {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #7F1D1D;
+  margin-bottom: 4px;
+}
+
+.deadline-note {
+  font-size: 11px;
+  color: var(--uleam-rojo);
+}
+
+/* =========================================
+   4. BARRA DE AYUDA INFERIOR
+========================================= */
+.support-bar {
+  background: #ffffff;
+  border: 1px solid var(--borde-suave);
+  border-radius: 12px;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.support-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--uleam-verde-bg);
+  color: var(--uleam-verde);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.support-bar strong {
+  display: block;
+  font-size: 13px;
+}
+
+.support-bar p {
+  font-size: 12px;
+  color: var(--texto-gris);
+}
+
+/* =========================================
+   5. FOOTER ROJO
+========================================= */
+.footer-red {
+  background-color: var(--uleam-rojo-footer);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .postulacion-card {
+    grid-template-columns: 1fr;
+  }
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}

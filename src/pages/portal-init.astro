@@ -1,0 +1,194 @@
+---
+// src/pages/portal-init.astro
+import '../styles/portal-init.css';
+import usuarios from '../data/usuarios.json';
+
+export const prerender = false;
+
+// Obtener sesión desde cookies (SSR)
+const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+let estudiante = null;
+
+if (sessionCookie) {
+  try {
+    estudiante = JSON.parse(sessionCookie);
+  } catch (e) {
+    estudiante = null;
+  }
+}
+
+// Si no hay cookie en SSR, usar el estudiante de prueba en usuarios.json
+if (!estudiante) {
+  const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
+  estudiante = {
+    nombre: defaultUser.nombre,
+    nombreCompleto: defaultUser.nombreCompleto,
+    rol: defaultUser.rol,
+    email: defaultUser.email,
+    cedula: defaultUser.cedula
+  };
+}
+
+const saludo = estudiante.nombre.endsWith('a') ? 'Bienvenida' : 'Bienvenido';
+const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.split(' ')[1]?.charAt(0) || '')).toUpperCase();
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio de Postulación - Residencias ULEAM</title>
+  </head>
+  <body>
+    <!-- 1. HEADER SUPERIOR -->
+    <header class="topbar">
+      <div class="header-brand">
+        <img src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg" alt="Logo ULEAM" />
+        <div>
+          <h4>Residencia Universitaria</h4>
+          <p>Universidad Laica Eloy Alfaro de Manabí</p>
+        </div>
+        <div class="divider"></div>
+        <span class="portal-tag">Portal estudiantil</span>
+      </div>
+
+      <div class="header-user">
+        <a href="#ayuda" class="help-link">ⓘ Ayuda</a>
+        <div class="divider"></div>
+        <div class="user-profile">
+          <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--uleam-rojo);font-size:13px;background-color:#FEE2E2;border:1px solid #FECACA;">{iniciales}</div>
+          <div class="user-text">
+            <strong>{estudiante.nombreCompleto}</strong>
+            <span>{estudiante.rol} · {estudiante.email}</span>
+          </div>
+        </div>
+        <a href="/api/auth/logout" class="logout-link" id="btn-logout">↪ Cerrar sesión</a>
+      </div>
+    </header>
+
+    <!-- 2. CONTENIDO PRINCIPAL -->
+    <main class="main-container">
+      <!-- Saludo -->
+      <section class="welcome-header">
+        <h1>{saludo}, {estudiante.nombre}</h1>
+        <p>Tu acceso institucional está listo. Desde aquí puedes iniciar tu solicitud de alojamiento.</p>
+      </section>
+
+      <!-- Tarjeta Principal Dividida (Rojo Izquierda / Blanco Derecha) -->
+      <section class="postulacion-card">
+        
+        <!-- Lado Izquierdo: Banner Rojo -->
+        <div class="card-left-red">
+          <span class="convocatoria-tag">🏢 CONVOCATORIA PERIODO 2026-2</span>
+          <h2>Postula a residencia<br />universitaria</h2>
+          <p class="desc">
+            Completa tus datos, adjunta la documentación y revisa todo antes de enviar. Puedes guardar tu avance y continuar después.
+          </p>
+
+          <a href="/postulacion/paso-1" class="btn-postular">
+            <span>Postular a residencia universitaria</span>
+            <span>&rarr;</span>
+          </a>
+
+          <div class="steps-divider"></div>
+          <span class="steps-time">EL PROCESO TOMA ENTRE 15 Y 20 MINUTOS</span>
+
+          <!-- Los 3 pasos inferiores -->
+          <div class="steps-grid">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <strong>Completa tus datos</strong>
+              <p>Información personal, académica y de tu hogar.</p>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <strong>Adjunta documentos</strong>
+              <p>Sube archivos PDF, JPG o PNG legibles.</p>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <strong>Revisa y envía</strong>
+              <p>Confirma tus datos antes del envío final.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lado Derecho: Requisitos y Fecha Límite -->
+        <div class="card-right-white">
+          <h3>Antes de comenzar</h3>
+          <p class="right-subtitle">Ten a mano versiones claras y vigentes de estos documentos.</p>
+
+          <ul class="req-list">
+            <li>
+              <span class="check-icon">✓</span>
+              <div>
+                <strong>Cédula de identidad</strong>
+                <span>Ambas caras en un solo archivo</span>
+              </div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div>
+                <strong>Certificado de matrícula</strong>
+                <span>Periodo académico vigente</span>
+              </div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div>
+                <strong>Comprobante de ingresos</strong>
+                <span>Del hogar o representante</span>
+              </div>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <div>
+                <strong>Referencia personal</strong>
+                <span>Nombre y teléfono de contacto</span>
+              </div>
+            </li>
+          </ul>
+
+          <!-- Caja de Fecha Límite -->
+          <div class="deadline-box">
+            <span class="deadline-label">📅 FECHA LÍMITE</span>
+            <strong class="deadline-date">30 de octubre de 2026 · 17:00</strong>
+            <span class="deadline-note">No se aceptarán solicitudes después del cierre.</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Barra inferior de soporte -->
+      <section class="support-bar">
+        <span class="support-icon">?</span>
+        <div>
+          <strong>¿Necesitas ayuda con tu postulación?</strong>
+          <p>residencia@uleam.edu.ec · 05 262 0288 ext. 114</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- 3. FOOTER ROJO -->
+    <footer class="footer-red">
+      <span>© 2026 Universidad Laica Eloy Alfaro de Manabí</span>
+      <div class="footer-links">
+        <a href="#privacidad">Privacidad</a>
+        <a href="#contacto">Contacto de residencia</a>
+        <a href="#accesibilidad">Accesibilidad</a>
+      </div>
+    </footer>
+
+    <script>
+      const btnLogout = document.getElementById('btn-logout');
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          try {
+            localStorage.removeItem('uleam_session');
+          } catch (e) {}
+        });
+      }
+    </script>
+  </body>
+</html>

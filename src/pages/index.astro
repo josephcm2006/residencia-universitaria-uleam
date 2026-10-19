@@ -1,5 +1,6 @@
 ---
 import "@styles/index.css";
+import MicrosoftLoginModal from "../components/auth/MicrosoftLoginModal.astro";
 
 const anioActual = 2026;
 ---
@@ -72,14 +73,20 @@ const anioActual = 2026;
             </div>
           </div>
 
-          <a href="/api/auth/login" class="btn-microsoft">
+          <button
+            type="button"
+            id="btn-open-microsoft-login"
+            class="btn-microsoft"
+            data-open-ms-modal
+            onclick="if(window.openMicrosoftModal) window.openMicrosoftModal()"
+          >
             <span
               ><img
-                src="/public/assets/icons/microsoft-logo.svg"
-                alt=""
+                src="/assets/icons/microsoft-logo.svg"
+                alt="Logo Microsoft"
               /></span
-            > Continuar con Microsoft 365 &rarr;
-          </a>
+            > Ingresar con Microsoft 365 &rarr;
+          </button>
 
           <p class="disclaimer">
             Solo recibimos tu nombre, correo y estado de matrícula. No vemos tu
@@ -99,5 +106,8 @@ const anioActual = 2026;
         <a href="#accesibilidad">Accesibilidad</a>
       </div>
     </footer>
+
+    <!-- Ventana Emergente de Microsoft 365 -->
+    <MicrosoftLoginModal />
   </body>
 </html>

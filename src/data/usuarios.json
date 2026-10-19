@@ -1,0 +1,15 @@
+[
+  {
+    "id": "est-0953920949",
+    "email": "e0953920949@live.uleam.edu.ec",
+    "password": "contraUSER123",
+    "rol": "Estudiante",
+    "cedula": "0953920949",
+    "nombre": "Joseph",
+    "nombreCompleto": "Joseph Coello Mendoza",
+    "carrera": "Ingeniería en Tecnologías de la Información",
+    "facultad": "Facultad de Ciencias Informáticas",
+    "estado": "Activo",
+    "periodo": "2026-2"
+  }
+]

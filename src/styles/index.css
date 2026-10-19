@@ -252,6 +252,10 @@ main.split-layout {
   padding: 13px 20px;
   border-radius: 99px;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
   transition: background-color 0.2s, transform 0.1s;
 }
 
