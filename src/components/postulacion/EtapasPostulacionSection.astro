@@ -1,0 +1,65 @@
+---
+// src/components/postulacion/EtapasPostulacionSection.astro
+---
+
+<!-- BLOQUE 10: ETAPAS DE POSTULACIÓN -->
+<section class="form-section stages-section">
+  <span class="stages-heading">ESTADO DE ETAPAS DE POSTULACIÓN</span>
+
+  <div class="stages-list">
+    <div class="stage-item" id="stage-personales">
+      <div class="icon-stage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="stage-text">
+        <strong class="text-verde">1. Datos personales y académicos</strong>
+        <span class="text-verde">Verificado desde cuenta institucional</span>
+      </div>
+    </div>
+
+    <div class="stage-item" id="stage-identidad">
+      <div class="icon-stage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div class="stage-text">
+        <strong id="stage-identidad-title" class="text-rojo">2. Identidad y matrícula</strong>
+        <span id="stage-identidad-desc" class="text-rojo">Pendiente de subir cédula y matrícula</span>
+      </div>
+    </div>
+
+    <div class="stage-item" id="stage-hogar">
+      <div class="icon-stage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div class="stage-text">
+        <strong id="stage-hogar-title" class="text-rojo">3. Hogar y referencias</strong>
+        <span id="stage-hogar-desc" class="text-rojo">Pendiente de completar</span>
+      </div>
+    </div>
+
+    <div class="stage-item" id="stage-socioeconomica">
+      <div class="icon-stage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div class="stage-text">
+        <strong id="stage-socioeconomica-title" class="text-rojo">4. Situación económica</strong>
+        <span id="stage-socioeconomica-desc" class="text-rojo">Pendiente de comprobantes</span>
+      </div>
+    </div>
+
+    <div class="stage-item" id="stage-consentimiento">
+      <div class="icon-stage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div class="stage-text">
+        <strong id="stage-consentimiento-title" class="text-rojo">5. Consentimiento y reglamento</strong>
+        <span id="stage-consentimiento-desc" class="text-rojo">Pendiente de aceptar términos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-footer-box">
+    <strong>¿Necesitas soporte técnico con tu solicitud?</strong>
+    <p>residencia@uleam.edu.ec · 05 262 0288 ext. 114 · Departamento de Bienestar Estudiantil</p>
+  </div>
+</section>

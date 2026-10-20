@@ -1,0 +1,74 @@
+---
+// src/components/postulacion/AccesibilidadSection.astro
+---
+
+<!-- BLOQUE 6: Discapacidad o accesibilidad (CAMPO LIMPIO) -->
+<section class="form-section">
+  <div class="section-head">
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div>
+      <div class="title-with-tags">
+        <h3>Discapacidad o requerimientos de accesibilidad</h3>
+        <span class="mono-tag">Opcional</span>
+        <span class="mono-tag">Confidencial</span>
+      </div>
+      <p>Indica si requieres alguna adaptación o ajuste para tu estancia en la residencia.</p>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Describe tu necesidad de accesibilidad o movilidad reducida</label>
+    <textarea rows="3" id="campo-accesibilidad" name="accesibilidad" placeholder="Ej. Habitación en planta baja o con acceso a rampa/ascensor (opcional)..."></textarea>
+  </div>
+
+  <div class="file-list">
+    <div class="file-row" data-file-card="accesibilidad">
+      <div class="file-info">
+        <div class="icon-doc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6v20h12V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <strong>Certificado médico o carné de discapacidad (Opcional)</strong>
+          <span class="file-desc" id="desc-accesibilidad">Carné CONADIS/MSP o certificado médico oficial</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <span class="file-status" id="status-accesibilidad">Sin archivo</span>
+        <label for="input-file-accesibilidad" class="file-upload-btn">
+          📁 Seleccionar archivo
+        </label>
+        <input type="file" id="input-file-accesibilidad" name="file_accesibilidad" accept=".pdf,.jpg,.jpeg,.png" class="file-hidden-input" data-doc-type="Certificado de accesibilidad" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOQUE 7: Pertenencia a grupos prioritarios -->
+<section class="form-section">
+  <div class="section-head">
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <div class="title-with-tags">
+        <h3>Pertenencia a grupos prioritarios</h3>
+        <span class="mono-tag">Opcional</span>
+        <span class="mono-tag">Confidencial</span>
+      </div>
+      <p>Respuesta voluntaria para programas de equidad y bienestar estudiantil.</p>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <select id="campo-vulnerabilidad" name="grupo_vulnerable">
+      <option value="">Selecciona una opción (opcional)</option>
+      <option value="ninguno">Ninguno</option>
+      <option value="movilidad">Movilidad humana</option>
+      <option value="pueblos">Pueblos y nacionalidades indígenas / afroecuatoriano</option>
+      <option value="no-responder">Prefiero no responder</option>
+    </select>
+    <small class="field-note">Solo personal de Bienestar Estudiantil tiene acceso a esta información.</small>
+  </div>
+</section>

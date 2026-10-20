@@ -1,0 +1,323 @@
+---
+// src/pages/mis-solicitudes.astro
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import '../styles/residente-dashboard.css';
+import usuarios from '../data/usuarios.json';
+import habitacionesFallback from '../data/habitaciones.json';
+import incidenciasFallback from '../data/incidencias.json';
+import HelpModal from '../components/shared/HelpModal.jsx';
+import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
+import ReportarIncidenciaModal from '../components/residente/ReportarIncidenciaModal.jsx';
+import Footer from '../components/shared/Footer.astro';
+
+export const prerender = false;
+
+// 1. Obtener la sesión activa del estudiante
+const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+let userSession = null;
+if (sessionCookie) {
+  try {
+    userSession = JSON.parse(sessionCookie);
+  } catch (e) {
+    userSession = null;
+  }
+}
+
+// 2. Cargar usuario desde usuarios.json
+let listaUsuarios = usuarios;
+try {
+  const userPath = path.resolve('src/data/usuarios.json');
+  const rawUsers = await fs.readFile(userPath, 'utf-8');
+  listaUsuarios = JSON.parse(rawUsers);
+} catch (e) {
+  listaUsuarios = usuarios;
+}
+
+const defaultUser = listaUsuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || listaUsuarios[0];
+const activeUser = userSession ? (listaUsuarios.find((u) => u.email === userSession.email || u.cedula === userSession.cedula) || userSession) : defaultUser;
+
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
+const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+const rol = activeUser.rol || "Estudiante";
+const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
+const cedula = activeUser.cedula || "0953920949";
+
+const partes = nombreCompleto.split(' ');
+const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+
+// 3. Cargar datos de la habitación
+let listaHabitaciones = habitacionesFallback;
+try {
+  const habPath = path.resolve('src/data/habitaciones.json');
+  const rawHab = await fs.readFile(habPath, 'utf-8');
+  listaHabitaciones = JSON.parse(rawHab);
+} catch (e) {
+  listaHabitaciones = habitacionesFallback;
+}
+
+const habitacionId = activeUser.habitacionId || 'HAB-A101';
+const habitacion = listaHabitaciones.find((h) => h.id === habitacionId) || listaHabitaciones[0];
+
+// 4. Cargar incidencias registradas
+let listaIncidencias = incidenciasFallback;
+try {
+  const incPath = path.resolve('src/data/incidencias.json');
+  const rawInc = await fs.readFile(incPath, 'utf-8');
+  listaIncidencias = JSON.parse(rawInc);
+} catch (e) {
+  listaIncidencias = incidenciasFallback;
+}
+
+const incidenciasEstudiante = listaIncidencias.filter(
+  (inc) => inc.estudianteCedula === cedula || inc.estudianteCorreo === correo
+);
+
+// Métricas de incidencias
+const totalIncidencias = incidenciasEstudiante.length;
+const pendientes = incidenciasEstudiante.filter((i) => i.estado === 'Pendiente').length;
+const enProceso = incidenciasEstudiante.filter((i) => i.estado === 'En Proceso').length;
+const resueltas = incidenciasEstudiante.filter((i) => i.estado === 'Resuelta').length;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historial de Incidencias - Residencias ULEAM</title>
+  </head>
+  <body>
+
+    <!-- 1. HEADER SUPERIOR -->
+    <header class="topbar">
+      <div class="header-brand">
+        <a href="/residente-dashboard" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
+          <img src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg" alt="Logo ULEAM" />
+          <div>
+            <h4>Residencia Universitaria</h4>
+            <p>Universidad Laica Eloy Alfaro de Manabí</p>
+          </div>
+        </a>
+        <div class="divider"></div>
+        <span class="portal-tag">Mantenimiento y Soporte</span>
+      </div>
+
+      <div class="header-user">
+        <HelpModal client:load className="help-link" />
+        <div class="divider"></div>
+        <a href="/residente-dashboard" class="help-link">← Volver a mi dashboard</a>
+        <div class="divider"></div>
+        <div class="user-profile">
+          <div class="avatar">{iniciales}</div>
+          <div class="user-text">
+            <strong>{nombreCorto}</strong>
+            <span>{rol} · {cedula}</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <ExitConfirmModal client:load className="help-link" />
+      </div>
+    </header>
+
+    <!-- 2. HERO BANNER -->
+    <section class="hero-banner">
+      <div style="max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+        <div>
+          <span class="hero-kicker">HISTORIAL COMPLETO DE SOLICITUDES</span>
+          <h1>Mis Reportes de Mantenimiento</h1>
+          <p>
+            Consulta el estado de atención, dictámenes técnicos y resoluciones de las incidencias reportadas para la <strong>Habitación {habitacion.numero} ({habitacion.edificio})</strong>.
+          </p>
+        </div>
+
+        <div>
+          <ReportarIncidenciaModal
+            client:load
+            estudiante={activeUser}
+            habitacion={habitacion}
+            buttonText="+ Reportar nueva incidencia"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CONTENIDO PRINCIPAL -->
+    <main class="main-wrapper">
+      
+      <!-- Métricas Resumen -->
+      <section style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <span style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase;">Total Reportadas</span>
+          <strong style="display: block; font-size: 24px; font-weight: 800; color: #0F172A; margin-top: 4px;">{totalIncidencias}</strong>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px 20px; border-left: 4px solid #D97706; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <span style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase;">Pendientes</span>
+          <strong style="display: block; font-size: 24px; font-weight: 800; color: #B45309; margin-top: 4px;">{pendientes}</strong>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px 20px; border-left: 4px solid #0284C7; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <span style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase;">En Proceso</span>
+          <strong style="display: block; font-size: 24px; font-weight: 800; color: #0369A1; margin-top: 4px;">{enProceso}</strong>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 18px 20px; border-left: 4px solid #15803D; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <span style="font-size: 11.5px; font-weight: 700; color: #64748B; text-transform: uppercase;">Resueltas</span>
+          <strong style="display: block; font-size: 24px; font-weight: 800; color: #15803D; margin-top: 4px;">{resueltas}</strong>
+        </div>
+      </section>
+
+      <!-- Barra de Filtros Interactiva -->
+      <section style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-right: 6px;">Filtrar por:</span>
+        <button class="filter-btn active" data-filter="all">Todas ({totalIncidencias})</button>
+        <button class="filter-btn" data-filter="Pendiente">Pendientes ({pendientes})</button>
+        <button class="filter-btn" data-filter="En Proceso">En Proceso ({enProceso})</button>
+        <button class="filter-btn" data-filter="Resuelta">Resueltas ({resueltas})</button>
+      </section>
+
+      <!-- Lista Completa de Tarjetas de Incidencias -->
+      <section id="incidencias-container" style="display: flex; flex-direction: column; gap: 18px;">
+        {incidenciasEstudiante.length === 0 ? (
+          <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 48px; text-align: center; color: #64748B;">
+            <p style="font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 6px;">
+              No tienes incidencias reportadas en tu historial.
+            </p>
+            <p style="font-size: 13.5px; max-width: 440px; margin: 0 auto 20px;">
+              Cuando requieras soporte técnico, plomería, cerrajería o conectividad, utiliza el botón superior para levantar un reporte.
+            </p>
+          </div>
+        ) : (
+          incidenciasEstudiante.map((inc) => {
+            const badgeBg = inc.estado === 'Resuelta' ? '#DCFCE7' : (inc.estado === 'En Proceso' ? '#E0F2FE' : '#FEF3C7');
+            const badgeColor = inc.estado === 'Resuelta' ? '#15803D' : (inc.estado === 'En Proceso' ? '#0369A1' : '#B45309');
+            const badgeBorder = inc.estado === 'Resuelta' ? '#86EFAC' : (inc.estado === 'En Proceso' ? '#BAE6FD' : '#FDE68A');
+
+            const urgColor = {
+              Baja: '#15803D',
+              Media: '#0284C7',
+              Alta: '#D97706',
+              Urgente: '#DC2626'
+            }[inc.urgencia] || '#475569';
+
+            return (
+              <article
+                class="incidencia-item-card"
+                data-estado={inc.estado}
+                style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.15s ease;"
+              >
+                <!-- Cabecera de la Tarjeta -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-family: monospace; font-size: 13px; font-weight: 800; background: #0F172A; color: #FFFFFF; padding: 3px 9px; border-radius: 4px;">
+                      {inc.id}
+                    </span>
+                    <strong style="font-size: 13px; color: #334155;">
+                      {inc.categoria}
+                    </strong>
+                    <span style={`font-size: 11.5px; font-weight: 700; color: ${urgColor}; border: 1px solid ${urgColor}; background: #FFFFFF; padding: 1px 7px; border-radius: 4px;`}>
+                      Urgencia {inc.urgencia}
+                    </span>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 12px; color: #94A3B8;">
+                      Reportado: {inc.fechaReporte}
+                    </span>
+                    <span style={`font-size: 12px; font-weight: 700; background: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 3px 10px; border-radius: 4px;`}>
+                      ● {inc.estado}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Título y Descripción -->
+                <h3 style="font-size: 16.5px; font-weight: 800; color: #0F172A; margin-bottom: 8px;">
+                  {inc.asunto}
+                </h3>
+                <p style="font-size: 13.5px; color: #475569; line-height: 1.5; margin-bottom: 16px;">
+                  {inc.descripcion}
+                </p>
+
+                <!-- Evidencias si existen -->
+                {inc.evidencias && inc.evidencias.length > 0 && (
+                  <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <span style="font-size: 12px; font-weight: 700; color: #64748B;">Archivos de evidencia:</span>
+                    {inc.evidencias.map((arc) => (
+                      <span style="font-size: 12px; color: #0F172A; background: #FFFFFF; border: 1px solid #CBD5E1; padding: 3px 8px; border-radius: 4px;">
+                        📎 {typeof arc === 'string' ? arc : (arc.nombre || 'Evidencia')}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <!-- Respuesta Institucional / Dictamen de Mantenimiento -->
+                <div style="background: #F0F9FF; border-left: 4px solid #0284C7; padding: 12px 16px; border-radius: 0 6px 6px 0;">
+                  <strong style="color: #0369A1; font-size: 12.5px; display: block; margin-bottom: 2px;">
+                    Dictamen técnico de Bienestar Estudiantil:
+                  </strong>
+                  <p style="color: #334155; font-size: 13px; margin: 0; line-height: 1.45;">
+                    {inc.respuestaAdmin || "Reporte en cola de asignación de técnico por el Departamento de Residencias."}
+                  </p>
+                </div>
+              </article>
+            );
+          })
+        )}
+      </section>
+
+    </main>
+
+    <!-- Footer Institucional Unificado -->
+    <Footer />
+
+    <!-- Script de Filtros Interactivos -->
+    <script is:inline>
+      const buttons = document.querySelectorAll('.filter-btn');
+      const items = document.querySelectorAll('.incidencia-item-card');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const filter = btn.getAttribute('data-filter');
+
+          items.forEach((item) => {
+            const estado = item.getAttribute('data-estado');
+            if (filter === 'all' || estado === filter) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+    </script>
+
+    <style>
+      .filter-btn {
+        background: #F1F5F9;
+        border: 1px solid #CBD5E1;
+        color: #475569;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .filter-btn:hover {
+        background: #E2E8F0;
+        color: #0F172A;
+      }
+      .filter-btn.active {
+        background: #BA181B;
+        border-color: #BA181B;
+        color: #FFFFFF;
+        font-weight: 700;
+      }
+    </style>
+
+  </body>
+</html>

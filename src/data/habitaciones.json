@@ -1,0 +1,167 @@
+[
+  {
+    "id": "HAB-A101",
+    "numero": "A-101",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Planta Baja",
+    "tipo": "Compartida Doble",
+    "capacidad": 2,
+    "ocupantesActuales": 1,
+    "estado": "Disponible",
+    "genero": "Masculino",
+    "accesibilidad": true,
+    "descripcion": "Habitación en planta baja adaptada para accesibilidad y movilidad reducida.",
+    "amenidades": [
+      "Baño adaptado",
+      "Rampa de acceso",
+      "2 Escritorios",
+      "Aire acondicionado",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-A102",
+    "numero": "A-102",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Planta Baja",
+    "tipo": "Individual Estándar",
+    "capacidad": 1,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Masculino",
+    "accesibilidad": true,
+    "descripcion": "Habitación individual con luz natural y espacio de estudio ergonómico.",
+    "amenidades": [
+      "Baño privado",
+      "Cama 1.5 plazas",
+      "Escritorio",
+      "Closet empotrado",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-A201",
+    "numero": "A-201",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Piso 2",
+    "tipo": "Compartida Doble",
+    "capacidad": 2,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Masculino",
+    "accesibilidad": false,
+    "descripcion": "Habitación doble con balcón y vista al área verde del campus.",
+    "amenidades": [
+      "Baño compartido",
+      "2 Camas",
+      "2 Escritorios",
+      "Aire acondicionado",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-A202",
+    "numero": "A-202",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Piso 2",
+    "tipo": "Compartida Doble",
+    "capacidad": 2,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Masculino",
+    "accesibilidad": false,
+    "descripcion": "Habitación doble con vacantes para asignación en periodo 2026-2.",
+    "amenidades": [
+      "Baño completo",
+      "2 Closets",
+      "2 Escritorios",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-B101",
+    "numero": "B-101",
+    "edificio": "Edificio B (Residencias Matriz)",
+    "piso": "Planta Baja",
+    "tipo": "Individual Estándar",
+    "capacidad": 1,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Femenino",
+    "accesibilidad": true,
+    "descripcion": "Habitación individual con acceso directo y baño privado.",
+    "amenidades": [
+      "Baño privado",
+      "Cama 1.5 plazas",
+      "Escritorio",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-B201",
+    "numero": "B-201",
+    "edificio": "Edificio B (Residencias Matriz)",
+    "piso": "Piso 2",
+    "tipo": "Compartida Doble",
+    "capacidad": 2,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Femenino",
+    "accesibilidad": false,
+    "descripcion": "Habitación doble totalmente disponible para postulantes verificadas.",
+    "amenidades": [
+      "Baño privado",
+      "2 Camas",
+      "2 Escritorios",
+      "Aire acondicionado",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-B202",
+    "numero": "B-202",
+    "edificio": "Edificio B (Residencias Matriz)",
+    "piso": "Piso 2",
+    "tipo": "Compartida Triple",
+    "capacidad": 3,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Femenino",
+    "accesibilidad": false,
+    "descripcion": "Habitación triple espaciosa con escritorios individuales y armarios.",
+    "amenidades": [
+      "Baño amplio",
+      "3 Camas",
+      "3 Escritorios",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  },
+  {
+    "id": "HAB-B301",
+    "numero": "B-301",
+    "edificio": "Edificio B (Residencias Matriz)",
+    "piso": "Piso 3",
+    "tipo": "Individual Estudio",
+    "capacidad": 1,
+    "ocupantesActuales": 0,
+    "estado": "Disponible",
+    "genero": "Femenino",
+    "accesibilidad": false,
+    "descripcion": "Habitación individual silenciosa ideal para estudiantes de últimos semestres o tesis.",
+    "amenidades": [
+      "Baño privado",
+      "Escritorio ejecutivo",
+      "Librero",
+      "Aire acondicionado",
+      "Wi-Fi Eduroam"
+    ],
+    "imagen": "/assets/images/apartamento-imagen.jpg"
+  }
+]

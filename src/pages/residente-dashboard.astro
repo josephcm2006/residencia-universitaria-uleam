@@ -1,0 +1,404 @@
+---
+// src/pages/residente-dashboard.astro
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import '../styles/residente-dashboard.css';
+import usuarios from '../data/usuarios.json';
+import habitacionesFallback from '../data/habitaciones.json';
+import incidenciasFallback from '../data/incidencias.json';
+import HelpModal from '../components/shared/HelpModal.jsx';
+import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
+import ReportarIncidenciaModal from '../components/residente/ReportarIncidenciaModal.jsx';
+import SolicitudesPreviasModal from '../components/residente/SolicitudesPreviasModal.jsx';
+import Footer from '../components/shared/Footer.astro';
+
+export const prerender = false;
+
+// 1. Obtener la sesión activa del estudiante
+const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+let userSession = null;
+if (sessionCookie) {
+  try {
+    userSession = JSON.parse(sessionCookie);
+  } catch (e) {
+    userSession = null;
+  }
+}
+
+// 2. Cargar usuario desde usuarios.json
+let listaUsuarios = usuarios;
+try {
+  const userPath = path.resolve('src/data/usuarios.json');
+  const rawUsers = await fs.readFile(userPath, 'utf-8');
+  listaUsuarios = JSON.parse(rawUsers);
+} catch (e) {
+  listaUsuarios = usuarios;
+}
+
+const defaultUser = listaUsuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || listaUsuarios[0];
+const activeUser = userSession ? (listaUsuarios.find((u) => u.email === userSession.email || u.cedula === userSession.cedula) || userSession) : defaultUser;
+
+// REGLA CRÍTICA: Si el usuario NO ha sido aceptado (aceptado === 0), redirigir a postulado
+if (activeUser.aceptado === 0) {
+  return Astro.redirect('/postulado');
+}
+
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
+const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+const rol = activeUser.rol || "Estudiante";
+const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
+const cedula = activeUser.cedula || "0953920949";
+const carrera = activeUser.carrera || "Ingeniería en Tecnologías de la Información";
+const facultad = activeUser.facultad || "Facultad de Ciencias de la Vida y Tecnologías";
+const periodo = activeUser.periodo || "2026-2";
+
+const partes = nombreCompleto.split(' ');
+const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+
+// 3. Cargar datos de la habitación asignada
+let listaHabitaciones = habitacionesFallback;
+try {
+  const habPath = path.resolve('src/data/habitaciones.json');
+  const rawHab = await fs.readFile(habPath, 'utf-8');
+  listaHabitaciones = JSON.parse(rawHab);
+} catch (e) {
+  listaHabitaciones = habitacionesFallback;
+}
+
+const habitacionId = activeUser.habitacionId || 'HAB-A101';
+const habitacion = listaHabitaciones.find((h) => h.id === habitacionId) || listaHabitaciones[0] || {
+  id: 'HAB-A101',
+  numero: 'A-101',
+  edificio: 'Edificio A (Residencias Matriz)',
+  piso: 'Planta Baja',
+  tipo: 'Compartida Doble',
+  capacidad: 2,
+  ocupantesActuales: 1,
+  estado: 'Asignada y Activa',
+  descripcion: 'Habitación en planta baja adaptada para accesibilidad y movilidad reducida.',
+  amenidades: ['Baño adaptado', 'Rampa de acceso', '2 Escritorios', 'Aire acondicionado', 'Wi-Fi Eduroam'],
+  imagen: '/assets/images/apartamento-imagen.jpg'
+};
+
+// 4. Cargar incidencias registradas
+let listaIncidencias = incidenciasFallback;
+try {
+  const incPath = path.resolve('src/data/incidencias.json');
+  const rawInc = await fs.readFile(incPath, 'utf-8');
+  listaIncidencias = JSON.parse(rawInc);
+} catch (e) {
+  listaIncidencias = incidenciasFallback;
+}
+
+const incidenciasEstudiante = listaIncidencias.filter(
+  (inc) => inc.estudianteCedula === cedula || inc.estudianteCorreo === correo
+);
+
+// Métricas del estudiante
+const becaPorcentaje = activeUser.becaPorcentaje !== undefined ? activeUser.becaPorcentaje : 100;
+const pagosAlDia = activeUser.pagosAlDia !== false;
+const renovacion = activeUser.documentosRenovacion || {
+  requiereRenovacion: false,
+  estado: 'Al día',
+  mensaje: 'Expediente digital validado.',
+  proximaFecha: '15 Mar 2027'
+};
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Residente - ULEAM</title>
+  </head>
+  <body>
+    
+    <!-- 1. HEADER SUPERIOR INSTITUCIONAL -->
+    <header class="topbar">
+      <div class="header-brand">
+        <a href="/portal-init" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
+          <img src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg" alt="Logo ULEAM" />
+          <div>
+            <h4>Residencia Universitaria</h4>
+            <p>Universidad Laica Eloy Alfaro de Manabí</p>
+          </div>
+        </a>
+        <div class="divider"></div>
+        <span class="portal-tag">Residente Activo 2026-2</span>
+      </div>
+
+      <div class="header-user">
+        <HelpModal client:load className="help-link" />
+        <div class="divider"></div>
+        <a href="/portal-init" class="help-link">← Portal general</a>
+        <div class="divider"></div>
+        <div class="user-profile">
+          <div class="avatar">{iniciales}</div>
+          <div class="user-text">
+            <strong>{nombreCorto}</strong>
+            <span>{rol} · {cedula}</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <ExitConfirmModal
+          client:load
+          buttonText="↪ Salir"
+          title="¿Deseas cerrar tu sesión activa?"
+          message="Tu sesión de residente se cerrará de forma segura. Podrás volver a ingresar con tus credenciales institucionales."
+          confirmText="Sí, cerrar sesión"
+          redirectUrl="/api/auth/logout"
+          className="help-link"
+        />
+      </div>
+    </header>
+
+    <!-- 2. HERO BANNER DE BIENVENIDA -->
+    <section class="hero-banner">
+      <div style="max-width: 1160px; margin: 0 auto;">
+        <span class="hero-kicker">CONSOLA DEL RESIDENTE ESTUDIANTIL</span>
+        <h1>Bienvenido a tu residencia, {nombreCorto}</h1>
+        <p>
+          Tienes una plaza habitacional adjudicada para el periodo <strong>{periodo}</strong> en el Campus Matriz. Desde este panel puedes consultar los detalles de tu habitación, servicios de beca y reportar incidencias de mantenimiento.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. CONTENEDOR PRINCIPAL -->
+    <main class="main-wrapper">
+      
+      <!-- ====================================================
+           TARJETA PRINCIPAL DE LA HABITACIÓN ASIGNADA
+           ==================================================== -->
+      <article class="room-card-main">
+        
+        <!-- Cabecera de la Habitación -->
+        <div class="room-card-header">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span class="room-badge-code">{habitacion.id}</span>
+            <div>
+              <h2 style="font-size: 19px; font-weight: 800; color: #0F172A; margin: 0;">
+                Habitación {habitacion.numero} · {habitacion.edificio}
+              </h2>
+              <span style="font-size: 12.5px; color: #64748B;">
+                {habitacion.piso} · Modalidad: {habitacion.tipo}
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="room-status-badge">
+              ● Estado: Habitada y Asignada
+            </span>
+          </div>
+        </div>
+
+        <!-- Cuerpo con Distribución en 2 Columnas -->
+        <div class="room-card-body">
+          
+          <!-- Columna Izquierda: Imagen y Amenidades -->
+          <div>
+            <img
+              src={habitacion.imagen || "/assets/images/apartamento-imagen.jpg"}
+              alt={`Fotografía de Habitación ${habitacion.numero}`}
+              class="room-image-preview"
+            />
+            
+            <h4 style="font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
+              Descripción de la Habitación
+            </h4>
+            <p style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 16px;">
+              {habitacion.descripcion}
+            </p>
+
+            <h4 style="font-size: 13px; font-weight: 700; color: #334155; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.04em;">
+              Equipamiento y Amenidades Incluidas
+            </h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              {habitacion.amenidades && habitacion.amenidades.map((amenidad) => (
+                <span class="amenity-chip">
+                  <span style="color: #15803D;">✓</span>
+                  <span>{amenidad}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Grilla de 4 Métricas Clave -->
+          <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 16px;">
+            
+            <div class="metrics-grid">
+              
+              <!-- 1. Porcentaje de Beca -->
+              <div class="metric-box" style="border-left: 4px solid #15803D;">
+                <div>
+                  <span class="metric-title">Beneficio de Beca</span>
+                  <span class="metric-value" style="color: #15803D;">{becaPorcentaje}%</span>
+                </div>
+                <span class="metric-sub">
+                  Beca institucional completa de alojamiento ULEAM.
+                </span>
+              </div>
+
+              <!-- 2. Estado de Pagos -->
+              <div class="metric-box" style="border-left: 4px solid #0284C7;">
+                <div>
+                  <span class="metric-title">Estado de Pagos</span>
+                  <span class="metric-value" style="color: #0369A1;">
+                    {pagosAlDia ? "Al día" : "Pendiente"}
+                  </span>
+                </div>
+                <span class="metric-sub">
+                  {pagosAlDia ? "$0.00 pendiente · Servicios cubiertos" : "Revisar cuotas pendientes"}
+                </span>
+              </div>
+
+              <!-- 3. Renovación de Documentos -->
+              <div class="metric-box" style="border-left: 4px solid #D97706;">
+                <div>
+                  <span class="metric-title">Renovación Documental</span>
+                  <span class="metric-value" style="font-size: 17px; color: #B45309;">
+                    {renovacion.estado || "Vigente"}
+                  </span>
+                </div>
+                <span class="metric-sub">
+                  Próxima fecha: <strong>{renovacion.proximaFecha || "15 Mar 2027"}</strong>
+                </span>
+              </div>
+
+              <!-- 4. Cupo de Ocupación -->
+              <div class="metric-box" style="border-left: 4px solid #6366F1;">
+                <div>
+                  <span class="metric-title">Capacidad del Dormitorio</span>
+                  <span class="metric-value" style="color: #4F46E5;">
+                    {habitacion.ocupantesActuales || 1} / {habitacion.capacidad || 2}
+                  </span>
+                </div>
+                <span class="metric-sub">
+                  Estudiantes registrados en este espacio.
+                </span>
+              </div>
+
+            </div>
+
+            <!-- Ficha resumida del estudiante adjudicado -->
+            <div style="background: #F1F5F9; border-radius: 8px; padding: 16px; border: 1px solid #E2E8F0;">
+              <span style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 6px;">
+                Expediente Estudiantil Vinculado
+              </span>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px;">
+                <div>
+                  <span style="color: #64748B; display: block;">Estudiante:</span>
+                  <strong style="color: #0F172A;">{nombreCompleto}</strong>
+                </div>
+                <div>
+                  <span style="color: #64748B; display: block;">Cédula:</span>
+                  <strong style="color: #0F172A;">{cedula}</strong>
+                </div>
+                <div style="grid-column: span 2;">
+                  <span style="color: #64748B; display: block;">Carrera y Facultad:</span>
+                  <strong style="color: #0F172A;">{carrera}</strong>
+                  <span style="color: #64748B; font-size: 11.5px; display: block;">{facultad}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </article>
+
+      <!-- ====================================================
+           BARRA DE ACCIÓN: REPORTAR INCIDENCIA Y SOLICITUDES
+           ==================================================== -->
+      <section class="action-strip-card">
+        <div>
+          <span style="font-size: 11px; font-weight: 700; color: #BA181B; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">
+            Atención al Residente y Soporte
+          </span>
+          <h3 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">
+            Gestión de Incidencias y Mantenimiento
+          </h3>
+          <p style="font-size: 13.5px; color: #64748B; margin: 0; max-width: 580px;">
+            Si detectas una avería en grifos, electricidad, Wi-Fi o mobiliario, repórtala de inmediato con evidencias fotográficas para que el personal técnico acuda a tu habitación.
+          </p>
+        </div>
+
+        <div class="action-buttons-group">
+          <!-- Botón 1: Reportar Incidencia con Animación, Sonido y Fondo Blur -->
+          <ReportarIncidenciaModal
+            client:load
+            estudiante={activeUser}
+            habitacion={habitacion}
+            buttonText="Reportar incidencia"
+          />
+
+          <!-- Botón 2: Cajita de Solicitudes Previas con Animación y Blur -->
+          <SolicitudesPreviasModal
+            client:load
+            incidenciasIniciales={incidenciasEstudiante}
+            buttonText="Mis solicitudes previas"
+          />
+
+          <!-- Botón 3: Enlace al Historial Completo -->
+          <a href="/mis-solicitudes" class="btn-secondary-link">
+            <span>Ver historial completo</span>
+            <span>→</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ====================================================
+           TARJETAS DE INFORMACIÓN Y REGLAS DE CONVIVENCIA
+           ==================================================== -->
+      <section class="info-columns-grid">
+        
+        <div class="info-column-card">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#BA181B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span>Portería y Seguridad 24/7</span>
+          </h4>
+          <p>
+            El acceso peatonal al edificio cuenta con control biométrico y guardia en recepción las 24 horas. Para visitas externas, regístralas previamente en recepción.
+          </p>
+        </div>
+
+        <div class="info-column-card">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span>Horarios de Convivencia</span>
+          </h4>
+          <p>
+            El horario de silencio para estudio y descanso rige de <strong>22:00 a 06:00</strong>. Las salas de estudio grupal permanecen abiertas de forma ininterrumpida.
+          </p>
+        </div>
+
+        <div class="info-column-card">
+          <h4>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <span>Áreas Comunes y Lavandería</span>
+          </h4>
+          <p>
+            El centro de lavado y secado se ubica en el subsuelo del Edificio A. Recuerda reservar tu turno en el panel físico o consultar la disponibilidad en recepción.
+          </p>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer Institucional Unificado -->
+    <Footer />
+
+  </body>
+</html>

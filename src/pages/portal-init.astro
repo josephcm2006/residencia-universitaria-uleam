@@ -2,6 +2,9 @@
 // src/pages/portal-init.astro
 import '../styles/portal-init.css';
 import usuarios from '../data/usuarios.json';
+import HelpModal from '../components/shared/HelpModal.jsx';
+import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
+import Footer from '../components/shared/Footer.astro';
 
 export const prerender = false;
 
@@ -18,19 +21,19 @@ if (sessionCookie) {
 }
 
 // Si no hay cookie en SSR, usar el estudiante de prueba en usuarios.json
+const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
 if (!estudiante) {
-  const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
-  estudiante = {
-    nombre: defaultUser.nombre,
-    nombreCompleto: defaultUser.nombreCompleto,
-    rol: defaultUser.rol,
-    email: defaultUser.email,
-    cedula: defaultUser.cedula
-  };
+  estudiante = { ...defaultUser };
+} else {
+  const match = usuarios.find((u) => u.email === estudiante.email || u.cedula === estudiante.cedula);
+  if (match) {
+    estudiante = { ...match, ...estudiante };
+  }
 }
 
-const saludo = estudiante.nombre.endsWith('a') ? 'Bienvenida' : 'Bienvenido';
-const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.split(' ')[1]?.charAt(0) || '')).toUpperCase();
+const esAceptado = estudiante.aceptado === 1;
+const saludo = estudiante.nombre?.endsWith('a') ? 'Bienvenida' : 'Bienvenido';
+const iniciales = ((estudiante.nombre?.charAt(0) || 'J') + (estudiante.nombreCompleto?.split(' ')[1]?.charAt(0) || 'C')).toUpperCase();
 ---
 
 <!DOCTYPE html>
@@ -38,7 +41,7 @@ const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.spli
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio de Postulación - Residencias ULEAM</title>
+    <title>Portal Estudiantil - Residencias ULEAM</title>
   </head>
   <body>
     <!-- 1. HEADER SUPERIOR -->
@@ -50,11 +53,13 @@ const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.spli
           <p>Universidad Laica Eloy Alfaro de Manabí</p>
         </div>
         <div class="divider"></div>
-        <span class="portal-tag">Portal estudiantil</span>
+        <span class="portal-tag">
+          {esAceptado ? "Residente Aceptado 2026-2" : "Portal Estudiantil"}
+        </span>
       </div>
 
       <div class="header-user">
-        <a href="#ayuda" class="help-link">ⓘ Ayuda</a>
+        <HelpModal client:load className="help-link" />
         <div class="divider"></div>
         <div class="user-profile">
           <div class="avatar" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--uleam-rojo);font-size:13px;background-color:#FEE2E2;border:1px solid #FECACA;">{iniciales}</div>
@@ -63,7 +68,7 @@ const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.spli
             <span>{estudiante.rol} · {estudiante.email}</span>
           </div>
         </div>
-        <a href="/api/auth/logout" class="logout-link" id="btn-logout">↪ Cerrar sesión</a>
+        <ExitConfirmModal client:load className="logout-link" />
       </div>
     </header>
 
@@ -72,90 +77,160 @@ const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.spli
       <!-- Saludo -->
       <section class="welcome-header">
         <h1>{saludo}, {estudiante.nombre}</h1>
-        <p>Tu acceso institucional está listo. Desde aquí puedes iniciar tu solicitud de alojamiento.</p>
+        <p>
+          {esAceptado
+            ? "Tu plaza de residencia estudiantil está activa. Puedes acceder a tu panel de habitación y servicios."
+            : "Tu acceso institucional está listo. Desde aquí puedes iniciar tu solicitud de alojamiento."}
+        </p>
       </section>
 
       <!-- Tarjeta Principal Dividida (Rojo Izquierda / Blanco Derecha) -->
       <section class="postulacion-card">
         
-        <!-- Lado Izquierdo: Banner Rojo -->
-        <div class="card-left-red">
-          <span class="convocatoria-tag">🏢 CONVOCATORIA PERIODO 2026-2</span>
-          <h2>Postula a residencia<br />universitaria</h2>
+        <!-- Lado Izquierdo: Banner Rojo o Esmeralda según estado -->
+        <div class="card-left-red" style={esAceptado ? "background: linear-gradient(135deg, #15803D 0%, #166534 100%);" : ""}>
+          <span class="convocatoria-tag">
+            {esAceptado ? "PLAZA ADJUDICADA · PERIODO 2026-2" : "CONVOCATORIA PERIODO 2026-2"}
+          </span>
+          <h2>
+            {esAceptado ? (
+              <>Habitación asignada<br />y activa</>
+            ) : (
+              <>Postula a residencia<br />universitaria</>
+            )}
+          </h2>
           <p class="desc">
-            Completa tus datos, adjunta la documentación y revisa todo antes de enviar. Puedes guardar tu avance y continuar después.
+            {esAceptado ? (
+              "Tu solicitud fue aprobada por Bienestar Estudiantil. Tu beca cubre el 100% del alojamiento. Administra tu habitación y reporta incidencias de mantenimiento."
+            ) : (
+              "Completa tus datos, adjunta la documentación y revisa todo antes de enviar. Puedes guardar tu avance y continuar después."
+            )}
           </p>
 
-          <a href="/postulacion/paso-1" class="btn-postular">
-            <span>Postular a residencia universitaria</span>
-            <span>&rarr;</span>
-          </a>
+          {esAceptado ? (
+            <a href="/residente-dashboard" class="btn-postular" style="background-color: #0F172A;">
+              <span>Ir a mi Dashboard de Residente</span>
+              <span>&rarr;</span>
+            </a>
+          ) : (
+            <a href="/postulation" class="btn-postular">
+              <span>Postular a residencia universitaria</span>
+              <span>&rarr;</span>
+            </a>
+          )}
 
           <div class="steps-divider"></div>
-          <span class="steps-time">EL PROCESO TOMA ENTRE 15 Y 20 MINUTOS</span>
+          <span class="steps-time">
+            {esAceptado ? "HABITACIÓN A-101 (EDIFICIO A)" : "EL PROCESO TOMA ENTRE 15 Y 20 MINUTOS"}
+          </span>
 
           <!-- Los 3 pasos inferiores -->
           <div class="steps-grid">
             <div class="step-item">
               <span class="step-num">1</span>
-              <strong>Completa tus datos</strong>
-              <p>Información personal, académica y de tu hogar.</p>
+              <strong>{esAceptado ? "Habitación" : "Completa tus datos"}</strong>
+              <p>{esAceptado ? "Asignada en Planta Baja." : "Información personal y de tu hogar."}</p>
             </div>
             <div class="step-item">
               <span class="step-num">2</span>
-              <strong>Adjunta documentos</strong>
-              <p>Sube archivos PDF, JPG o PNG legibles.</p>
+              <strong>{esAceptado ? "Beca 100%" : "Adjunta documentos"}</strong>
+              <p>{esAceptado ? "Beneficio completo activo." : "Sube archivos PDF o JPG legibles."}</p>
             </div>
             <div class="step-item">
               <span class="step-num">3</span>
-              <strong>Revisa y envía</strong>
-              <p>Confirma tus datos antes del envío final.</p>
+              <strong>{esAceptado ? "Mantenimiento" : "Revisa y envía"}</strong>
+              <p>{esAceptado ? "Soporte e incidencias 24/7." : "Confirma tus datos antes del envío."}</p>
             </div>
           </div>
         </div>
 
-        <!-- Lado Derecho: Requisitos y Fecha Límite -->
+        <!-- Lado Derecho: Requisitos o Información del Residente -->
         <div class="card-right-white">
-          <h3>Antes de comenzar</h3>
-          <p class="right-subtitle">Ten a mano versiones claras y vigentes de estos documentos.</p>
+          {esAceptado ? (
+            <>
+              <h3>Servicios de Residencia Activos</h3>
+              <p class="right-subtitle">Tu expediente se encuentra al día con los siguientes beneficios:</p>
 
-          <ul class="req-list">
-            <li>
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Cédula de identidad</strong>
-                <span>Ambas caras en un solo archivo</span>
-              </div>
-            </li>
-            <li>
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Certificado de matrícula</strong>
-                <span>Periodo académico vigente</span>
-              </div>
-            </li>
-            <li>
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Comprobante de ingresos</strong>
-                <span>Del hogar o representante</span>
-              </div>
-            </li>
-            <li>
-              <span class="check-icon">✓</span>
-              <div>
-                <strong>Referencia personal</strong>
-                <span>Nombre y teléfono de contacto</span>
-              </div>
-            </li>
-          </ul>
+              <ul class="req-list">
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Alojamiento Estudiantil Gratuito</strong>
+                    <span>Beca institucional del 100% de cobertura</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Servicios Básicos y Wi-Fi Eduroam</strong>
+                    <span>Agua, luz y conectividad de alta velocidad</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Soporte Técnico de Habitaciones</strong>
+                    <span>Atención de averías y mantenimiento preventivo</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Portería y Seguridad Institucional</strong>
+                    <span>Control de accesos y vigilancia las 24 horas</span>
+                  </div>
+                </li>
+              </ul>
 
-          <!-- Caja de Fecha Límite -->
-          <div class="deadline-box">
-            <span class="deadline-label">📅 FECHA LÍMITE</span>
-            <strong class="deadline-date">30 de octubre de 2026 · 17:00</strong>
-            <span class="deadline-note">No se aceptarán solicitudes después del cierre.</span>
-          </div>
+              <div class="deadline-box" style="background: #F0FDF4; border: 1px solid #BBF7D0;">
+                <span class="deadline-label" style="color: #15803D;">ESTADO DE CUENTA</span>
+                <strong class="deadline-date" style="color: #166534;">Al día · $0.00 pendiente</strong>
+                <span class="deadline-note" style="color: #15803D;">Beneficio de residencia activo para 2026-2.</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <h3>Antes de comenzar</h3>
+              <p class="right-subtitle">Ten a mano versiones claras y vigentes de estos documentos.</p>
+
+              <ul class="req-list">
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Cédula de identidad</strong>
+                    <span>Ambas caras en un solo archivo</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Certificado de matrícula</strong>
+                    <span>Periodo académico vigente</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Comprobante de ingresos</strong>
+                    <span>Del hogar o representante</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon">✓</span>
+                  <div>
+                    <strong>Referencia personal</strong>
+                    <span>Nombre y teléfono de contacto</span>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="deadline-box">
+                <span class="deadline-label">FECHA LÍMITE</span>
+                <strong class="deadline-date">30 de octubre de 2026 · 17:00</strong>
+                <span class="deadline-note">No se aceptarán solicitudes después del cierre.</span>
+              </div>
+            </>
+          )}
         </div>
 
       </section>
@@ -164,31 +239,13 @@ const iniciales = (estudiante.nombre.charAt(0) + (estudiante.nombreCompleto.spli
       <section class="support-bar">
         <span class="support-icon">?</span>
         <div>
-          <strong>¿Necesitas ayuda con tu postulación?</strong>
+          <strong>¿Necesitas ayuda con tu residencia universitaria?</strong>
           <p>residencia@uleam.edu.ec · 05 262 0288 ext. 114</p>
         </div>
       </section>
     </main>
 
-    <!-- 3. FOOTER ROJO -->
-    <footer class="footer-red">
-      <span>© 2026 Universidad Laica Eloy Alfaro de Manabí</span>
-      <div class="footer-links">
-        <a href="#privacidad">Privacidad</a>
-        <a href="#contacto">Contacto de residencia</a>
-        <a href="#accesibilidad">Accesibilidad</a>
-      </div>
-    </footer>
-
-    <script>
-      const btnLogout = document.getElementById('btn-logout');
-      if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-          try {
-            localStorage.removeItem('uleam_session');
-          } catch (e) {}
-        });
-      }
-    </script>
+    <!-- 3. FOOTER -->
+    <Footer />
   </body>
 </html>

@@ -1,0 +1,97 @@
+[
+  {
+    "id": "POST-2026-001",
+    "estudiante": {
+      "nombre": "Joseph Coello Mendoza",
+      "correo": "e0953920949@live.uleam.edu.ec",
+      "cedula": "0953920949",
+      "carrera": "Ingeniería en Tecnologías de la Información · 6to Semestre",
+      "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
+      "semestre": "6to Semestre · Periodo 2026-2",
+      "ciudadOrigen": "Foráneo"
+    },
+    "fechaPostulacion": "19 oct 2026",
+    "estado": "Aprobada",
+    "prioridad": "Alta",
+    "situacionSocioeconomica": {
+      "ingresoMensual": "$ 250",
+      "egresosMensuales": "$ 233",
+      "integrantes": "4 personas",
+      "dependientes": "2 dependientes",
+      "quintil": "Quintil 1"
+    },
+    "referencias": [
+      {
+        "tipo": "Emergencia / Familiar",
+        "nombre": "rosita",
+        "parentesco": "madre",
+        "telefono": "09886161614"
+      },
+      {
+        "tipo": "Personal / Académica",
+        "nombre": "carlos",
+        "vinculo": "tutor",
+        "telefono": "0988616164"
+      }
+    ],
+    "accesibilidad": {
+      "requiere": true,
+      "detalle": "ddsddsd",
+      "grupoVulnerable": "movilidad"
+    },
+    "habitacionSugerida": "HAB-A101",
+    "documentos": [
+      {
+        "id": "doc-auto-1",
+        "tipo": "Cédula de identidad",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-2",
+        "tipo": "Certificado de matrícula",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-3",
+        "tipo": "Declaración de núcleo familiar",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-4",
+        "tipo": "Carta de referencia",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-5",
+        "tipo": "Comprobante de ingresos",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-6",
+        "tipo": "Planilla de servicios",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-7",
+        "tipo": "Certificado de accesibilidad",
+        "archivo": "Capture001.png",
+        "tamano": "2.95 MB",
+        "estado": "Cargado"
+      }
+    ],
+    "observacionesAdmin": "Postulación registrada en línea por el estudiante.ffefePendiente de dictamen institucional.",
+    "fechaRevision": "20 oct 2026"
+  }
+]

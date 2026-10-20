@@ -1,0 +1,47 @@
+---
+// src/components/postulacion/ComposicionHogarSection.astro
+---
+
+<section class="form-section">
+  <div class="section-head">
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div>
+      <h3>Composición del hogar</h3>
+      <p>Indica la cantidad de integrantes de tu grupo familiar y las personas dependientes.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="field-group">
+      <label>Cantidad total de personas que habitan en tu hogar</label>
+      <input type="text" id="campo-integrantes" name="integrantes_hogar" placeholder="Ej. 4 personas" />
+    </div>
+    <div class="field-group">
+      <label>Personas dependientes en el hogar (menores o adultos mayores)</label>
+      <input type="text" id="campo-dependientes" name="dependientes_hogar" placeholder="Ej. 2 personas" />
+    </div>
+  </div>
+
+  <div class="file-list">
+    <div class="file-row" data-file-card="declaracion-hogar">
+      <div class="file-info">
+        <div class="icon-doc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6v20h12V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <strong>Declaración jurada de núcleo familiar</strong>
+          <span class="file-desc" id="desc-declaracion-hogar">Firma del representante o jefe de hogar (PDF o imagen)</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <span class="file-status" id="status-declaracion-hogar">Sin archivo</span>
+        <label for="input-file-declaracion-hogar" class="file-upload-btn">
+          📁 Seleccionar archivo
+        </label>
+        <input type="file" id="input-file-declaracion-hogar" name="file_hogar" accept=".pdf,.jpg,.jpeg,.png" class="file-hidden-input" data-doc-type="Declaración de núcleo familiar" />
+      </div>
+    </div>
+  </div>
+</section>

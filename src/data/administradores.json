@@ -1,0 +1,20 @@
+[
+  {
+    "id": "adm-1309876543",
+    "email": "admin.residencia@uleam.edu.ec",
+    "password": "contraADMIN123",
+    "rol": "Administrador",
+    "cargo": "Coordinador General de Residencia Universitaria",
+    "nombre": "Fernando",
+    "nombreCompleto": "Ing. Fernando Macías Alvia",
+    "cedula": "1309876543",
+    "departamento": "Dirección de Bienestar Estudiantil",
+    "permisos": [
+      "gestionar_postulaciones",
+      "asignar_habitaciones",
+      "revisar_documentos",
+      "generar_reportes"
+    ],
+    "estado": "Activo"
+  }
+]

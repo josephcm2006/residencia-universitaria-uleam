@@ -1,0 +1,278 @@
+---
+// src/pages/postulado.astro
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import '../styles/postulation.css';
+import usuarios from '../data/usuarios.json';
+import fallbackPostulaciones from '../data/postulaciones.json';
+import HelpModal from '../components/shared/HelpModal.jsx';
+import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
+import Footer from '../components/shared/Footer.astro';
+
+export const prerender = false;
+
+// 1. Obtener usuario en sesión
+const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+let userSession = null;
+if (sessionCookie) {
+  try {
+    userSession = JSON.parse(sessionCookie);
+  } catch (e) {
+    userSession = null;
+  }
+}
+
+const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
+const activeUser = userSession || defaultUser;
+
+// REGLA CRÍTICA DE NEGOCIO: Si el usuario ha sido ACEPTADO (aceptado: 1),
+// ya NO se le muestra la interfaz de espera de postulado, sino que se le redirige
+// inmediatamente a su nuevo Dashboard de Residente (/residente-dashboard).
+if (activeUser.aceptado === 1) {
+  return Astro.redirect('/residente-dashboard');
+}
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
+const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+const rol = activeUser.rol || "Estudiante";
+const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
+const cedula = activeUser.cedula || "0953920949";
+const carrera = activeUser.carrera || "Ingeniería en Tecnologías de la Información";
+
+const partes = nombreCompleto.split(' ');
+const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+
+// 2. Obtener la postulación registrada desde el archivo JSON
+let listaPostulaciones = fallbackPostulaciones;
+try {
+  const filePath = path.resolve('src/data/postulaciones.json');
+  const rawData = await fs.readFile(filePath, 'utf-8');
+  listaPostulaciones = JSON.parse(rawData);
+} catch (e) {
+  listaPostulaciones = fallbackPostulaciones;
+}
+
+// Buscar por id en query param o por cédula del estudiante
+const url = new URL(Astro.request.url);
+const paramId = url.searchParams.get('id');
+
+const postulaciónActiva =
+  (paramId && listaPostulaciones.find((p) => p.id === paramId)) ||
+  listaPostulaciones.find((p) => p.estudiante?.cedula === cedula) ||
+  listaPostulaciones[0] || {
+    id: 'POST-2026-001',
+    fechaPostulacion: '19 oct 2026',
+    estado: 'Pendiente',
+    habitacionSugerida: 'HAB-A101',
+    estudiante: {
+      nombre: nombreCompleto,
+      correo: correo,
+      cedula: cedula,
+      carrera: carrera,
+      semestre: '6to Semestre · Periodo 2026-2'
+    },
+    situacionSocioeconomica: {
+      ingresoMensual: '$ 450.00',
+      integrantes: '4 personas'
+    },
+    documentos: [
+      { tipo: 'Cédula de identidad', archivo: 'cedula_identidad.pdf', estado: 'Cargado' },
+      { tipo: 'Certificado de matrícula', archivo: 'matricula_2026.pdf', estado: 'Cargado' }
+    ]
+  };
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>¡Ya estás postulado/a! · Residencia Universitaria ULEAM</title>
+  </head>
+  <body>
+
+    <!-- 1. HEADER SUPERIOR -->
+    <header class="topbar">
+      <div class="header-brand">
+        <a href="/portal-init" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
+          <img src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg" alt="Logo ULEAM" />
+          <div>
+            <h4>Residencia Universitaria</h4>
+            <p>Universidad Laica Eloy Alfaro de Manabí</p>
+          </div>
+        </a>
+        <div class="divider"></div>
+        <span class="portal-tag">Convocatoria 2026-2</span>
+      </div>
+
+      <div class="header-user">
+        <HelpModal client:load className="help-link" />
+        <div class="divider"></div>
+        <a href="/portal-init" class="help-link">← Volver al portal</a>
+        <div class="divider"></div>
+        <div class="user-profile">
+          <div class="avatar">{iniciales}</div>
+          <div class="user-text">
+            <strong>{nombreCorto}</strong>
+            <span>{rol} · {cedula}</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <ExitConfirmModal
+          client:load
+          buttonText="↪ Salir"
+          title="¿Deseas salir del sistema?"
+          message="Tu postulación ya se encuentra guardada y respaldada en los servidores de la universidad."
+          confirmText="Sí, salir al portal"
+          redirectUrl="/portal-init"
+          className="help-link"
+        />
+      </div>
+    </header>
+
+    <!-- 2. HERO DE CONFIRMACIÓN -->
+    <section class="hero-banner" style="background: linear-gradient(135deg, #18181B 0%, #27272A 100%);">
+      <div class="hero-overlay">
+        <span class="hero-kicker" style="color: #4ADE80;">EXPEDIENTE REGISTRADO EXITOSAMENTE</span>
+        <h1 style="font-size: 32px; font-weight: 800; margin: 8px 0;">¡Ya estás postulado/a!</h1>
+        <p style="max-width: 650px; font-size: 14.5px; line-height: 1.6; color: #E4E4E7;">
+          Tu solicitud de residencia estudiantil para el periodo académico <strong>2026-2</strong> ha sido recibida formalmente por el Departamento de Bienestar Estudiantil de la ULEAM.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. CONTENIDO PRINCIPAL -->
+    <main class="form-wrapper" style="margin-top: -30px; position: relative; z-index: 10;">
+      
+      <!-- TARJETA PRINCIPAL DEL COMPROBANTE -->
+      <div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 24px;">
+        
+        <!-- Cabecera de la Tarjeta -->
+        <div style="padding: 24px 30px; background: #FAFAFA; border-bottom: 1px solid #E4E4E7; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap: 16px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; color: #71717A; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Comprobante de Postulación</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <h2 style="font-size: 22px; font-weight: 800; color: #111111; margin: 0;">{postulaciónActiva.id}</h2>
+              <span style="display: inline-block; background-color: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 4px; border: 1px solid #86EFAC;">
+                ● Estado: En Revisión
+              </span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 11.5px; color: #71717A; display: block;">Fecha de ingreso</span>
+            <strong style="font-size: 13.5px; color: #18181B;">{postulaciónActiva.fechaPostulacion || '19 oct 2026'}</strong>
+          </div>
+        </div>
+
+        <!-- Cuerpo con los Detalles del Expediente -->
+        <div style="padding: 30px;">
+          
+          <!-- Grid con datos del estudiante y carrera -->
+          <div class="grid-3" style="margin-bottom: 28px;">
+            <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Postulante</span>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.estudiante?.nombre || nombreCompleto}</strong>
+              <span style="font-size: 12px; color: #64748B;">Cédula: {postulaciónActiva.estudiante?.cedula || cedula}</span>
+            </div>
+
+            <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Carrera y Semestre</span>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.estudiante?.carrera || carrera}</strong>
+              <span style="font-size: 12px; color: #64748B;">Periodo: 2026-2 (Campus Matriz)</span>
+            </div>
+
+            <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
+              <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Habitación Sugerida</span>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.habitacionSugerida || 'HAB-A101 (Edificio A)'}</strong>
+              <span style="font-size: 12px; color: #64748B;">Habitación Compartida Estándar</span>
+            </div>
+          </div>
+
+          <!-- Información Socioeconómica Registrada -->
+          <div style="margin-bottom: 28px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: #18181B; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em;">
+              Resumen Socioeconómico
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+              <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
+                <span style="font-size: 11.5px; color: #6B7280; display: block;">Ingreso mensual familiar</span>
+                <strong style="font-size: 14px; color: #111827;">{postulaciónActiva.situacionSocioeconomica?.ingresoMensual || '$ 450.00'}</strong>
+              </div>
+              <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
+                <span style="font-size: 11.5px; color: #6B7280; display: block;">Composición del hogar</span>
+                <strong style="font-size: 14px; color: #111827;">{postulaciónActiva.situacionSocioeconomica?.integrantes || '4 personas'}</strong>
+              </div>
+              <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
+                <span style="font-size: 11.5px; color: #6B7280; display: block;">Prioridad institucional</span>
+                <strong style="font-size: 14px; color: #15803D;">Alta (Quintil 1 - Foráneo)</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentos Adjuntos Registrados -->
+          <div style="margin-bottom: 28px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: #18181B; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em;">
+              Documentación Digital en Custodia
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              {(postulaciónActiva.documentos || []).map((doc) => (
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: #15803D; font-weight: 800;">✓</span>
+                    <strong style="font-size: 13px; color: #1F2937;">{doc.tipo}</strong>
+                    <span style="font-size: 12px; color: #6B7280;">({doc.archivo || 'documento_adjunto.pdf'})</span>
+                  </div>
+                  <span style="font-size: 11px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 3px 8px; border-radius: 3px;">
+                    Verificado
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- ¿Qué sigue ahora? (Ruta institucional) -->
+          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 20px; margin-bottom: 30px;">
+            <h4 style="font-size: 14px; font-weight: 800; color: #166534; margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+              <span>Próximos pasos en el proceso de admisión</span>
+            </h4>
+            <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #14532D; line-height: 1.6;">
+              <li style="margin-bottom: 6px;">
+                <strong>Verificación técnica:</strong> La Dirección de Bienestar Estudiantil constata tus documentos y soportes socioeconómicos.
+              </li>
+              <li style="margin-bottom: 6px;">
+                <strong>Dictamen de admisión:</strong> El comité publicará la lista de admitidos y asignación de habitación según cupos.
+              </li>
+              <li>
+                <strong>Firma de acta:</strong> Se enviará una notificación a tu correo institucional <code>{correo}</code> con las instrucciones de ingreso a la residencia.
+              </li>
+            </ol>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding-top: 10px; border-top: 1px solid #E4E4E7;">
+            <a
+              href="/portal-init"
+              style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: #18181B; color: #FFFFFF; font-size: 13.5px; font-weight: 700; text-decoration: none; border-radius: 2px;"
+            >
+              ← Volver al Portal Estudiantil
+            </a>
+
+            <button
+              type="button"
+              onclick="window.print()"
+              class="btn-outline"
+              style="padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer;"
+            >
+              Imprimir Comprobante
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer Institucional Unificado -->
+    <Footer />
+
+  </body>
+</html>

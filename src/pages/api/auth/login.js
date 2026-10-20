@@ -1,4 +1,5 @@
 import usuarios from '../../../data/usuarios.json';
+import administradores from '../../../data/administradores.json';
 
 export const prerender = false;
 
@@ -10,9 +11,21 @@ export async function POST({ request, cookies }) {
     const cleanEmail = (email || '').toString().toLowerCase().trim();
     const cleanPassword = (password || '').toString();
 
-    const user = usuarios.find(
+    // 1. Buscar primero en estudiantes (usuarios.json)
+    let user = usuarios.find(
       (u) => u.email.toLowerCase().trim() === cleanEmail && u.password === cleanPassword
     );
+    let esAdmin = false;
+
+    // 2. Si no coincide, buscar en administradores (administradores.json)
+    if (!user) {
+      user = administradores.find(
+        (a) => a.email.toLowerCase().trim() === cleanEmail && a.password === cleanPassword
+      );
+      if (user) {
+        esAdmin = true;
+      }
+    }
 
     if (!user) {
       return new Response(
@@ -34,8 +47,10 @@ export async function POST({ request, cookies }) {
       nombreCompleto: user.nombreCompleto,
       rol: user.rol,
       cedula: user.cedula,
-      carrera: user.carrera,
-      facultad: user.facultad
+      cargo: user.cargo || null,
+      departamento: user.departamento || null,
+      carrera: user.carrera || null,
+      facultad: user.facultad || null
     };
 
     cookies.set('uleam_session', JSON.stringify(sessionData), {
@@ -45,11 +60,14 @@ export async function POST({ request, cookies }) {
       sameSite: 'lax'
     });
 
+    // Administradores se redirigen a /dashboard, estudiantes a /portal-init
+    const targetUrl = esAdmin ? '/dashboard' : '/portal-init';
+
     return new Response(
       JSON.stringify({
         success: true,
         user: sessionData,
-        redirectTo: '/portal-init'
+        redirectTo: targetUrl
       }),
       {
         status: 200,

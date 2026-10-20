@@ -1,0 +1,879 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --negro: #111111;
+  --gris-oscuro: #27272A;
+  --gris-medio: #71717A;
+  --gris-claro: #E4E4E7;
+  --gris-input: #F4F4F5;
+  --fondo-pagina: #F7F7F5;
+  --blanco: #FFFFFF;
+
+  /* Únicos colores para texto de etapas */
+  --estado-verde: #15803D;
+  --estado-rojo: #B91C1C;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--fondo-pagina);
+  color: var(--negro);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   1. HEADER SUPERIOR
+========================================= */
+.topbar {
+  background: var(--blanco);
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--gris-claro);
+}
+
+.header-brand, .header-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand img {
+  height: 36px;
+  width: auto;
+  filter: grayscale(100%) contrast(120%); /* Logo en blanco y negro */
+}
+
+.header-brand h4 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.header-brand p {
+  font-size: 11px;
+  color: var(--gris-medio);
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--gris-claro);
+}
+
+.portal-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gris-oscuro);
+}
+
+.help-link {
+  font-size: 13px;
+  color: var(--gris-oscuro);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  background: var(--negro);
+  color: var(--blanco);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-text strong {
+  display: block;
+  font-size: 13px;
+}
+
+.user-text span {
+  font-size: 11px;
+  color: var(--gris-medio);
+}
+
+/* =========================================
+   2. HERO BANNER
+========================================= */
+.hero-banner {
+  background-image: url('/assets/images/apartamento-imagen.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 210px;
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--blanco);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.hero-overlay h1 {
+  font-size: 34px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.hero-overlay p {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* =========================================
+   3. BARRA DE PROGRESO
+========================================= */
+.progress-strip {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--gris-claro);
+  padding: 14px 40px;
+}
+
+.progress-container {
+  max-width: 1060px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.progress-bar-track {
+  width: 200px;
+  height: 6px;
+  background: var(--gris-claro);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--negro);
+}
+
+.progress-percent {
+  font-weight: 700;
+  color: var(--negro);
+}
+
+.deadline-pill {
+  background: var(--gris-input);
+  color: var(--negro);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+/* =========================================
+   4. CONTENEDOR DEL FORMULARIO Y SECCIONES
+========================================= */
+.form-wrapper {
+  flex: 1;
+  width: 100%;
+  max-width: 1060px;
+  margin: 32px auto 60px;
+  padding: 0 20px;
+}
+
+.form-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.form-header-row h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.form-header-row p {
+  font-size: 13px;
+  color: var(--gris-medio);
+}
+
+.form-section {
+  background: var(--blanco);
+  padding: 28px;
+  margin-bottom: 20px;
+  border: 1px solid var(--gris-claro);
+  border-radius: 0; /* Sin esquinas redondeadas */
+}
+
+/* Cabecera de cada sección con icono centrado B&W */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.icon-box {
+  width: 40px;
+  height: 40px;
+  background: var(--negro);
+  color: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-box svg {
+  width: 20px;
+  height: 20px;
+}
+
+.section-head h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.section-head p {
+  font-size: 13px;
+  color: var(--gris-medio);
+}
+
+.title-with-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.mono-tag {
+  background: var(--gris-input);
+  color: var(--negro);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  display: inline-block;
+}
+
+/* =========================================
+   5. INPUTS SIN BORDES NI BORDER-RADIUS
+========================================= */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gris-oscuro);
+}
+
+.field-group input,
+.field-group textarea,
+.field-group select {
+  width: 100%;
+  background-color: var(--gris-input);
+  border: none;           /* Sin bordes alrededor */
+  border-radius: 0;       /* Sin border-radius */
+  border-bottom: 2px solid transparent;
+  padding: 13px 14px;
+  font-size: 13px;
+  color: var(--negro);
+  outline: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.field-group input:focus,
+.field-group textarea:focus,
+.field-group select:focus {
+  background-color: #EAEAEF;
+  border-bottom-color: var(--negro);
+}
+
+.field-note {
+  font-size: 11px;
+  color: var(--gris-medio);
+  margin-top: 4px;
+}
+
+/* =========================================
+   6. FILAS DE ARCHIVOS / DOCUMENTOS (B&W)
+========================================= */
+.file-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gris-claro);
+}
+
+.file-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-doc {
+  width: 34px;
+  height: 34px;
+  background: var(--gris-input);
+  color: var(--negro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-doc svg {
+  width: 17px;
+  height: 17px;
+}
+
+.file-info strong {
+  display: block;
+  font-size: 13px;
+}
+
+.file-info span {
+  font-size: 12px;
+  color: var(--gris-medio);
+}
+
+.file-status {
+  background: var(--gris-input);
+  color: var(--negro);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.file-status.uploaded {
+  background: #EAF5EF;
+  color: var(--estado-verde);
+  border: 1px solid #C6E7D2;
+}
+
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-upload-btn {
+  background: var(--negro);
+  color: var(--blanco);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 14px;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s, background-color 0.15s;
+}
+
+.file-upload-btn:hover {
+  background: var(--gris-oscuro);
+}
+
+.file-hidden-input {
+  display: none !important;
+}
+
+.ref-summary {
+  background: var(--gris-input);
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+/* =========================================
+   7. HABITACIÓN Y CONSENTIMIENTO
+========================================= */
+.room-preview {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.room-preview img {
+  width: 140px;
+  height: 95px;
+  object-fit: cover;
+}
+
+.room-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.room-info p {
+  font-size: 12px;
+  color: var(--gris-medio);
+  margin-bottom: 4px;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.check-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--negro);
+}
+
+.consent-links {
+  margin-top: 16px;
+  display: flex;
+  gap: 18px;
+}
+
+.consent-links a {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--negro);
+  text-decoration: underline;
+}
+
+/* =========================================
+   8. BOTONES Y BARRA DE ENVÍO
+========================================= */
+.submit-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.secure-text {
+  font-size: 12px;
+  color: var(--gris-medio);
+}
+
+.submit-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-outline {
+  background: var(--blanco);
+  color: var(--negro);
+  border: 1px solid var(--negro);
+  border-radius: 0;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: var(--gris-input);
+}
+
+.btn-primary {
+  background: var(--negro);
+  color: var(--blanco);
+  border: 1px solid var(--negro);
+  border-radius: 0;
+  padding: 11px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--gris-oscuro);
+}
+
+/* =========================================
+   9. ETAPAS DE POSTULACIÓN (FONDO NORMAL, TEXTO A COLOR)
+========================================= */
+.stages-heading {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gris-medio);
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+}
+
+.stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-item {
+  background-color: var(--gris-input); /* Fondo normal neutro sin franja verde ni roja */
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon-stage {
+  width: 30px;
+  height: 30px;
+  background: var(--blanco);
+  color: var(--negro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-stage svg {
+  width: 15px;
+  height: 15px;
+}
+
+.stage-text strong {
+  display: block;
+  font-size: 13px;
+}
+
+.stage-text span {
+  font-size: 11px;
+  color: var(--gris-medio);
+}
+
+/* Únicos colores permitidos: en el texto según el estado */
+.stage-text .text-verde {
+  color: var(--estado-verde);
+}
+
+.stage-text .text-rojo {
+  color: var(--estado-rojo);
+}
+
+.help-footer-box {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gris-claro);
+  font-size: 12px;
+}
+
+.help-footer-box strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.help-footer-box p {
+  color: var(--gris-medio);
+}
+
+/* Responsivo */
+@media (max-width: 820px) {
+  .grid-3, .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .form-header-row, .submit-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+
+/* =========================================
+   10. MODALES DE POSTULACIÓN (ÉXITO Y ERROR CON BLUR)
+========================================= */
+.postulacion-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+}
+
+.postulacion-modal-card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  max-width: 440px;
+  width: 100%;
+  padding: 36px 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  animation: modalAnimEntrada 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalAnimEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Spinner Institucional de Carga */
+.postulacion-spinner {
+  width: 54px;
+  height: 54px;
+  border: 4px solid #E2E8F0;
+  border-top: 4px solid #BA181B; /* Rojo institucional ULEAM */
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spinPostulacion 0.8s linear infinite;
+}
+
+@keyframes spinPostulacion {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Visto Verde con Animación */
+.visto-verde-circulo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #DCFCE7;
+  border: 2px solid #86EFAC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleVisto 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleVisto {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.visto-check-svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
+.visto-check-check {
+  stroke: #15803D;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: strokeCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.2s forwards;
+}
+
+@keyframes strokeCheck {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Títulos y textos de modales */
+.modal-titulo {
+  font-size: 19px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.modal-descripcion {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.modal-codigo-badge {
+  display: inline-block;
+  background-color: #F1F5F9;
+  color: #334155;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 5px 14px;
+  border-radius: 99px;
+  margin-bottom: 14px;
+  border: 1px solid #CBD5E1;
+}
+
+/* Botones de acción */
+.btn-modal-accion-verde {
+  width: 100%;
+  background-color: #15803D;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.btn-modal-accion-verde:hover {
+  background-color: #166534;
+}
+
+.btn-modal-accion-rojo {
+  width: 100%;
+  background-color: #BA181B;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.btn-modal-accion-rojo:hover {
+  opacity: 0.9;
+}
+
+/* Iconos de error y duplicado */
+.modal-error-icono {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #FEE2E2;
+  color: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.modal-error-icono.duplicado {
+  background-color: #FEF3C7;
+  color: #D97706;
+}
+
+.modal-error-lista-box {
+  text-align: left;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.modal-error-lista-box strong {
+  font-size: 12px;
+  color: #334155;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.modal-error-lista-box ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: #64748B;
+  line-height: 1.5;
+}
+
+.modal-error-lista-box li {
+  margin-bottom: 4px;
+}

@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --uleam-rojo: #BA181B;
+  --uleam-rojo-oscuro: #991B1B;
+  --uleam-verde: #15803D;
+  --uleam-verde-bg: #ECFDF5;
+  --bg-pagina: #F8FAFC;
+  --texto-oscuro: #0F172A;
+  --texto-gris: #64748B;
+  --borde-suave: #E2E8F0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-pagina);
+  color: var(--texto-oscuro);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================================
+   HEADER SUPERIOR INSTITUCIONAL
+   ======================================================== */
+.topbar {
+  background: #FFFFFF;
+  padding: 14px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--borde-suave);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand img {
+  height: 38px;
+  width: auto;
+}
+
+.header-brand h4 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--texto-oscuro);
+  line-height: 1.2;
+}
+
+.header-brand p {
+  font-size: 11.5px;
+  color: var(--texto-gris);
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background-color: var(--borde-suave);
+}
+
+.portal-tag {
+  background-color: #FEF2F2;
+  color: var(--uleam-rojo);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #FECACA;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #FEE2E2;
+  color: var(--uleam-rojo);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #FECACA;
+}
+
+.user-text strong {
+  display: block;
+  font-size: 12.5px;
+  color: var(--texto-oscuro);
+}
+
+.user-text span {
+  font-size: 11px;
+  color: var(--texto-gris);
+}
+
+.help-link {
+  color: var(--texto-gris);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ========================================================
+   HERO BANNER
+   ======================================================== */
+.hero-banner {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  color: #FFFFFF;
+  padding: 42px 40px 60px;
+  position: relative;
+}
+
+.hero-kicker {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #4ADE80;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.hero-banner h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.hero-banner p {
+  font-size: 14.5px;
+  color: #CBD5E1;
+  max-width: 720px;
+  line-height: 1.5;
+}
+
+/* ========================================================
+   CONTENEDOR PRINCIPAL
+   ======================================================== */
+.main-wrapper {
+  max-width: 1160px;
+  width: 100%;
+  margin: -36px auto 60px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ========================================================
+   TARJETA PRINCIPAL DE LA HABITACIÓN
+   ======================================================== */
+.room-card-main {
+  background: #FFFFFF;
+  border: 1px solid var(--borde-suave);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.room-card-header {
+  padding: 22px 28px;
+  background: #FAFAFA;
+  border-bottom: 1px solid var(--borde-suave);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.room-badge-code {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 800;
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.room-status-badge {
+  background: var(--uleam-verde-bg);
+  color: var(--uleam-verde);
+  border: 1px solid #86EFAC;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-card-body {
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 860px) {
+  .room-card-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.room-image-preview {
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--borde-suave);
+  margin-bottom: 16px;
+}
+
+.amenity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F1F5F9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+}
+
+/* Grilla de métricas clave (Beca, Pagos, Renovación) */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.metric-box {
+  background: #F8FAFC;
+  border: 1px solid var(--borde-suave);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--texto-gris);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--texto-oscuro);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.metric-sub {
+  font-size: 11.5px;
+  color: var(--texto-gris);
+}
+
+/* ========================================================
+   BARRA DE ACCIÓN Y REPORTES
+   ======================================================== */
+.action-strip-card {
+  background: #FFFFFF;
+  border: 1px solid var(--borde-suave);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.action-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--uleam-rojo);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-secondary-link:hover {
+  background-color: #FEF2F2;
+}
+
+/* ========================================================
+   TARJETAS INFORMATIVAS INFERIORES
+   ======================================================== */
+.info-columns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .info-columns-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-column-card {
+  background: #FFFFFF;
+  border: 1px solid var(--borde-suave);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+
+.info-column-card h4 {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--texto-oscuro);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-column-card p {
+  font-size: 13px;
+  color: var(--texto-gris);
+  line-height: 1.5;
+}

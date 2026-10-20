@@ -8,8 +8,46 @@
     "nombre": "Joseph",
     "nombreCompleto": "Joseph Coello Mendoza",
     "carrera": "Ingeniería en Tecnologías de la Información",
-    "facultad": "Facultad de Ciencias Informáticas",
+    "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
     "estado": "Activo",
-    "periodo": "2026-2"
+    "periodo": "2026-2",
+    "aceptado": 1,
+    "habitacionId": "HAB-A101",
+    "habitacionNumero": "A-101",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Planta Baja",
+    "pagosAlDia": true,
+    "montoPendiente": 0.0,
+    "becaPorcentaje": 100,
+    "documentosRenovacion": {
+      "requiereRenovacion": false,
+      "estado": "Al día",
+      "mensaje": "Todos los documentos se encuentran validados por Bienestar Estudiantil.",
+      "proximaFecha": "15 Mar 2027"
+    }
+  },
+  {
+    "id": "est-1314567890",
+    "email": "e1314567890@live.uleam.edu.ec",
+    "password": "contraUSER123",
+    "rol": "Estudiante",
+    "cedula": "1314567890",
+    "nombre": "María",
+    "nombreCompleto": "María Elena Zambrano",
+    "carrera": "Medicina",
+    "facultad": "Facultad de Ciencias de la Salud",
+    "estado": "Activo",
+    "periodo": "2026-2",
+    "aceptado": 0,
+    "habitacionId": null,
+    "pagosAlDia": true,
+    "montoPendiente": 0.0,
+    "becaPorcentaje": 100,
+    "documentosRenovacion": {
+      "requiereRenovacion": false,
+      "estado": "Pendiente de admisión",
+      "mensaje": "Postulación en proceso de revisión.",
+      "proximaFecha": "N/A"
+    }
   }
 ]

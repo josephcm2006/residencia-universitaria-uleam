@@ -1,0 +1,54 @@
+---
+// src/components/shared/Footer.astro
+const anioActual = 2026;
+---
+
+<footer class="app-footer">
+  <span>© {anioActual} Universidad Laica Eloy Alfaro de Manabí</span>
+  <div class="footer-links">
+    <a href="#privacidad">Privacidad</a>
+    <a href="#contacto">Contacto de residencia</a>
+    <a href="#accesibilidad">Accesibilidad</a>
+  </div>
+</footer>
+
+<style>
+  .app-footer {
+    background-color: #0b0d10;
+    color: #94A3B8;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    border-top: 1px solid #1E293B;
+    margin-top: auto;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .footer-links a {
+    color: #94A3B8;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-links a:hover {
+    color: #ffffff;
+  }
+
+  @media (max-width: 900px) {
+    .app-footer {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      padding: 18px 20px;
+    }
+  }
+</style>

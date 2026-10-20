@@ -1,0 +1,68 @@
+---
+// src/components/postulacion/SituacionEconomicaSection.astro
+---
+
+<section class="form-section">
+  <div class="section-head">
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <div>
+      <h3>Ingresos, egresos y situación socioeconómica</h3>
+      <p>Indica los montos aproximados de sustento mensual de tu núcleo familiar.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="field-group">
+      <label>Ingreso total mensual del hogar ($ USD)</label>
+      <input type="text" id="campo-ingresos" name="ingreso_mensual" placeholder="Ej. 450.00" />
+    </div>
+    <div class="field-group">
+      <label>Egresos o gastos mensuales estimados ($ USD)</label>
+      <input type="text" id="campo-egresos" name="egresos_mensuales" placeholder="Ej. 380.00" />
+    </div>
+  </div>
+
+  <div class="file-list">
+    <!-- Archivo: Comprobante ingresos -->
+    <div class="file-row" data-file-card="ingresos">
+      <div class="file-info">
+        <div class="icon-doc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6v20h12V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <strong>Comprobante de ingresos familiares</strong>
+          <span class="file-desc" id="desc-ingresos">Rol de pagos, declaración de impuestos o certificado de ingresos</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <span class="file-status" id="status-ingresos">Sin archivo</span>
+        <label for="input-file-ingresos" class="file-upload-btn">
+          📁 Seleccionar archivo
+        </label>
+        <input type="file" id="input-file-ingresos" name="file_ingresos" accept=".pdf,.jpg,.jpeg,.png" class="file-hidden-input" data-doc-type="Comprobante de ingresos" />
+      </div>
+    </div>
+
+    <!-- Archivo: Servicios o egresos -->
+    <div class="file-row" data-file-card="egresos">
+      <div class="file-info">
+        <div class="icon-doc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6v20h12V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <strong>Planilla de servicios básicos o sustento de egresos</strong>
+          <span class="file-desc" id="desc-egresos">Planilla de luz, agua o contrato de arrendamiento reciente</span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <span class="file-status" id="status-egresos">Sin archivo</span>
+        <label for="input-file-egresos" class="file-upload-btn">
+          📁 Seleccionar archivo
+        </label>
+        <input type="file" id="input-file-egresos" name="file_egresos" accept=".pdf,.jpg,.jpeg,.png" class="file-hidden-input" data-doc-type="Planilla de servicios" />
+      </div>
+    </div>
+  </div>
+</section>

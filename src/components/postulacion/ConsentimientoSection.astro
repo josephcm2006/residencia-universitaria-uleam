@@ -1,0 +1,35 @@
+---
+// src/components/postulacion/ConsentimientoSection.astro
+---
+
+<!-- BLOQUE 9: Declaraciones y consentimiento -->
+<section class="form-section">
+  <h3>Declaraciones y consentimiento</h3>
+  <div class="checkbox-list">
+    <label class="check-row">
+      <input type="checkbox" id="check-autenticidad" name="consentimiento_autenticidad" />
+      <span>Declaro bajo juramento que toda la información y documentos ingresados son verídicos.</span>
+    </label>
+    <label class="check-row">
+      <input type="checkbox" id="check-tratamiento" name="consentimiento_datos" />
+      <span>Autorizo el tratamiento de mis datos personales para la evaluación de residencia universitaria.</span>
+    </label>
+    <label class="check-row">
+      <input type="checkbox" id="check-reglamento" name="consentimiento_reglamento" />
+      <span>He leído y acepto cumplir el reglamento interno de la residencia universitaria ULEAM.</span>
+    </label>
+  </div>
+  <div class="consent-links">
+    <a href="#reglamento">Ver reglamento institucional</a>
+    <a href="#politica">Política de privacidad</a>
+  </div>
+</section>
+
+<!-- BARRA DE ENVÍO -->
+<div class="submit-bar">
+  <span class="secure-text">🔒 Tus datos se gestionan mediante conexión institucional cifrada.</span>
+  <div class="submit-actions">
+    <button type="button" id="btn-view-json" class="btn-outline">Ver datos en JSON</button>
+    <button type="submit" class="btn-primary">Guardar y Enviar postulación</button>
+  </div>
+</div>

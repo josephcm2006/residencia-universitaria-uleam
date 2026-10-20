@@ -1,0 +1,41 @@
+---
+// src/components/postulacion/DatosPersonalesSection.astro
+export interface Props {
+  estudiante: {
+    nombre: string;
+    carrera: string;
+    correo: string;
+    cedula: string;
+  };
+}
+
+const { estudiante } = Astro.props;
+---
+
+<section class="form-section">
+  <div class="section-head">
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div>
+      <h3>Datos personales y académicos</h3>
+      <p>Información verificada automáticamente desde tu cuenta institucional ULEAM.</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="field-group">
+      <label>Nombre completo</label>
+      <input type="text" id="campo-nombre" name="nombre" value={estudiante.nombre} />
+    </div>
+    <div class="field-group">
+      <label>Carrera y semestre</label>
+      <input type="text" id="campo-carrera" name="carrera" value={estudiante.carrera} />
+    </div>
+    <div class="field-group">
+      <label>Correo institucional</label>
+      <input type="email" id="campo-correo" name="correo" value={estudiante.correo} readonly style="background-color: #F1F1F4; cursor: not-allowed;" />
+      <input type="hidden" id="campo-cedula" name="cedula" value={estudiante.cedula} />
+    </div>
+  </div>
+</section>

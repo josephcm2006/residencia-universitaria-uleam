@@ -1,8 +1,9 @@
 ---
 import "@styles/index.css";
 import MicrosoftLoginModal from "../components/auth/MicrosoftLoginModal.astro";
+import HelpModal from "../components/shared/HelpModal.jsx";
+import Footer from "../components/shared/Footer.astro";
 
-const anioActual = 2026;
 ---
 
 <!doctype html>
@@ -29,7 +30,7 @@ const anioActual = 2026;
           <p>Portal Estudiantil</p>
         </div>
       </div>
-      <a href="#ayuda">ⓘ Ayuda</a>
+      <HelpModal client:load />
     </header>
 
     <main class="split-layout">
@@ -98,14 +99,8 @@ const anioActual = 2026;
       </section>
     </main>
 
-    <footer>
-      <span>© {anioActual} Universidad Laica Eloy Alfaro de Manabí</span>
-      <div class="footer-links">
-        <a href="#privacidad">Privacidad</a>
-        <a href="#contacto">Contacto de residencia</a>
-        <a href="#accesibilidad">Accesibilidad</a>
-      </div>
-    </footer>
+    <!-- Footer Institucional Unificado -->
+    <Footer />
 
     <!-- Ventana Emergente de Microsoft 365 -->
     <MicrosoftLoginModal />

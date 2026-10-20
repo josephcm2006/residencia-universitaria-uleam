@@ -12,7 +12,7 @@
         </svg>
       </button>
 
-      <!-- Encabezado con Logo Microsoft -->
+
       <div class="ms-header">
         <div class="ms-brand-row">
           <svg class="ms-logo" width="22" height="22" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,15 +27,20 @@
         <p class="ms-subtitle">Usa tu cuenta institucional de estudiante para acceder al portal de residencia.</p>
       </div>
 
-      <!-- Tarjeta rápida de prueba -->
+
       <div class="ms-test-helper">
         <div class="ms-test-info">
-          <span class="ms-test-badge">Estudiante Registrado</span>
-          <p class="ms-test-email">e0953920949@live.uleam.edu.ec</p>
+          <span class="ms-test-badge">Acceso Rápido de Prueba</span>
+          <p class="ms-test-email">Selecciona el perfil a probar:</p>
         </div>
-        <button type="button" id="btn-fill-student-creds" class="btn-fill-creds" title="Rellenar campos con este estudiante">
-          ⚡ Autocompletar
-        </button>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" id="btn-fill-student-creds" class="btn-fill-creds" title="Rellenar como Estudiante">
+             Estudiante
+          </button>
+          <button type="button" id="btn-fill-admin-creds" class="btn-fill-creds" style="background: #1E293B;" title="Rellenar como Administrador">
+             Admin
+          </button>
+        </div>
       </div>
 
       <!-- Alerta de Error / Éxito -->
@@ -606,6 +611,21 @@
         if (emailInput) emailInput.value = 'e0953920949@live.uleam.edu.ec';
         if (passwordInput) {
           passwordInput.value = 'contraUSER123';
+          passwordInput.focus();
+        }
+        hideAlert();
+        return;
+      }
+
+      // Autocompletar credenciales del administrador
+      var fillAdminBtn = target.closest('#btn-fill-admin-creds');
+      if (fillAdminBtn) {
+        e.preventDefault();
+        var emailInput = document.getElementById('ms-input-email');
+        var passwordInput = document.getElementById('ms-input-password');
+        if (emailInput) emailInput.value = 'admin.residencia@uleam.edu.ec';
+        if (passwordInput) {
+          passwordInput.value = 'contraADMIN123';
           passwordInput.focus();
         }
         hideAlert();
