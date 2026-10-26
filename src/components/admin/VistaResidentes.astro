@@ -1,0 +1,110 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/VistaResidentes.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente presenta el padrón oficial de estudiantes residentes con plaza habitacional
+// adjudicada en el campus universitario. Permite auditar qué habitación tiene cada residente,
+// su estado de beca y si sus obligaciones se encuentran al día.
+//
+// PROPS RECIBIDAS:
+// * residentes {Array<Object>}: Lista de estudiantes con 'aceptado === 1' y habitación asignada.
+// ========================================================================================
+
+export interface Props {
+  residentes: Array<any>;
+}
+
+const { residentes = [] } = Astro.props;
+---
+
+<main class="admin-content-view" id="view-estudiantes" style="display: none;">
+  <div class="view-header">
+    <div>
+      <h1>Estudiantes Residentes Asignados</h1>
+      <p>Padrón oficial de estudiantes con admisión aprobada y habitación adjudicada en el periodo 2026-2.</p>
+    </div>
+    <span style="font-size: 13px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 6px 14px; border-radius: 99px;">
+      ● {residentes.length} Residentes con Plaza Activa
+    </span>
+  </div>
+
+  <!-- Tabla de Residentes -->
+  <div class="table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Cédula</th>
+          <th>Carrera</th>
+          <th>Habitación Asignada</th>
+          <th>Beneficio Beca</th>
+          <th>Estado Pagos</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {residentes.length === 0 ? (
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 50px 20px; color: #64748B;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <strong style="font-size: 15px; color: #1E293B;">No hay residentes asignados actualmente</strong>
+                <p style="font-size: 13px; margin: 0; max-width: 440px; color: #64748B;">
+                  Cuando apruebes una postulación desde la pestaña "Postulaciones", el estudiante y su habitación asignada aparecerán listados aquí en tiempo real.
+                </p>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          residentes.map((res) => (
+            <tr>
+              <td>
+                <div class="student-meta">
+                  <strong>{res.nombreCompleto || res.nombre}</strong>
+                  <span>{res.email}</span>
+                </div>
+              </td>
+              <td>
+                <span style="font-family: monospace; font-weight: 700; color: #334155;">{res.cedula}</span>
+              </td>
+              <td>
+                <span style="font-size: 12.5px;">{res.carrera}</span>
+              </td>
+              <td>
+                <span style="background-color: #F1F5F9; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; color: #0F172A; border: 1px solid #CBD5E1;">
+                  Habitación {res.habitacionNumero || 'Asignada'} ({res.edificio || 'Edificio A'})
+                </span>
+              </td>
+              <td>
+                <span style="color: #15803D; font-weight: 700; font-size: 12.5px;">
+                  {res.becaPorcentaje || 100}% Beca Completa
+                </span>
+              </td>
+              <td>
+                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 2px 8px; border-radius: 4px;">
+                  ● Al día
+                </span>
+              </td>
+              <td>
+                <span class="status-badge aprobada">
+                  <span class="status-dot"></span>
+                  Adjudicado
+                </span>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</main>

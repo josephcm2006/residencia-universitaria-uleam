@@ -3,6 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import '../styles/residente-dashboard.css';
+import '../styles/css-responsive/postulado.responsive.css';
 import usuarios from '../data/usuarios.json';
 import habitacionesFallback from '../data/habitaciones.json';
 import incidenciasFallback from '../data/incidencias.json';
@@ -13,7 +14,11 @@ import Footer from '../components/shared/Footer.astro';
 
 export const prerender = false;
 
-// 1. Obtener la sesión activa del estudiante
+// ----------------------------------------------------------------------------------------
+// 1. GESTIÓN DE SESIÓN Y AUTENTICACIÓN DINÁMICA
+// ----------------------------------------------------------------------------------------
+
+// // Variable 'sessionCookie': Almacena la cookie de sesión institucional
 const sessionCookie = Astro.cookies.get('uleam_session')?.value;
 let userSession = null;
 if (sessionCookie) {
@@ -24,7 +29,7 @@ if (sessionCookie) {
   }
 }
 
-// 2. Cargar usuario desde usuarios.json
+// // 2. Cargar catálogo de usuarios de usuarios.json para sincronización reactiva
 let listaUsuarios = usuarios;
 try {
   const userPath = path.resolve('src/data/usuarios.json');
@@ -34,17 +39,25 @@ try {
   listaUsuarios = usuarios;
 }
 
-const defaultUser = listaUsuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || listaUsuarios[0];
-const activeUser = userSession ? (listaUsuarios.find((u) => u.email === userSession.email || u.cedula === userSession.cedula) || userSession) : defaultUser;
+// // Si hay sesión activa se sincroniza; si no (pruebas directas), se usa el estudiante de usuarios.json sin datos quemados
+const estudianteBase = listaUsuarios.find((u) => u.aceptado === 1) || listaUsuarios[0];
+const usuarioDb = userSession
+  ? (listaUsuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  : estudianteBase;
 
-const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
-const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+const activeUser = usuarioDb ? { ...usuarioDb, ...(userSession || {}) } : estudianteBase;
+
+// // Datos 100% dinámicos del estudiante autenticado
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Estudiante Residente";
+const nombreCorto = activeUser.nombre || (nombreCompleto ? nombreCompleto.split(' ')[0] : "Estudiante");
 const rol = activeUser.rol || "Estudiante";
-const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
-const cedula = activeUser.cedula || "0953920949";
+const correo = activeUser.email || activeUser.correo || "";
+const cedula = activeUser.cedula || "";
 
-const partes = nombreCompleto.split(' ');
-const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+const partes = nombreCompleto.split(' ').filter(Boolean);
+const iniciales = partes.length >= 2
+  ? (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase()
+  : (partes[0]?.charAt(0) || 'E').toUpperCase();
 
 // 3. Cargar datos de la habitación
 let listaHabitaciones = habitacionesFallback;

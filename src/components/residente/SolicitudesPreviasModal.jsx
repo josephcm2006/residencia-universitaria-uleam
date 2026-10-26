@@ -1,3 +1,51 @@
+// ========================================================================================
+// PÁGINA ASOCIADA: src/pages/residente-dashboard.astro (Ruta: /residente-dashboard)
+// TIPO: Modal de consulta histórica de solicitudes del estudiante residente
+// UBICACIÓN: src/components/residente/SolicitudesPreviasModal.jsx
+// ========================================================================================
+//
+// 1. FUNCIONAMIENTO GENERAL DEL COMPONENTE:
+// ----------------------------------------------------------------------------------------
+// Este componente interactivo de React ("Island") implementa el modal flotante tipo cajita de
+// solicitudes e incidencias previas para el estudiante residente.
+//
+// Permite al residente:
+// - Consultar el listado histórico de sus reportes de mantenimiento con su estado actual
+//   (Pendiente, En Proceso, Resuelta), código único institucional (INC-2026-XXX) y nivel de urgencia.
+// - Visualizar las respuestas o dictámenes técnicos emitidos por el personal de Bienestar Estudiantil.
+// - Actualización reactiva en tiempo real: mediante un 'EventListener' en 'window' para el evento
+//   'incidencia-creada', si el estudiante crea una nueva incidencia desde el modal vecino
+//   'ReportarIncidenciaModal.jsx', esta cajita la detecta inmediatamente y la inserta al tope
+//   de la lista sin requerir recargar la página.
+// - Retroalimentación sonora suave con Web Audio API o archivo de sonido pop institucional.
+// - Cierre intuitivo mediante tecla Escape o clic en el botón de cerrar.
+//
+// 2. VARIABLES Y ESTADOS DEL COMPONENTE:
+// ----------------------------------------------------------------------------------------
+// * incidenciasIniciales {Array<Object>} (Prop): Arreglo inyectado por el servidor con las incidencias existentes.
+// * buttonText {string} (Prop): Texto del botón disparador ("Ver mis solicitudes previas").
+// * className {string} (Prop): Clases CSS accesorias para estilizado.
+//
+// Estados locales de React (useState):
+// * isOpen {boolean}: Conmuta la visibilidad del modal de solicitudes previas (true = abierto, false = cerrado).
+// * listaIncidencias {Array<Object>}: Lista dinámica de objetos de incidencias, enriquecida en vivo con nuevos reportes.
+//
+// 3. FLUJO DE EJECUCIÓN PASO A PASO:
+// ----------------------------------------------------------------------------------------
+// Paso 1: Al montarse el componente en el navegador, se registra un 'useEffect' que escucha el evento
+//         personalizado 'incidencia-creada'.
+// Paso 2: Si el usuario pulsa "Ver mis solicitudes previas":
+//         - Se ejecuta 'handleOpen()'.
+//         - Se dispara 'reproducirSonidoApertura()', reproduciendo un pop sutil o sintetizando un tono senoidal.
+//         - Se cambia 'isOpen' a 'true', desplegando el modal con fondo desenfocado (blur) y animación.
+// Paso 3: El componente renderiza cada tarjeta de incidencia con su código, categoría, nivel de urgencia,
+//         estado coloreado (amarillo para pendiente, celeste para en proceso, verde para resuelta) y dictamen.
+// Paso 4: Si mientras está en uso o cerrado se crea un nuevo reporte, el callback 'onNueva()' recibe el detalle
+//         y ejecuta 'setListaIncidencias((prev) => [inc, ...prev])', actualizando tanto la lista como el contador
+//         del badge numérico del botón en tiempo real.
+// Paso 5: Al presionar 'Escape' o el botón de cierre, 'handleClose()' retorna 'isOpen' a false con animación suave.
+// ========================================================================================
+
 import React, { useState, useEffect } from 'react';
 
 export default function SolicitudesPreviasModal({
@@ -5,16 +53,20 @@ export default function SolicitudesPreviasModal({
   buttonText = "Ver mis solicitudes previas",
   className = ""
 }) {
+  // // Estado booleano que determina si el modal flotante se encuentra visible en la pantalla
   const [isOpen, setIsOpen] = useState(false);
+
+  // // Estado que almacena la colección reactiva de incidencias; arranca con las provistas por el servidor
   const [listaIncidencias, setListaIncidencias] = useState(incidenciasIniciales);
 
-  // Reproducir sonido suave al abrir
+  // // Reproduce sonido institucional al abrir el modal (archivo .wav con fallback sintético)
   const reproducirSonidoApertura = () => {
     try {
-      const audio = new Audio('/assets/sounds/pop.wav');
+      const audio = new Audio('/assets/sounds/pop.wav'); 
       audio.volume = 0.5;
       const p = audio.play();
       if (p !== undefined) {
+        // // Si la política del navegador deniega la reproducción directa, se recurre al sintetizador
         p.catch(() => reproducirSintetizador());
       }
     } catch (e) {
@@ -22,6 +74,7 @@ export default function SolicitudesPreviasModal({
     }
   };
 
+  // // Generador de tono acústico suave mediante la API nativa Web Audio API
   const reproducirSintetizador = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -32,10 +85,12 @@ export default function SolicitudesPreviasModal({
       const gain = ctx.createGain();
       const now = ctx.currentTime;
 
+      // // Frecuencia de apertura en rango armónico: 480 Hz a 720 Hz
       osc.type = 'sine';
       osc.frequency.setValueAtTime(480, now);
       osc.frequency.exponentialRampToValueAtTime(720, now + 0.1);
 
+      // // Envolvente de decaimiento suave para evitar ruidos de corte
       gain.gain.setValueAtTime(0.18, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
 
@@ -43,31 +98,38 @@ export default function SolicitudesPreviasModal({
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.16);
-    } catch (e) {}
+    } catch (e) {
+      // // Si el navegador no autoriza contexto de audio, continúa sin emitir sonido
+    }
   };
 
+  // // Abre el modal y reproduce el sonido de interacción
   const handleOpen = () => {
     reproducirSonidoApertura();
     setIsOpen(true);
   };
 
+  // // Oculta el modal de la pantalla
   const handleClose = () => {
     setIsOpen(false);
   };
 
-  // Escuchar cuando se crea una nueva incidencia para agregarla a la lista en vivo
+  // // Efecto de escucha global: sincroniza en vivo nuevas incidencias reportadas en la misma sesión
   useEffect(() => {
     const onNueva = (e) => {
       const inc = e.detail?.incidencia;
       if (inc) {
+        // // Inserta la nueva incidencia al principio de la lista de forma inmutable
         setListaIncidencias((prev) => [inc, ...prev]);
       }
     };
+    // // Suscripción al evento personalizado 'incidencia-creada'
     window.addEventListener('incidencia-creada', onNueva);
+    // // Limpieza del suscriptor al desmontar el componente
     return () => window.removeEventListener('incidencia-creada', onNueva);
   }, []);
 
-  // Cerrar con Escape
+  // // Efecto de accesibilidad: cierra el modal automáticamente si el usuario oprime la tecla 'Escape'
   useEffect(() => {
     const handleKeyDown = (ev) => {
       if (ev.key === 'Escape' && isOpen) handleClose();
@@ -76,6 +138,7 @@ export default function SolicitudesPreviasModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
+  // // Función utilitaria que retorna paleta de colores CSS según el estado de la incidencia
   const badgeEstado = (estado) => {
     switch (estado) {
       case 'Resuelta':
@@ -83,10 +146,12 @@ export default function SolicitudesPreviasModal({
       case 'En Proceso':
         return { bg: '#E0F2FE', color: '#0369A1', border: '#BAE6FD' };
       default:
+        // // Estado 'Pendiente' o cualquier estado inicial no resuelto
         return { bg: '#FEF3C7', color: '#B45309', border: '#FDE68A' };
     }
   };
 
+  // // Paleta de colores para las etiquetas de severidad y urgencia
   const colorUrgencia = {
     Baja: '#15803D',
     Media: '#0284C7',
@@ -96,7 +161,7 @@ export default function SolicitudesPreviasModal({
 
   return (
     <>
-      {/* Botón Disparador Secundario */}
+      {/* Botón Disparador Secundario con Contador Dinámico */}
       <button
         type="button"
         onClick={handleOpen}
@@ -134,6 +199,7 @@ export default function SolicitudesPreviasModal({
           <polyline points="10 9 9 9 8 9" />
         </svg>
         <span>{buttonText}</span>
+        {/* Contador reactivo que se incrementa en vivo */}
         {listaIncidencias.length > 0 && (
           <span
             style={{
@@ -187,7 +253,7 @@ export default function SolicitudesPreviasModal({
               animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
-            {/* Cabecera */}
+            {/* Cabecera de la Cajita */}
             <div
               style={{
                 padding: '24px 28px 18px',
@@ -221,7 +287,7 @@ export default function SolicitudesPreviasModal({
               </button>
             </div>
 
-            {/* Cuerpo de la Cajita con Scroll */}
+            {/* Cuerpo de la Cajita con Desplazamiento Vertical */}
             <div
               style={{
                 padding: '20px 28px',
@@ -251,7 +317,7 @@ export default function SolicitudesPreviasModal({
                         transition: 'box-shadow 0.15s ease'
                       }}
                     >
-                      {/* Fila superior: ID, Categoría y Estado */}
+                      {/* Fila superior: Código ID, Área y Nivel de Urgencia */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '12.5px', color: '#0F172A', backgroundColor: '#E2E8F0', padding: '2px 8px', borderRadius: '4px' }}>
@@ -275,6 +341,7 @@ export default function SolicitudesPreviasModal({
                           </span>
                         </div>
 
+                        {/* Distintivo de Estado del Trámite */}
                         <span
                           style={{
                             fontSize: '11.5px',
@@ -290,7 +357,7 @@ export default function SolicitudesPreviasModal({
                         </span>
                       </div>
 
-                      {/* Asunto y Fecha */}
+                      {/* Asunto y Explicación */}
                       <h4 style={{ fontSize: '14.5px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0' }}>
                         {inc.asunto}
                       </h4>
@@ -298,7 +365,7 @@ export default function SolicitudesPreviasModal({
                         {inc.descripcion}
                       </p>
 
-                      {/* Respuesta de Mantenimiento */}
+                      {/* Dictamen oficial emitido por el personal de Bienestar */}
                       {inc.respuestaAdmin && (
                         <div
                           style={{
@@ -318,6 +385,7 @@ export default function SolicitudesPreviasModal({
                         </div>
                       )}
 
+                      {/* Marca temporal del reporte */}
                       <span style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginTop: '8px', textAlign: 'right' }}>
                         Reportado: {inc.fechaReporte}
                       </span>
@@ -327,7 +395,7 @@ export default function SolicitudesPreviasModal({
               )}
             </div>
 
-            {/* Footer con Enlace al Historial Completo */}
+            {/* Pie del Modal con Enlace al Historial Completo y Botón de Cierre */}
             <div
               style={{
                 padding: '16px 28px',
@@ -375,7 +443,7 @@ export default function SolicitudesPreviasModal({
         </div>
       )}
 
-      {/* Keyframes */}
+      {/* Reglas de animación CSS para el efecto fade y slide-up */}
       <style>{`
         @keyframes overlayFade {
           from { opacity: 0; }

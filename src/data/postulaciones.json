@@ -1,16 +1,16 @@
 [
   {
-    "id": "POST-2026-001",
+    "id": "POST-2026-002",
     "estudiante": {
-      "nombre": "Joseph Coello Mendoza",
-      "correo": "e0953920949@live.uleam.edu.ec",
-      "cedula": "0953920949",
-      "carrera": "Ingeniería en Tecnologías de la Información · 6to Semestre",
-      "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
-      "semestre": "6to Semestre · Periodo 2026-2",
+      "nombre": "María Elena Zambrano",
+      "correo": "e1314567890@live.uleam.edu.ec",
+      "cedula": "1314567890",
+      "carrera": "Medicina · 2026-2",
+      "facultad": "Facultad de Ciencias de la Salud",
+      "semestre": "2026-2",
       "ciudadOrigen": "Foráneo"
     },
-    "fechaPostulacion": "19 oct 2026",
+    "fechaPostulacion": "20 oct 2026",
     "estado": "Aprobada",
     "prioridad": "Alta",
     "situacionSocioeconomica": {
@@ -36,8 +36,8 @@
     ],
     "accesibilidad": {
       "requiere": true,
-      "detalle": "ddsddsd",
-      "grupoVulnerable": "movilidad"
+      "detalle": "fkefjfe",
+      "grupoVulnerable": "ninguno"
     },
     "habitacionSugerida": "HAB-A101",
     "documentos": [
@@ -91,7 +91,102 @@
         "estado": "Cargado"
       }
     ],
-    "observacionesAdmin": "Postulación registrada en línea por el estudiante.ffefePendiente de dictamen institucional.",
+    "observacionesAdmin": "Aprobado de forma directa por el coordinador.",
+    "fechaRevision": "20 oct 2026"
+  },
+  {
+    "id": "POST-2026-001",
+    "estudiante": {
+      "nombre": "Joseph Coello Mendoza",
+      "correo": "e0953920949@live.uleam.edu.ec",
+      "cedula": "0953920949",
+      "carrera": "Ingeniería en Tecnologías de la Información · 2026-2",
+      "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
+      "semestre": "2026-2",
+      "ciudadOrigen": "Foráneo"
+    },
+    "fechaPostulacion": "20 oct 2026",
+    "estado": "Aprobada",
+    "prioridad": "Alta",
+    "situacionSocioeconomica": {
+      "ingresoMensual": "$ 12",
+      "egresosMensuales": "$ 12",
+      "integrantes": "4 personas",
+      "dependientes": "2 dependientes",
+      "quintil": "Quintil 1"
+    },
+    "referencias": [
+      {
+        "tipo": "Emergencia / Familiar",
+        "nombre": "",
+        "parentesco": "",
+        "telefono": ""
+      },
+      {
+        "tipo": "Personal / Académica",
+        "nombre": "",
+        "vinculo": "",
+        "telefono": ""
+      }
+    ],
+    "accesibilidad": {
+      "requiere": false,
+      "detalle": "Sin requerimientos específicos de movilidad",
+      "grupoVulnerable": "ninguno"
+    },
+    "habitacionSugerida": "HAB-A101",
+    "documentos": [
+      {
+        "id": "doc-auto-1",
+        "tipo": "Comprobante de ingresos",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-2",
+        "tipo": "Planilla de servicios",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-3",
+        "tipo": "Carta de referencia",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-4",
+        "tipo": "Declaración de núcleo familiar",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-5",
+        "tipo": "Certificado de matrícula",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-6",
+        "tipo": "Cédula de identidad",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-7",
+        "tipo": "Certificado de accesibilidad",
+        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
+        "tamano": "0.07 MB",
+        "estado": "Cargado"
+      }
+    ],
+    "observacionesAdmin": "",
     "fechaRevision": "20 oct 2026"
   }
 ]

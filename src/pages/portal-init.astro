@@ -1,6 +1,7 @@
 ---
 // src/pages/portal-init.astro
 import '../styles/portal-init.css';
+import '../styles/css-responsive/portal-init.responsive.css';
 import usuarios from '../data/usuarios.json';
 import HelpModal from '../components/shared/HelpModal.jsx';
 import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
@@ -8,32 +9,39 @@ import Footer from '../components/shared/Footer.astro';
 
 export const prerender = false;
 
-// Obtener sesión desde cookies (SSR)
+// ----------------------------------------------------------------------------------------
+// 1. GESTIÓN DE SESIÓN Y AUTENTICACIÓN DINÁMICA
+// ----------------------------------------------------------------------------------------
+
+// // Variable 'sessionCookie': Almacena la cookie de sesión institucional
 const sessionCookie = Astro.cookies.get('uleam_session')?.value;
-let estudiante = null;
+let userSession = null;
 
 if (sessionCookie) {
   try {
-    estudiante = JSON.parse(sessionCookie);
+    userSession = JSON.parse(sessionCookie);
   } catch (e) {
-    estudiante = null;
+    userSession = null;
   }
 }
 
-// Si no hay cookie en SSR, usar el estudiante de prueba en usuarios.json
-const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
-if (!estudiante) {
-  estudiante = { ...defaultUser };
-} else {
-  const match = usuarios.find((u) => u.email === estudiante.email || u.cedula === estudiante.cedula);
-  if (match) {
-    estudiante = { ...match, ...estudiante };
-  }
-}
+// // Si hay sesión activa en el navegador, se sincroniza con usuarios.json.
+// // Si no hay sesión (visita directa en desarrollo/pruebas), se usa el estudiante de usuarios.json sin datos quemados
+const estudianteBase = usuarios[0];
+const match = userSession
+  ? (usuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  : estudianteBase;
 
+const estudiante = match ? { ...match, ...(userSession || {}) } : estudianteBase;
+
+// // Determinación de estado de aceptación e iniciales dinámicas
 const esAceptado = estudiante.aceptado === 1;
 const saludo = estudiante.nombre?.endsWith('a') ? 'Bienvenida' : 'Bienvenido';
-const iniciales = ((estudiante.nombre?.charAt(0) || 'J') + (estudiante.nombreCompleto?.split(' ')[1]?.charAt(0) || 'C')).toUpperCase();
+
+const partesNombre = (estudiante.nombreCompleto || estudiante.nombre || '').split(' ').filter(Boolean);
+const iniciales = partesNombre.length >= 2
+  ? (partesNombre[0].charAt(0) + partesNombre[1].charAt(0)).toUpperCase()
+  : (partesNombre[0]?.charAt(0) || 'E').toUpperCase();
 ---
 
 <!DOCTYPE html>

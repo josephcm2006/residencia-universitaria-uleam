@@ -1,0 +1,165 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/ExpedienteModal.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente implementa el panel lateral flotante (Drawer Modal) para que el
+// administrador examine a fondo el expediente digital de un estudiante postulante:
+// - Datos académicos y procedencia.
+// - Ingresos y composición socioeconómica.
+// - Requerimientos de accesibilidad y referencias.
+// - Lista de documentos adjuntados con botón para abrirlos en el visor.
+// - Caja de observaciones para el dictamen y botones de Aprobar / Rechazar.
+// ========================================================================================
+---
+
+<div id="inspector-modal" class="admin-modal-overlay">
+  <div class="admin-modal-drawer">
+    <!-- Header del expediente -->
+    <div class="drawer-header">
+      <div>
+        <span style="font-size: 11px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Expediente de Postulación</span>
+        <h3 id="modal-student-name">Nombre del Estudiante</h3>
+      </div>
+      <button type="button" id="btn-close-drawer" class="drawer-close" aria-label="Cerrar modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cuerpo del expediente con scroll -->
+    <div class="drawer-body">
+      <!-- Sección 1: Datos Personales y Académicos -->
+      <div class="detail-section">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Información Académica y Personal</span>
+        </h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <strong>Cédula de Identidad:</strong>
+            <span id="modal-student-cedula">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Correo Institucional:</strong>
+            <span id="modal-student-email">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Carrera:</strong>
+            <span id="modal-student-carrera">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Facultad / Procedencia:</strong>
+            <span id="modal-student-facultad">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 2: Situación Socioeconómica -->
+      <div class="detail-section">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <span>Perfil Socioeconómico del Hogar</span>
+        </h4>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <strong>Ingreso Mensual del Hogar:</strong>
+            <span id="modal-student-ingresos">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Egresos Declarados:</strong>
+            <span id="modal-student-egresos">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Composición Familiar:</strong>
+            <span id="modal-student-hogar">-</span>
+          </div>
+          <div class="detail-item">
+            <strong>Clasificación Socioeconómica:</strong>
+            <span id="modal-student-quintil" style="color: #BA181B; font-weight: 700;">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 3: Contactos y Accesibilidad -->
+      <div class="detail-section">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          <span>Contactos y Accesibilidad</span>
+        </h4>
+        <div class="detail-grid">
+          <div class="detail-item" style="grid-column: span 2;">
+            <strong>Requerimientos de Accesibilidad:</strong>
+            <span id="modal-student-accesibilidad">-</span>
+          </div>
+          <div class="detail-item" style="grid-column: span 2;">
+            <strong>Referencias Registradas:</strong>
+            <span id="modal-student-referencias">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 4: Archivos y Documentos Adjuntos -->
+      <div class="detail-section">
+        <h4>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Documentos de Soporte Subidos</span>
+        </h4>
+        <p style="font-size: 12px; color: #64748B; margin-bottom: 10px;">Verifica la autenticidad y legibilidad de cada archivo adjuntado por el postulante:</p>
+        <div class="docs-list" id="modal-docs-list">
+          <!-- Inyectado dinámicamente por el script -->
+        </div>
+      </div>
+
+      <!-- Sección 5: Observaciones del Administrador -->
+      <div class="detail-section" style="background-color: #FFFBEB; border-color: #FDE68A;">
+        <h4 style="color: #92400E;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          <span>Observaciones del Dictamen</span>
+        </h4>
+        <textarea id="modal-admin-notes" rows="2" style="width: 100%; padding: 10px; font-size: 12.5px; border: 1px solid #FCD34D; border-radius: 6px; outline: none; font-family: inherit;" placeholder="Escribe aquí las observaciones o justificación para la aprobación o rechazo..."></textarea>
+      </div>
+    </div>
+
+    <!-- Footer del expediente con botones de Dictamen -->
+    <div class="drawer-footer">
+      <div style="font-size: 12px;">
+        <span>Estado actual: </span>
+        <strong id="modal-current-status" style="text-transform: uppercase;">PENDIENTE</strong>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" id="btn-modal-reject" class="btn-admin-reject">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>Rechazar Solicitud</span>
+        </button>
+        <button type="button" id="btn-modal-approve" class="btn-admin-approve">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Aprobar Solicitud</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

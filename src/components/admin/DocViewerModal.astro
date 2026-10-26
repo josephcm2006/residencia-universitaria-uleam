@@ -1,0 +1,48 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/DocViewerModal.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente implementa la ventana modal simulada para previsualizar los archivos de soporte
+// en formato PDF o imagen subidos por el estudiante (cédula, certificados, etc.).
+// Permite al administrador verificar el documento sin descargarlo externamente.
+// ========================================================================================
+---
+
+<div id="doc-viewer-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #ffffff; width: 100%; max-width: 650px; border-radius: 8px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+    <!-- Barra superior -->
+    <div style="padding: 14px 20px; background: #0F172A; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+      <strong id="viewer-doc-title" style="font-size: 13.5px;">Visor de Documento</strong>
+      <button type="button" id="btn-close-viewer" style="background: transparent; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;" aria-label="Cerrar visor">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Cuerpo del visor -->
+    <div style="padding: 30px 20px; text-align: center; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+      <div style="width: 60px; height: 60px; border-radius: 12px; background: #E2E8F0; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #475569;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+      <h4 id="viewer-file-name" style="font-size: 16px; margin-bottom: 4px; color: #0F172A;">documento.pdf</h4>
+      <p id="viewer-file-size" style="font-size: 12px; color: #64748B;">1.4 MB · Documento Oficial Cifrado</p>
+      <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; background: #DCFCE7; color: #15803D; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 99px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #16A34A; display: inline-block;"></span>
+        Sello Digital ULEAM Verificado
+      </div>
+    </div>
+
+    <!-- Pie del visor -->
+    <div style="padding: 12px 20px; text-align: right; background: #ffffff;">
+      <button type="button" id="btn-close-viewer-ok" class="btn-inspect" style="padding: 7px 18px;">Cerrar vista previa</button>
+    </div>
+  </div>
+</div>

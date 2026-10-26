@@ -3,17 +3,18 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import '../styles/postulation.css';
+import '../styles/css-responsive/postulation.responsive.css';
 import usuarios from '../data/usuarios.json';
 import fallbackPostulaciones from '../data/postulaciones.json';
 
 // Componentes Globales
 import HelpModal from '../components/shared/HelpModal.jsx';
 import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
-import PostulationErrorModal from '../components/shared/PostulationErrorModal.jsx';
-import AnimacionPostulacion from '../components/animations/AnimacionPostulacion.jsx';
+import PostulationErrorModal from '../components/postulacion/PostulationErrorModal.jsx';
+import AnimacionPostulacion from '../components/postulacion/AnimacionPostulacion.jsx';
 import Footer from '../components/shared/Footer.astro';
 
-// Secciones Modulares del Formulario
+// --formulario components postulacion
 import DatosPersonalesSection from '../components/postulacion/DatosPersonalesSection.astro';
 import IdentidadMatriculaSection from '../components/postulacion/IdentidadMatriculaSection.astro';
 import ComposicionHogarSection from '../components/postulacion/ComposicionHogarSection.astro';
@@ -25,10 +26,17 @@ import ConsentimientoSection from '../components/postulacion/ConsentimientoSecti
 import EtapasPostulacionSection from '../components/postulacion/EtapasPostulacionSection.astro';
 import JsonPreviewModal from '../components/postulacion/JsonPreviewModal.astro';
 
+// Indicador para el runtime de Astro para ejecución dinámica bajo demanda (SSR en servidor)
 export const prerender = false;
 
-// 1. Obtener la sesión activa del usuario desde cookies o usar el estudiante por defecto
+// ----------------------------------------------------------------------------------------
+// 1. GESTIÓN DE SESIÓN Y AUTENTICACIÓN DINÁMICA
+// ----------------------------------------------------------------------------------------
+
+// // Variable 'sessionCookie': Almacena el valor de la cookie HTTP-Only 'uleam_session'
 const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+
+// // Variable 'userSession': Objeto con las credenciales decodificadas de la sesión activa
 let userSession = null;
 if (sessionCookie) {
   try {
@@ -38,18 +46,37 @@ if (sessionCookie) {
   }
 }
 
-const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
-const activeUser = userSession || defaultUser;
-const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
-const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+// // Si hay sesión activa, se sincroniza con usuarios.json. Si no hay sesión (pruebas directas en navegador),
+// // se toma el estudiante postulante de usuarios.json sin datos quemados para permitir previsualizar el formulario.
+const estudiantePostulante = usuarios.find((u) => u.aceptado === 0) || usuarios[0];
+const usuarioEncontrado = userSession
+  ? (usuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  : estudiantePostulante;
+
+const activeUser = usuarioEncontrado ? { ...usuarioEncontrado, ...(userSession || {}) } : estudiantePostulante;
+
+// // Regla de Negocio: Si un estudiante con sesión activa ya tiene calidad de aceptado (1), redirigir a su Dashboard
+if (userSession && activeUser.aceptado === 1) {
+  return Astro.redirect('/residente-dashboard');
+}
+
+// // Extracción 100% dinámica de las propiedades del estudiante autenticado (sin datos quemados)
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Estudiante ULEAM";
+const nombreCorto = activeUser.nombre || (nombreCompleto ? nombreCompleto.split(' ')[0] : "Estudiante");
 const rol = activeUser.rol || "Estudiante";
-const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
-const cedula = activeUser.cedula || "0953920949";
-const carrera = activeUser.carrera ? `${activeUser.carrera} · 6to Semestre` : "Ingeniería en Tecnologías de la Información · 6to Semestre";
+const correo = activeUser.email || activeUser.correo || "";
+const cedula = activeUser.cedula || "";
+const carrera = activeUser.carrera 
+  ? `${activeUser.carrera}${activeUser.periodo ? ` · ${activeUser.periodo}` : ''}` 
+  : "Carrera Universitaria";
 
-const partes = nombreCompleto.split(' ');
-const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+// // Cálculo dinámico de iniciales para el avatar del estudiante
+const partes = nombreCompleto.split(' ').filter(Boolean);
+const iniciales = partes.length >= 2
+  ? (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase()
+  : (partes[0]?.charAt(0) || 'U').toUpperCase();
 
+// // Objeto consolidado del estudiante para inyectar en las secciones del formulario
 const estudiante = {
   nombre: nombreCompleto,
   nombreCorto: nombreCorto,
@@ -197,7 +224,7 @@ if (postExistente) {
     <!-- Footer Institucional Unificado -->
     <Footer />
 
-    <!-- Lógica Cliente Modular -->
-    <script src="../scripts/postulacion.js"></script>
+    <!-- Lógica Cliente y Validaciones del Formulario de Postulación -->
+    <script src="../scripts/postulacion/postulacion.js"></script>
   </body>
 </html>

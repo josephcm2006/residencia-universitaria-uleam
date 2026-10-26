@@ -1,0 +1,222 @@
+/**
+ * ============================================================================
+ * CSS RESPONSIVE: PÁGINA DE INICIO Y ACCESO INSTITUCIONAL (INDEX / LOGIN)
+ * ============================================================================
+ * UBICACIÓN: src/styles/css-responsive/index.responsive.css
+ * PÁGINA ASOCIADA: src/pages/index.astro (Ruta: /)
+ * DISPOSITIVOS: Tablets (<= 1024px), Móviles (<= 768px) y Pantallas pequeñas (<= 480px)
+ */
+
+@import './global.responsive.css';
+
+/* ----------------------------------------------------------------------------
+   1. TABLETS Y PANTALLAS MEDIANAS (<= 1024px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  main.split-layout {
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 110px);
+  }
+
+  .hero-panel {
+    padding: 40px 32px;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(28px, 3.5vw, 40px);
+    line-height: 1.15;
+  }
+
+  .login-panel {
+    padding: 30px 24px;
+  }
+
+  .card-login {
+    max-width: 440px;
+    padding: 32px 28px;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   2. MÓVILES Y PANTALLAS ESTRECHAS (<= 768px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  main.split-layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  /* Versión compacta y elegante del panel Hero en pantallas móviles */
+  .hero-panel {
+    padding: 32px 20px 24px 20px;
+    min-height: auto;
+    text-align: center;
+    background: linear-gradient(180deg, #1A1F29 0%, #121418 100%);
+  }
+
+  .hero-text {
+    max-width: 100%;
+  }
+
+  .hero-text h1 {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+
+  .hero-text h1 br {
+    display: none; /* Fluidez natural del texto en una sola frase */
+  }
+
+  .hero-text p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    max-width: 420px;
+    margin: 0 auto 16px auto;
+  }
+
+  .hero-badges {
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .hero-badges span {
+    font-size: 11.5px;
+    padding: 5px 12px;
+  }
+
+  /* Tarjeta de login en móvil */
+  .login-panel {
+    padding: 24px 16px 40px 16px;
+    background-color: #F8FAFC;
+  }
+
+  .logo-container {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .logo-container img {
+    height: 48px;
+  }
+
+  .card-login {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 26px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border-radius: 14px;
+  }
+
+  .card-login h2 {
+    font-size: 19px;
+    line-height: 1.25;
+  }
+
+  .card-login .desc {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+
+  .info-box {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+
+  .info-email {
+    font-size: 13px;
+    word-break: break-all;
+  }
+
+  .btn-microsoft {
+    width: 100%;
+    min-height: 48px;
+    font-size: 14px;
+    justify-content: center;
+  }
+
+  /* Ventana Modal Microsoft 365 adaptada a móviles */
+  .ms-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .ms-modal-container {
+    width: 100% !important;
+    max-width: 420px !important;
+  }
+
+  .ms-modal-card {
+    padding: 26px 18px !important;
+    border-radius: 12px !important;
+  }
+
+  .ms-title {
+    font-size: 18px !important;
+  }
+
+  .ms-subtitle {
+    font-size: 12px !important;
+  }
+
+  .ms-test-helper {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  .ms-test-helper > div:last-child {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .btn-fill-creds {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 8px 10px !important;
+  }
+
+  .ms-actions {
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+  }
+
+  .ms-actions button {
+    width: 100% !important;
+    min-height: 44px !important;
+    justify-content: center !important;
+  }
+
+  .ms-options-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   3. PANTALLAS MUY PEQUEÑAS (<= 480px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .hero-panel {
+    display: none; /* En teléfonos ultracompactos, prioriza 100% la tarjeta de login directa */
+  }
+
+  .card-login {
+    padding: 22px 16px;
+  }
+
+  .card-login h2 {
+    font-size: 17.5px;
+  }
+
+  .btn-microsoft {
+    font-size: 13px;
+    padding: 12px 14px;
+  }
+}

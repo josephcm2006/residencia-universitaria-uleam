@@ -1,5 +1,27 @@
 import React, { useState } from 'react';
 
+/**
+ * ============================================================================
+ * COMPONENTE COMPARTIDO: Modal de confirmación de salida y cierre de sesión
+ * USADO EN: Cabeceras de todas las páginas protegidas (/portal-init, /postulation, /residente-dashboard, /dashboard)
+ * ============================================================================
+ * UBICACIÓN: src/components/shared/ExitConfirmModal.jsx
+ * 
+ * FUNCIONAMIENTO GENERAL:
+ * Este componente despliega un diálogo emergente de confirmación institucional:
+ * 1. Previene salidas accidentales en formularios o pantallas de postulación.
+ * 2. Al confirmar, remueve las credenciales en localStorage ('uleam_session').
+ * 3. Redirige a la ruta asignada (por defecto '/api/auth/logout' para eliminar cookies).
+ * 4. Implementa fondo oscurecido con desenfoque (blur de 8px).
+ * 
+ * PROPS:
+ * - 'buttonText': Texto del botón activador (ej: "↪ Salir" o "Cerrar sesión").
+ * - 'title': Encabezado de la ventana modal.
+ * - 'message': Texto explicativo para advertir al usuario.
+ * - 'confirmText': Texto del botón de confirmación de salida.
+ * - 'cancelText': Texto del botón para cancelar y quedarse en la página.
+ * - 'redirectUrl': Destino de navegación al confirmar la salida.
+ */
 export default function ExitConfirmModal({
   buttonText = "↪ Cerrar sesión",
   title = "¿Estás seguro de que deseas salir?",
@@ -10,18 +32,25 @@ export default function ExitConfirmModal({
   className = "logout-link",
   customStyle = {}
 }) {
+  // VARIABLE 'isOpen': Estado de visibilidad (true = modal abierto, false = cerrado).
   const [isOpen, setIsOpen] = useState(false);
 
+  /**
+   * Ejecuta la limpieza de la sesión local y efectúa la redirección.
+   */
   const handleConfirm = () => {
     try {
+      // Limpia la clave de sesión en el almacenamiento del navegador
       localStorage.removeItem('uleam_session');
     } catch (e) {}
+
+    // Redirige al endpoint de logout o a la URL especificada
     window.location.href = redirectUrl;
   };
 
   return (
     <>
-      {/* Botón Disparador */}
+      {/* Botón Disparador en la Cabecera */}
       <button
         type="button"
         onClick={() => setIsOpen(true)}
@@ -40,7 +69,7 @@ export default function ExitConfirmModal({
         {buttonText}
       </button>
 
-      {/* Ventana Emergente con Fondo Blur */}
+      {/* Ventana Emergente con Fondo Desenfoque (Backdrop Blur) */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
@@ -60,18 +89,18 @@ export default function ExitConfirmModal({
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: '#ffffff',
+              backgroundColor: '#FFFFFF',
               borderRadius: '8px',
               maxWidth: '420px',
               width: '100%',
               padding: '28px',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
               color: '#18181B',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
+              fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
               textAlign: 'center'
             }}
           >
-            {/* Icono de advertencia */}
+            {/* Icono de Salida Institucional */}
             <div
               style={{
                 width: '52px',
@@ -86,7 +115,11 @@ export default function ExitConfirmModal({
                 fontSize: '24px'
               }}
             >
-              🚪
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
             </div>
 
             {/* Título y Mensaje */}
@@ -104,31 +137,30 @@ export default function ExitConfirmModal({
                 onClick={() => setIsOpen(false)}
                 style={{
                   flex: 1,
-                  backgroundColor: '#F4F4F5',
-                  color: '#18181B',
-                  border: '1px solid #E4E4E7',
-                  borderRadius: '4px',
                   padding: '10px 16px',
-                  fontSize: '13px',
+                  borderRadius: '4px',
+                  border: '1px solid #E4E4E7',
+                  backgroundColor: '#FFFFFF',
+                  color: '#18181B',
                   fontWeight: 600,
+                  fontSize: '13px',
                   cursor: 'pointer'
                 }}
               >
                 {cancelText}
               </button>
-
               <button
                 type="button"
                 onClick={handleConfirm}
                 style={{
                   flex: 1,
-                  backgroundColor: '#BA181B',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '4px',
                   padding: '10px 16px',
-                  fontSize: '13px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  backgroundColor: '#BA181B',
+                  color: '#FFFFFF',
                   fontWeight: 700,
+                  fontSize: '13px',
                   cursor: 'pointer'
                 }}
               >

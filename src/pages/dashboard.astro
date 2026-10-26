@@ -1,21 +1,53 @@
 ---
-// src/pages/dashboard.astro
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/pages/dashboard.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este archivo actúa como la vista controladora principal de la Consola de Administración.
+// Organiza de forma limpia y modular la interfaz gráfica dividiéndola en subcomponentes:
+// 1. Sidebar (Menú lateral y perfil de administrador).
+// 2. Vista de Postulaciones (KPIs, búsqueda, filtros y tabla de solicitudes).
+// 3. Vista de Habitaciones (Inventario de dormitorios y ocupación física).
+// 4. Vista de Residentes (Padrón oficial de estudiantes admitidos).
+// 5. Vista de Reportes (Estadísticas y balance de cupos por edificio).
+// 6. Modales de Inspección de Expediente y Visor de Documentos Digitales.
+//
+// CARACTERÍSTICAS TÉCNICAS:
+// - Arquitectura Frontend Modular: Cada sección reside en su propio componente Astro.
+// - Script modular en 'src/scripts/dashboard.js'.
+// - Cero redundancia de código y máxima legibilidad para exposiciones y defensas de proyecto.
+// ========================================================================================
+
 import '../styles/dashboard.css';
+import '../styles/css-responsive/dashboard.responsive.css';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import administradores from '../data/administradores.json';
 import fallbackPostulaciones from '../data/postulaciones.json';
 import fallbackHabitaciones from '../data/habitaciones.json';
+import fallbackUsuarios from '../data/usuarios.json';
+
+// Componentes Modulares de la Consola
+import DashboardSidebar from '../components/admin/DashboardSidebar.astro';
+import VistaPostulaciones from '../components/admin/VistaPostulaciones.astro';
+import VistaHabitaciones from '../components/admin/VistaHabitaciones.astro';
+import VistaResidentes from '../components/admin/VistaResidentes.astro';
+import VistaReportes from '../components/admin/VistaReportes.astro';
+import ExpedienteModal from '../components/admin/ExpedienteModal.astro';
+import DocViewerModal from '../components/admin/DocViewerModal.astro';
+
+// Componentes Compartidos
 import HelpModal from '../components/shared/HelpModal.jsx';
 import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
 import Footer from '../components/shared/Footer.astro';
 
 export const prerender = false;
 
-// 1. Obtener la sesión activa del usuario logueado
+// 1. Obtener la sesión activa del administrador
 const sessionCookie = Astro.cookies.get('uleam_session')?.value;
 let userSession = null;
-
 if (sessionCookie) {
   try {
     userSession = JSON.parse(sessionCookie);
@@ -24,16 +56,12 @@ if (sessionCookie) {
   }
 }
 
-// 2. Si no hay cookie en SSR, usar el administrador registrado en administradores.json
+// 2. Administrador activo con fallback limpio
 const defaultAdmin = administradores[0];
 const activeAdmin = userSession || defaultAdmin;
+const inicialesAdmin = (activeAdmin.nombre?.charAt(0) || 'A') + (activeAdmin.nombreCompleto?.split(' ')[1]?.charAt(0) || 'D');
 
-// Proteger la ruta si no es administrador
-if (userSession && userSession.rol !== 'Administrador') {
-  return Astro.redirect('/portal-init');
-}
-
-// 3. Cargar postulaciones en vivo desde disco
+// 3. Cargar postulaciones desde disco
 let postulaciones = fallbackPostulaciones;
 try {
   const filePath = path.resolve('src/data/postulaciones.json');
@@ -43,7 +71,17 @@ try {
   postulaciones = fallbackPostulaciones;
 }
 
-// 4. Cargar habitaciones en vivo desde disco
+// 4. Cargar catálogo de usuarios
+let usuarios = fallbackUsuarios;
+try {
+  const userPath = path.resolve('src/data/usuarios.json');
+  const rawUsers = await fs.readFile(userPath, 'utf-8');
+  usuarios = JSON.parse(rawUsers);
+} catch (e) {
+  usuarios = fallbackUsuarios;
+}
+
+// 5. Cargar inventario de habitaciones
 let habitaciones = fallbackHabitaciones;
 try {
   const habFilePath = path.resolve('src/data/habitaciones.json');
@@ -53,14 +91,30 @@ try {
   habitaciones = fallbackHabitaciones;
 }
 
-// 5. Métricas iniciales
-const totalPostulaciones = postulaciones.length;
+// 6. Residentes admitidos y sincronización visual de habitaciones
+const residentesAceptados = usuarios.filter((u) => u.aceptado === 1 && u.habitacionId);
+
+const habitacionesSincronizadas = habitaciones.map((hab) => {
+  const ocupantes = residentesAceptados.filter((u) => u.habitacionId === hab.id);
+  const total = ocupantes.length;
+  return {
+    ...hab,
+    ocupantesActuales: total,
+    estado: total >= hab.capacidad ? 'Ocupada' : 'Disponible',
+    residentes: ocupantes
+  };
+});
+
+// 7. Métricas cuantitativas del periodo
 const pendientes = postulaciones.filter((p) => p.estado === 'Pendiente').length;
 const aprobadas = postulaciones.filter((p) => p.estado === 'Aprobada').length;
 const rechazadas = postulaciones.filter((p) => p.estado === 'Rechazada').length;
-const habDisponibles = habitaciones.filter((h) => h.estado === 'Disponible').length;
+const habDisponibles = habitacionesSincronizadas.filter((h) => h.estado === 'Disponible').length;
 
-const inicialesAdmin = (activeAdmin.nombre?.charAt(0) || 'F') + (activeAdmin.nombreCompleto?.split(' ')[1]?.charAt(0) || 'M');
+const totalCamas = habitacionesSincronizadas.reduce((sum, h) => sum + h.capacidad, 0);
+const camasOcupadas = habitacionesSincronizadas.reduce((sum, h) => sum + h.ocupantesActuales, 0);
+const camasLibres = Math.max(0, totalCamas - camasOcupadas);
+const porcentajeOcupacion = totalCamas > 0 ? Math.round((camasOcupadas / totalCamas) * 100) : 0;
 ---
 
 <!DOCTYPE html>
@@ -72,94 +126,23 @@ const inicialesAdmin = (activeAdmin.nombre?.charAt(0) || 'F') + (activeAdmin.nom
   </head>
   <body>
     <div class="admin-layout">
-      <!-- 1. BARRA LATERAL (SIDEBAR DE NAVEGACIÓN) -->
-      <aside class="admin-sidebar">
-        <div>
-          <!-- Cabecera Sidebar -->
-          <div class="sidebar-header">
-            <img src="/assets/icons/logo-uleeam-4x4-removebg-preview.svg" alt="ULEAM Logo" />
-            <div class="sidebar-brand-text">
-              <h3>Residencia ULEAM</h3>
-              <p>Panel de Administración</p>
-            </div>
-          </div>
+      <!-- 1. Menú Lateral (Sidebar) Modular -->
+      <DashboardSidebar
+        pendientes={pendientes}
+        totalHabitaciones={habitacionesSincronizadas.length}
+        totalResidentes={residentesAceptados.length}
+        porcentajeOcupacion={porcentajeOcupacion}
+        activeAdmin={{
+          nombreCompleto: activeAdmin.nombreCompleto,
+          cargo: activeAdmin.cargo || 'Coordinador de Residencias',
+          rol: activeAdmin.rol,
+          iniciales: inicialesAdmin
+        }}
+      />
 
-          <!-- Navegación -->
-          <nav class="sidebar-nav">
-            <span class="sidebar-nav-title">Gestión Principal</span>
-
-            <button type="button" class="nav-item-btn active" id="tab-btn-postulaciones" data-target-view="view-postulaciones">
-              <span class="nav-label">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
-                Postulaciones
-              </span>
-              <span class="nav-badge" id="sidebar-badge-pendientes">{pendientes}</span>
-            </button>
-
-            <button type="button" class="nav-item-btn" id="tab-btn-habitaciones" data-target-view="view-habitaciones">
-              <span class="nav-label">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-                  <line x1="9" y1="6" x2="9.01" y2="6"></line>
-                  <line x1="15" y1="6" x2="15.01" y2="6"></line>
-                  <line x1="9" y1="10" x2="9.01" y2="10"></line>
-                  <line x1="15" y1="10" x2="15.01" y2="10"></line>
-                  <line x1="9" y1="14" x2="9.01" y2="14"></line>
-                  <line x1="15" y1="14" x2="15.01" y2="14"></line>
-                  <line x1="9" y1="18" x2="15" y2="18"></line>
-                </svg>
-                Habitaciones
-              </span>
-              <span class="nav-badge">{habitaciones.length}</span>
-            </button>
-
-            <span class="sidebar-nav-title" style="margin-top: 14px;">Administración</span>
-
-            <button type="button" class="nav-item-btn" id="tab-btn-estudiantes" data-target-view="view-estudiantes">
-              <span class="nav-label">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                Residentes
-              </span>
-            </button>
-
-            <button type="button" class="nav-item-btn" id="tab-btn-reportes" data-target-view="view-reportes">
-              <span class="nav-label">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="20" x2="18" y2="10"></line>
-                  <line x1="12" y1="20" x2="12" y2="4"></line>
-                  <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                Reportes & Cupos
-              </span>
-            </button>
-          </nav>
-        </div>
-
-        <!-- Perfil Administrador inferior -->
-        <div class="sidebar-footer">
-          <div class="admin-card">
-            <div class="admin-avatar">{inicialesAdmin}</div>
-            <div class="admin-info">
-              <strong>{activeAdmin.nombreCompleto}</strong>
-              <span>{activeAdmin.cargo || activeAdmin.rol}</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- 2. CONTENIDO PRINCIPAL -->
+      <!-- 2. Área Principal de Trabajo -->
       <div class="admin-main">
-        <!-- Topbar superior -->
+        <!-- Topbar Superior Institucional -->
         <header class="admin-topbar">
           <div class="breadcrumb-nav">
             <span>Consola ULEAM</span>
@@ -168,12 +151,8 @@ const inicialesAdmin = (activeAdmin.nombre?.charAt(0) || 'F') + (activeAdmin.nom
           </div>
 
           <div class="topbar-actions">
-            <!-- Componente de Ayuda -->
             <HelpModal client:load buttonText="Soporte" className="help-link" />
-
             <div style="width: 1px; height: 22px; background-color: #E2E8F0;"></div>
-
-            <!-- Componente de Salir con Blur -->
             <ExitConfirmModal
               client:load
               buttonText="Salir"
@@ -185,775 +164,42 @@ const inicialesAdmin = (activeAdmin.nombre?.charAt(0) || 'F') + (activeAdmin.nom
           </div>
         </header>
 
-        <!-- ==============================================
-             VISTA 1: POSTULACIONES ESTUDIANTILES (PRINCIPAL)
-             ============================================== -->
-        <main class="admin-content-view" id="view-postulaciones">
-          <div class="view-header">
-            <div>
-              <h1>Revisión de Postulaciones</h1>
-              <p>Evalúa las solicitudes de alojamiento universitario, revisa los soportes y dictamina la asignación.</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button type="button" id="btn-export-json" class="btn-inspect" style="background-color: #0F172A; padding: 9px 16px; border: 1px solid #334155;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                <span>Exportar JSON</span>
-              </button>
-            </div>
-          </div>
+        <!-- Vistas Modulares del Dashboard -->
+        <VistaPostulaciones
+          postulaciones={postulaciones}
+          pendientes={pendientes}
+          aprobadas={aprobadas}
+          rechazadas={rechazadas}
+          habDisponibles={habDisponibles}
+        />
 
-          <!-- Métricas KPIs -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Por revisar</span>
-                <h2 id="kpi-pendientes">{pendientes}</h2>
-              </div>
-              <div class="kpi-icon yellow">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-              </div>
-            </div>
+        <VistaHabitaciones
+          habitaciones={habitacionesSincronizadas}
+          habDisponibles={habDisponibles}
+        />
 
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Aprobadas</span>
-                <h2 id="kpi-aprobadas">{aprobadas}</h2>
-              </div>
-              <div class="kpi-icon green">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-              </div>
-            </div>
+        <VistaResidentes
+          residentes={residentesAceptados}
+        />
 
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Rechazadas</span>
-                <h2 id="kpi-rechazadas">{rechazadas}</h2>
-              </div>
-              <div class="kpi-icon red">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-              </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Habitaciones Libres</span>
-                <h2 id="kpi-habitaciones-libres">{habDisponibles}</h2>
-              </div>
-              <div class="kpi-icon blue">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 4v16"></path>
-                  <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
-                  <path d="M2 17h20"></path>
-                  <path d="M6 8v9"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Filtros y Búsqueda -->
-          <div class="filters-bar">
-            <div class="search-input-wrapper">
-              <span class="search-icon">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-              </span>
-              <input type="text" id="input-search-postulacion" class="search-input" placeholder="Buscar por estudiante, cédula o carrera..." />
-            </div>
-
-            <div class="filter-tags">
-              <button type="button" class="filter-btn active" data-filter="todos">Todas ({totalPostulaciones})</button>
-              <button type="button" class="filter-btn" data-filter="Pendiente">Pendientes ({pendientes})</button>
-              <button type="button" class="filter-btn" data-filter="Aprobada">Aprobadas ({aprobadas})</button>
-              <button type="button" class="filter-btn" data-filter="Rechazada">Rechazadas ({rechazadas})</button>
-            </div>
-          </div>
-
-          <!-- Tabla de Postulaciones -->
-          <div class="table-card">
-            <table class="data-table" id="tabla-postulaciones">
-              <thead>
-                <tr>
-                  <th>Estudiante</th>
-                  <th>Cédula</th>
-                  <th>Carrera</th>
-                  <th>Fecha</th>
-                  <th>Prioridad</th>
-                  <th>Estado</th>
-                  <th style="text-align: right;">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-postulaciones">
-                {postulaciones.length === 0 ? (
-                  <tr id="row-empty-state">
-                    <td colspan="7" style="text-align: center; padding: 54px 20px; color: #64748B;">
-                      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                        <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8;">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                            <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-                          </svg>
-                        </div>
-                        <strong style="font-size: 15px; color: #1E293B;">No hay postulaciones registradas aún</strong>
-                        <p style="font-size: 13px; margin: 0; max-width: 440px; color: #64748B;">
-                          Las solicitudes que los estudiantes envíen desde el formulario del portal aparecerán aquí de forma inmediata para su revisión.
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  postulaciones.map((post) => (
-                    <tr data-post-id={post.id} data-status={post.estado}>
-                      <td>
-                        <div class="student-meta">
-                          <strong>{post.estudiante.nombre}</strong>
-                          <span>{post.estudiante.correo}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span style="font-family: monospace; font-weight: 700; color: #334155;">{post.estudiante.cedula}</span>
-                      </td>
-                      <td>
-                        <span style="font-size: 12.5px;">{post.estudiante.carrera}</span>
-                      </td>
-                      <td>
-                        <span style="color: #64748B; font-size: 12px;">{post.fechaPostulacion}</span>
-                      </td>
-                      <td>
-                        <span class={`priority-tag ${post.prioridad.toLowerCase()}`}>{post.prioridad}</span>
-                      </td>
-                      <td>
-                        <span class={`status-badge ${post.estado.toLowerCase()}`} id={`status-badge-${post.id}`}>
-                          <span class="status-dot"></span>
-                          {post.estado}
-                        </span>
-                      </td>
-                      <td style="text-align: right;">
-                        <div class="action-buttons" style="justify-content: flex-end;">
-                          <button type="button" class="btn-inspect" data-action="inspect" data-post-id={post.id}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                              <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            <span>Revisar expediente</span>
-                          </button>
-                          {post.estado === 'Pendiente' && (
-                            <>
-                              <button type="button" class="btn-quick-approve" title="Aprobar de inmediato" data-action="quick-approve" data-post-id={post.id} aria-label="Aprobar">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                  <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                              </button>
-                              <button type="button" class="btn-quick-reject" title="Rechazar" data-action="quick-reject" data-post-id={post.id} aria-label="Rechazar">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </main>
-
-        <!-- ==============================================
-             VISTA 2: INVENTARIO DE HABITACIONES
-             ============================================== -->
-        <main class="admin-content-view" id="view-habitaciones" style="display: none;">
-          <div class="view-header">
-            <div>
-              <h1>Catálogo de Habitaciones</h1>
-              <p>Consulta la ocupación y disponibilidad en tiempo real de los módulos de residencia.</p>
-            </div>
-            <span style="font-size: 13px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 6px 14px; border-radius: 99px;">
-              ● {habDisponibles} Habitaciones Disponibles
-            </span>
-          </div>
-
-          <!-- Grid de Habitaciones -->
-          <div class="rooms-grid">
-            {habitaciones.map((hab) => (
-              <div class="room-card-admin">
-                <div class="room-thumb-wrapper">
-                  <img src={hab.imagen} alt={`Habitación ${hab.numero}`} />
-                  <span class={`room-status-pill ${hab.estado.toLowerCase()}`}>{hab.estado}</span>
-                </div>
-                <div class="room-card-content">
-                  <div>
-                    <h3>
-                      <span>Habitación {hab.numero}</span>
-                      <span style="font-size: 13px; color: #64748B;">{hab.tipo}</span>
-                    </h3>
-                    <p class="room-building">{hab.edificio} · {hab.piso}</p>
-
-                    <div class="room-amenities">
-                      {hab.amenidades.slice(0, 3).map((am) => (
-                        <span class="amenity-chip">{am}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div class="room-capacity-track">
-                    <div style="display: flex; justify-content: space-between; font-weight: 600;">
-                      <span>Ocupación: {hab.ocupantesActuales}/{hab.capacidad} camas</span>
-                      <span>{Math.round((hab.ocupantesActuales / hab.capacidad) * 100)}%</span>
-                    </div>
-                    <div class="cap-bar">
-                      <div class="cap-fill" style={`width: ${(hab.ocupantesActuales / hab.capacidad) * 100}%`}></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
-
-        <!-- ==============================================
-             VISTA 3: RESIDENTES (PROVISIONAL)
-             ============================================== -->
-        <main class="admin-content-view" id="view-estudiantes" style="display: none;">
-          <div class="view-header">
-            <div>
-              <h1>Estudiantes Residentes</h1>
-              <p>Padrón de estudiantes con asignación activa en el periodo académico vigente 2026-2.</p>
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #E2E8F0; padding: 48px 20px; text-align: center; border-radius: 10px;">
-            <div style="width: 52px; height: 52px; border-radius: 12px; background: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #64748B; margin: 0 auto 14px;">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <h3 style="margin-top: 10px; font-size: 16px; color: #0F172A;">Módulo de Asignaciones</h3>
-            <p style="color: #64748B; font-size: 13px; margin-top: 4px;">Las postulaciones aprobadas se registrarán automáticamente en este módulo.</p>
-          </div>
-        </main>
-
-        <!-- ==============================================
-             VISTA 4: REPORTES (PROVISIONAL)
-             ============================================== -->
-        <main class="admin-content-view" id="view-reportes" style="display: none;">
-          <div class="view-header">
-            <div>
-              <h1>Reportes y Estadísticas</h1>
-              <p>Métricas de demanda habitacional e indicadores socioeconómicos del periodo.</p>
-            </div>
-          </div>
-          <div style="background: #ffffff; border: 1px solid #E2E8F0; padding: 48px 20px; text-align: center; border-radius: 10px;">
-            <div style="width: 52px; height: 52px; border-radius: 12px; background: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #64748B; margin: 0 auto 14px;">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-              </svg>
-            </div>
-            <h3 style="margin-top: 10px; font-size: 16px; color: #0F172A;">Estadísticas de la Convocatoria</h3>
-            <p style="color: #64748B; font-size: 13px; margin-top: 4px;">Demanda del 78% en relación a los cupos disponibles en el campus matriz.</p>
-          </div>
-        </main>
+        <VistaReportes
+          totalCamas={totalCamas}
+          camasOcupadas={camasOcupadas}
+          camasLibres={camasLibres}
+          porcentajeOcupacion={porcentajeOcupacion}
+          habitaciones={habitacionesSincronizadas}
+        />
       </div>
     </div>
 
-    <!-- ==============================================
-         3. MODAL DE INSPECCIÓN DE EXPEDIENTE COMPLETO
-         ============================================== -->
-    <div id="inspector-modal" class="admin-modal-overlay">
-      <div class="admin-modal-drawer">
-        <!-- Header del expediente -->
-        <div class="drawer-header">
-          <div>
-            <span style="font-size: 11px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Expediente de Postulación</span>
-            <h3 id="modal-student-name">Nombre del Estudiante</h3>
-          </div>
-          <button type="button" id="btn-close-drawer" class="drawer-close" aria-label="Cerrar modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
+    <!-- Modales Flotantes de Inspección y Visor -->
+    <ExpedienteModal />
+    <DocViewerModal />
 
-        <!-- Cuerpo del expediente -->
-        <div class="drawer-body">
-          <!-- Sección 1: Datos Personales -->
-          <div class="detail-section">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              <span>Información Académica y Personal</span>
-            </h4>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <strong>Cédula de Identidad:</strong>
-                <span id="modal-student-cedula">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Correo Institucional:</strong>
-                <span id="modal-student-email">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Carrera:</strong>
-                <span id="modal-student-carrera">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Facultad / Procedencia:</strong>
-                <span id="modal-student-facultad">-</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sección 2: Situación Socioeconómica -->
-          <div class="detail-section">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-              <span>Perfil Socioeconómico del Hogar</span>
-            </h4>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <strong>Ingreso Mensual del Hogar:</strong>
-                <span id="modal-student-ingresos">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Egresos Declarados:</strong>
-                <span id="modal-student-egresos">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Composición Familiar:</strong>
-                <span id="modal-student-hogar">-</span>
-              </div>
-              <div class="detail-item">
-                <strong>Clasificación Socioeconómica:</strong>
-                <span id="modal-student-quintil" style="color: #BA181B; font-weight: 700;">-</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sección 3: Referencias y Accesibilidad -->
-          <div class="detail-section">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-              </svg>
-              <span>Contactos y Accesibilidad</span>
-            </h4>
-            <div class="detail-grid">
-              <div class="detail-item" style="grid-column: span 2;">
-                <strong>Requerimientos de Accesibilidad:</strong>
-                <span id="modal-student-accesibilidad">-</span>
-              </div>
-              <div class="detail-item" style="grid-column: span 2;">
-                <strong>Referencias Registradas:</strong>
-                <span id="modal-student-referencias">-</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Sección 4: Archivos y Documentos Adjuntos -->
-          <div class="detail-section">
-            <h4>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>Documentos de Soporte Subidos</span>
-            </h4>
-            <p style="font-size: 12px; color: #64748B; margin-bottom: 10px;">Verifica la autenticidad y legibilidad de cada archivo adjuntado por el postulante:</p>
-            <div class="docs-list" id="modal-docs-list">
-              <!-- Se inyecta dinámicamente con JS -->
-            </div>
-          </div>
-
-          <!-- Sección 5: Observaciones del Administrador -->
-          <div class="detail-section" style="background-color: #FFFBEB; border-color: #FDE68A;">
-            <h4 style="color: #92400E;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-              <span>Observaciones del Dictamen</span>
-            </h4>
-            <textarea id="modal-admin-notes" rows="2" style="width: 100%; padding: 10px; font-size: 12.5px; border: 1px solid #FCD34D; border-radius: 6px; outline: none; font-family: inherit;" placeholder="Escribe aquí las observaciones o justificación para la aprobación o rechazo..."></textarea>
-          </div>
-        </div>
-
-        <!-- Footer del expediente con botones de Dictamen -->
-        <div class="drawer-footer">
-          <div style="font-size: 12px;">
-            <span>Estado actual: </span>
-            <strong id="modal-current-status" style="text-transform: uppercase;">PENDIENTE</strong>
-          </div>
-
-          <div style="display: flex; gap: 10px;">
-            <button type="button" id="btn-modal-reject" class="btn-admin-reject">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              <span>Rechazar Solicitud</span>
-            </button>
-            <button type="button" id="btn-modal-approve" class="btn-admin-approve">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Aprobar Solicitud</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal visor simulado de documento PDF/Imagen -->
-    <div id="doc-viewer-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-      <div style="background: #ffffff; width: 100%; max-width: 650px; border-radius: 8px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-        <div style="padding: 14px 20px; background: #0F172A; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
-          <strong id="viewer-doc-title" style="font-size: 13.5px;">Visor de Documento</strong>
-          <button type="button" id="btn-close-viewer" style="background: transparent; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;" aria-label="Cerrar visor">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-        <div style="padding: 30px 20px; text-align: center; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
-          <div style="width: 60px; height: 60px; border-radius: 12px; background: #E2E8F0; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: #475569;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-          </div>
-          <h4 id="viewer-file-name" style="font-size: 16px; margin-bottom: 4px; color: #0F172A;">documento.pdf</h4>
-          <p id="viewer-file-size" style="font-size: 12px; color: #64748B;">1.4 MB · Documento Oficial Cifrado</p>
-          <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; background: #DCFCE7; color: #15803D; font-size: 11.5px; font-weight: 700; padding: 4px 12px; border-radius: 99px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #16A34A; display: inline-block;"></span>
-            Sello Digital ULEAM Verificado
-          </div>
-        </div>
-        <div style="padding: 12px 20px; text-align: right; background: #ffffff;">
-          <button type="button" id="btn-close-viewer-ok" class="btn-inspect" style="padding: 7px 18px;">Cerrar vista previa</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. FOOTER UNIFICADO -->
+    <!-- Footer Institucional Unificado -->
     <Footer />
 
-    <!-- SCRIPT DE INTERACTIVIDAD (JAVASCRIPT NATIVO) -->
-    <script is:inline define:vars={{ postulacionesData: postulaciones }}>
-      (function () {
-        var listaPostulaciones = postulacionesData;
-        var postulacionActiva = null;
-
-        // 1. Cambio de pestañas en el Sidebar
-        var navButtons = document.querySelectorAll('.nav-item-btn[data-target-view]');
-        var views = document.querySelectorAll('.admin-content-view');
-        var breadcrumbTitle = document.getElementById('breadcrumb-title');
-
-        navButtons.forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            navButtons.forEach(function (b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-
-            var targetId = btn.getAttribute('data-target-view');
-            views.forEach(function (v) { v.style.display = 'none'; });
-
-            var targetView = document.getElementById(targetId);
-            if (targetView) targetView.style.display = 'block';
-
-            if (breadcrumbTitle) {
-              if (targetId === 'view-postulaciones') breadcrumbTitle.textContent = 'Gestión de Postulaciones 2026-2';
-              if (targetId === 'view-habitaciones') breadcrumbTitle.textContent = 'Inventario de Habitaciones y Cupos';
-              if (targetId === 'view-estudiantes') breadcrumbTitle.textContent = 'Residentes Asignados';
-              if (targetId === 'view-reportes') breadcrumbTitle.textContent = 'Reportes de Ocupación';
-            }
-          });
-        });
-
-        // 2. Filtros de la tabla (Todas, Pendientes, Aprobadas, Rechazadas)
-        var filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            filterBtns.forEach(function (b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-
-            var filter = btn.getAttribute('data-filter');
-            var rows = document.querySelectorAll('#tbody-postulaciones tr');
-
-            rows.forEach(function (row) {
-              if (row.id === 'row-empty-state') return;
-              var status = row.getAttribute('data-status');
-              if (filter === 'todos' || status === filter) {
-                row.style.display = '';
-              } else {
-                row.style.display = 'none';
-              }
-            });
-          });
-        });
-
-        // 3. Búsqueda en vivo por nombre, cédula o carrera
-        var inputSearch = document.getElementById('input-search-postulacion');
-        if (inputSearch) {
-          inputSearch.addEventListener('input', function (e) {
-            var query = e.target.value.toLowerCase().trim();
-            var rows = document.querySelectorAll('#tbody-postulaciones tr');
-
-            rows.forEach(function (row) {
-              if (row.id === 'row-empty-state') return;
-              var text = row.textContent.toLowerCase();
-              row.style.display = text.includes(query) ? '' : 'none';
-            });
-          });
-        }
-
-        // 4. Modal de inspección de expediente
-        var modal = document.getElementById('inspector-modal');
-        var btnCloseDrawer = document.getElementById('btn-close-drawer');
-
-        function abrirExpediente(postId) {
-          var post = listaPostulaciones.find(function (p) { return p.id === postId; });
-          if (!post) return;
-          postulacionActiva = post;
-
-          document.getElementById('modal-student-name').textContent = post.estudiante.nombre;
-          document.getElementById('modal-student-cedula').textContent = post.estudiante.cedula;
-          document.getElementById('modal-student-email').textContent = post.estudiante.correo;
-          document.getElementById('modal-student-carrera').textContent = post.estudiante.carrera + ' (' + (post.estudiante.semestre || 'Periodo 2026-2') + ')';
-          document.getElementById('modal-student-facultad').textContent = (post.estudiante.facultad || 'ULEAM') + ' · ' + (post.estudiante.ciudadOrigen || 'Foráneo');
-
-          document.getElementById('modal-student-ingresos').textContent = post.situacionSocioeconomica?.ingresoMensual || '$ 450.00';
-          document.getElementById('modal-student-egresos').textContent = post.situacionSocioeconomica?.egresosMensuales || '$ 380.00';
-          document.getElementById('modal-student-hogar').textContent = (post.situacionSocioeconomica?.integrantes || '4') + ' integrantes, ' + (post.situacionSocioeconomica?.dependientes || '2 dependientes');
-          document.getElementById('modal-student-quintil').textContent = post.situacionSocioeconomica?.quintil || 'Quintil 1';
-
-          var accesibilidadTexto = post.accesibilidad?.requiere
-            ? 'Requiere adaptación: ' + post.accesibilidad.detalle
-            : 'Estudiante no declaró requerimientos especiales de movilidad.';
-          document.getElementById('modal-student-accesibilidad').textContent = accesibilidadTexto;
-
-          var refTexto = (post.referencias || []).map(function (r) {
-            return r.nombre + ' (' + (r.relacion || 'Familiar') + ') - ' + (r.telefono || 'Sin teléfono');
-          }).join(' | ') || 'Referencias registradas en el sistema.';
-          document.getElementById('modal-student-referencias').textContent = refTexto;
-
-          // Renderizar documentos
-          var docsContainer = document.getElementById('modal-docs-list');
-          docsContainer.innerHTML = '';
-
-          (post.documentos || []).forEach(function (doc) {
-            var card = document.createElement('div');
-            card.className = 'doc-card';
-            card.innerHTML =
-              '<div class="doc-info">' +
-                '<div class="doc-file-icon">' +
-                  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
-                    '<polyline points="14 2 14 8 20 8"></polyline>' +
-                  '</svg>' +
-                '</div>' +
-                '<div>' +
-                  '<strong>' + doc.tipo + '</strong>' +
-                  '<span>' + doc.archivo + ' (' + (doc.tamano || '1.2 MB') + ')</span>' +
-                '</div>' +
-              '</div>' +
-              '<button type="button" class="btn-view-doc" data-doc-name="' + doc.archivo + '" data-doc-title="' + doc.tipo + '" data-doc-size="' + (doc.tamano || '1.2 MB') + '">' +
-                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-                  '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>' +
-                  '<circle cx="12" cy="12" r="3"></circle>' +
-                '</svg>' +
-                '<span>Ver documento</span>' +
-              '</button>';
-            docsContainer.appendChild(card);
-          });
-
-          document.getElementById('modal-admin-notes').value = post.observacionesAdmin || '';
-          document.getElementById('modal-current-status').textContent = post.estado;
-
-          var statusElement = document.getElementById('modal-current-status');
-          if (post.estado === 'Aprobada') statusElement.style.color = '#15803D';
-          else if (post.estado === 'Rechazada') statusElement.style.color = '#B91C1C';
-          else statusElement.style.color = '#B45309';
-
-          modal.classList.add('active');
-        }
-
-        function cerrarExpediente() {
-          if (modal) modal.classList.remove('active');
-          postulacionActiva = null;
-        }
-
-        if (btnCloseDrawer) btnCloseDrawer.addEventListener('click', cerrarExpediente);
-        if (modal) {
-          modal.addEventListener('click', function (e) {
-            if (e.target === modal) cerrarExpediente();
-          });
-        }
-
-        // 5. Delegación de clics en la tabla
-        document.addEventListener('click', function (e) {
-          var inspectBtn = e.target.closest('[data-action="inspect"]');
-          if (inspectBtn) {
-            var postId = inspectBtn.getAttribute('data-post-id');
-            abrirExpediente(postId);
-            return;
-          }
-
-          var quickApproveBtn = e.target.closest('[data-action="quick-approve"]');
-          if (quickApproveBtn) {
-            var postId = quickApproveBtn.getAttribute('data-post-id');
-            actualizarEstadoPostulacion(postId, 'Aprobada', 'Aprobado de forma directa por el coordinador.');
-            return;
-          }
-
-          var quickRejectBtn = e.target.closest('[data-action="quick-reject"]');
-          if (quickRejectBtn) {
-            var postId = quickRejectBtn.getAttribute('data-post-id');
-            actualizarEstadoPostulacion(postId, 'Rechazada', 'No cumple con los soportes socioeconómicos completos.');
-            return;
-          }
-
-          // Ver documento en visor
-          var viewDocBtn = e.target.closest('.btn-view-doc');
-          if (viewDocBtn) {
-            var docName = viewDocBtn.getAttribute('data-doc-name');
-            var docTitle = viewDocBtn.getAttribute('data-doc-title');
-            var docSize = viewDocBtn.getAttribute('data-doc-size');
-            abrirVisorDocumento(docTitle, docName, docSize);
-            return;
-          }
-        });
-
-        // 6. Botones de Aprobación y Rechazo dentro del Modal
-        var btnModalApprove = document.getElementById('btn-modal-approve');
-        var btnModalReject = document.getElementById('btn-modal-reject');
-
-        if (btnModalApprove) {
-          btnModalApprove.addEventListener('click', function () {
-            if (!postulacionActiva) return;
-            var notas = document.getElementById('modal-admin-notes').value;
-            actualizarEstadoPostulacion(postulacionActiva.id, 'Aprobada', notas);
-            cerrarExpediente();
-          });
-        }
-
-        if (btnModalReject) {
-          btnModalReject.addEventListener('click', function () {
-            if (!postulacionActiva) return;
-            var notas = document.getElementById('modal-admin-notes').value;
-            actualizarEstadoPostulacion(postulacionActiva.id, 'Rechazada', notas);
-            cerrarExpediente();
-          });
-        }
-
-        // 7. Enviar actualización al servidor y reflejar en la UI en vivo
-        async function actualizarEstadoPostulacion(postId, nuevoEstado, observaciones) {
-          try {
-            await fetch('/api/postulaciones/status', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id: postId, estado: nuevoEstado, observaciones: observaciones })
-            });
-          } catch (err) {}
-
-          // Actualizar memoria local
-          var post = listaPostulaciones.find(function (p) { return p.id === postId; });
-          if (post) {
-            post.estado = nuevoEstado;
-            if (observaciones) post.observacionesAdmin = observaciones;
-          }
-
-          // Actualizar fila de la tabla
-          var row = document.querySelector('tr[data-post-id="' + postId + '"]');
-          if (row) {
-            row.setAttribute('data-status', nuevoEstado);
-            var badge = document.getElementById('status-badge-' + postId);
-            if (badge) {
-              badge.className = 'status-badge ' + nuevoEstado.toLowerCase();
-              badge.innerHTML = '<span class="status-dot"></span> ' + nuevoEstado;
-            }
-          }
-
-          // Recalcular contadores KPIs
-          var pend = listaPostulaciones.filter(function (p) { return p.estado === 'Pendiente'; }).length;
-          var aprob = listaPostulaciones.filter(function (p) { return p.estado === 'Aprobada'; }).length;
-          var rech = listaPostulaciones.filter(function (p) { return p.estado === 'Rechazada'; }).length;
-
-          var kpiPend = document.getElementById('kpi-pendientes');
-          var kpiAprob = document.getElementById('kpi-aprobadas');
-          var kpiRech = document.getElementById('kpi-rechazadas');
-          var sideBadge = document.getElementById('sidebar-badge-pendientes');
-
-          if (kpiPend) kpiPend.textContent = pend;
-          if (kpiAprob) kpiAprob.textContent = aprob;
-          if (kpiRech) kpiRech.textContent = rech;
-          if (sideBadge) sideBadge.textContent = pend;
-        }
-
-        // 8. Visor de soporte de documento simulado
-        var viewerModal = document.getElementById('doc-viewer-modal');
-        var btnCloseViewer = document.getElementById('btn-close-viewer');
-        var btnCloseViewerOk = document.getElementById('btn-close-viewer-ok');
-
-        function abrirVisorDocumento(titulo, archivo, tamano) {
-          document.getElementById('viewer-doc-title').textContent = titulo;
-          document.getElementById('viewer-file-name').textContent = archivo;
-          document.getElementById('viewer-file-size').textContent = tamano + ' · Formato Cifrado ULEAM';
-          if (viewerModal) viewerModal.style.display = 'flex';
-        }
-
-        function cerrarVisor() {
-          if (viewerModal) viewerModal.style.display = 'none';
-        }
-
-        if (btnCloseViewer) btnCloseViewer.addEventListener('click', cerrarVisor);
-        if (btnCloseViewerOk) btnCloseViewerOk.addEventListener('click', cerrarVisor);
-        if (viewerModal) {
-          viewerModal.addEventListener('click', function (e) {
-            if (e.target === viewerModal) cerrarVisor();
-          });
-        }
-
-        // 9. Descargar data en JSON
-        var btnExportJson = document.getElementById('btn-export-json');
-        if (btnExportJson) {
-          btnExportJson.addEventListener('click', function () {
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaPostulaciones, null, 2));
-            var downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "postulaciones_residencia_uleam.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-          });
-        }
-      })();
-    </script>
+    <!-- Script Cliente Modular -->
+    <script src="../scripts/dashboard.js"></script>
   </body>
 </html>

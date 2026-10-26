@@ -1,0 +1,152 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/VistaReportes.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente presenta el panel de auditoría, balances y estadísticas cuantitativas
+// sobre la capacidad física total del campus, camas asignadas vs. vacantes y el desglose
+// por edificios de la residencia universitaria.
+//
+// PROPS RECIBIDAS:
+// * totalCamas {number}: Sumatoria de la capacidad física de todas las habitaciones.
+// * camasOcupadas {number}: Total de camas habitadas por estudiantes residentes.
+// * camasLibres {number}: Cantidad de camas vacantes para nuevas asignaciones.
+// * porcentajeOcupacion {number}: Ratio porcentual de ocupación habitacional.
+// * habitaciones {Array<Object>}: Lista de habitaciones para calcular desgloses por edificio.
+// ========================================================================================
+
+export interface Props {
+  totalCamas: number;
+  camasOcupadas: number;
+  camasLibres: number;
+  porcentajeOcupacion: number;
+  habitaciones: Array<any>;
+}
+
+const {
+  totalCamas = 0,
+  camasOcupadas = 0,
+  camasLibres = 0,
+  porcentajeOcupacion = 0,
+  habitaciones = []
+} = Astro.props;
+
+// Cálculos específicos para el Edificio A
+const habsEdificioA = habitaciones.filter((h) => h.edificio?.includes('Edificio A'));
+const camasEdificioA = habsEdificioA.reduce((sum, h) => sum + h.capacidad, 0);
+const ocupadasEdificioA = habsEdificioA.reduce((sum, h) => sum + (h.ocupantesActuales || 0), 0);
+
+// Cálculos específicos para el Edificio B
+const habsEdificioB = habitaciones.filter((h) => h.edificio?.includes('Edificio B'));
+const camasEdificioB = habsEdificioB.reduce((sum, h) => sum + h.capacidad, 0);
+const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesActuales || 0), 0);
+---
+
+<main class="admin-content-view" id="view-reportes" style="display: none;">
+  <div class="view-header">
+    <div>
+      <h1>Auditoría y Estadísticas de Ocupación</h1>
+      <p>Métricas consolidadas sobre camas, disponibilidad y balance de admisiones del periodo 2026-2.</p>
+    </div>
+    <span style="font-size: 13px; font-weight: 700; color: #0284C7; background: #E0F2FE; padding: 6px 14px; border-radius: 99px;">
+      Periodo Académico 2026-2
+    </span>
+  </div>
+
+  <!-- Grid de 4 KPIs Matemáticos Reales -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Capacidad Total</span>
+        <h2>{totalCamas} Personas</h2>
+      </div>
+      <div class="kpi-icon blue">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+          <line x1="9" y1="6" x2="9.01" y2="6"></line>
+          <line x1="15" y1="6" x2="15.01" y2="6"></line>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Camas Ocupadas</span>
+        <h2 style="color: #15803D;">{camasOcupadas}</h2>
+      </div>
+      <div class="kpi-icon green">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Camas Libres</span>
+        <h2 style="color: #0284C7;">{camasLibres}</h2>
+      </div>
+      <div class="kpi-icon blue">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Tasa de Ocupación</span>
+        <h2 style="color: #BA181B;">{porcentajeOcupacion}%</h2>
+      </div>
+      <div class="kpi-icon red">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjetas de Detalle por Edificio -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+    <!-- Edificio A -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 20px;">
+      <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 12px;">Edificio A (Residencias Matriz)</h3>
+      <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">Módulo adaptado con rampas y accesibilidad física.</p>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span>Habitaciones en el edificio:</span>
+        <strong>{habsEdificioA.length} habitaciones</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span>Capacidad total:</span>
+        <strong>{camasEdificioA} camas</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
+        <span>Camas habitadas:</span>
+        <strong style="color: #15803D;">{ocupadasEdificioA} camas</strong>
+      </div>
+    </div>
+
+    <!-- Edificio B -->
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 20px;">
+      <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 12px;">Edificio B (Residencias Matriz)</h3>
+      <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">Módulo estándar para estudiantes foráneos.</p>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span>Habitaciones en el edificio:</span>
+        <strong>{habsEdificioB.length} habitaciones</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+        <span>Capacidad total:</span>
+        <strong>{camasEdificioB} camas</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
+        <span>Camas habitadas:</span>
+        <strong style="color: #15803D;">{ocupadasEdificioB} camas</strong>
+      </div>
+    </div>
+  </div>
+</main>

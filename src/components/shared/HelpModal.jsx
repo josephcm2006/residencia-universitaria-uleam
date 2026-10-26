@@ -1,23 +1,53 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * ============================================================================
+ * COMPONENTE COMPARTIDO: Ventana flotante de asistencia y ayuda institucional
+ * USADO EN: Cabeceras (Headers) de múltiples páginas (index.astro, postulation.astro, etc.)
+ * ============================================================================
+ * UBICACIÓN: src/components/shared/HelpModal.jsx
+ * 
+ * FUNCIONAMIENTO GENERAL:
+ * Este componente despliega una ventana flotante anclada al botón de ayuda:
+ * 1. Al hacer clic, reproduce un sonido suave ('pop.wav' o sintetizador nativo Web Audio API).
+ * 2. Despliega un popover estilizado ("nubecita") con animación cúbica de entrada.
+ * 3. Proporciona números telefónicos, correos y horarios de atención de Bienestar Estudiantil.
+ * 4. Detecta clics fuera del contenedor o la tecla 'Escape' para cerrarse automáticamente.
+ * 
+ * VARIABLES DE ESTADO Y REFERENCIAS:
+ * - 'isOpen': Booleano que define si la nubecita está visible.
+ * - 'containerRef': Referencia al nodo DOM del botón para detectar clics externos.
+ */
 export default function HelpModal({
   buttonText = "ⓘ Ayuda",
   className = "help-link",
   customStyle = {}
 }) {
+  // VARIABLE 'isOpen': Estado de apertura de la nubecita (true = visible, false = cerrada).
   const [isOpen, setIsOpen] = useState(false);
+
+  // VARIABLE 'containerRef':
+  // Referencia mutable al elemento envoltorio para determinar si un evento 'click' ocurrió dentro o fuera.
   const containerRef = useRef(null);
 
-  // Reproducir el sonido suave al abrir
+  // --------------------------------------------------------------------------
+  // SÍNTESIS Y REPRODUCCIÓN SONORA AL ABRIR
+  // --------------------------------------------------------------------------
+  
+  /**
+   * Intenta reproducir el sonido institucional grabado, y si el navegador lo bloquea,
+   * utiliza el sintetizador Web Audio API de respaldo.
+   */
   const playPopSound = () => {
     try {
-      // 1. Intentar reproducir desde el archivo de assets
+      // VARIABLE 'audio': Instancia de reproducción del archivo pop.wav
       const audio = new Audio('/assets/sounds/pop.wav');
       audio.volume = 0.4;
       const playPromise = audio.play();
+
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // Fallback con sintetizador nativo Web Audio API si el navegador restringe el archivo
+          // Si el navegador bloqueó la reproducción automática, usa el sintetizador
           playSynthPop();
         });
       }
@@ -26,14 +56,24 @@ export default function HelpModal({
     }
   };
 
-  // Sonido sintetizado de respaldo (burbuja / chime suave)
+  /**
+   * Genera un tono senoidal breve (540 Hz -> 860 Hz) con decaimiento exponencial.
+   */
   const playSynthPop = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
+
       const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      // VARIABLE 'osc': Oscilador de audio de onda senoidal suave.
       const osc = ctx.createOscillator();
+
+      // VARIABLE 'gain': Nodo de control de volumen para rampa exponencial.
       const gain = ctx.createGain();
+
+      // VARIABLE 'now': Marca de tiempo actual del reloj de audio.
       const now = ctx.currentTime;
 
       osc.type = 'sine';
@@ -51,24 +91,34 @@ export default function HelpModal({
     } catch (err) {}
   };
 
+  /**
+   * Alterna el estado de apertura y reproduce el sonido cuando se va a mostrar.
+   */
   const handleToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // VARIABLE 'nextState': Inverso del estado actual
     const nextState = !isOpen;
+
     if (nextState) {
       playPopSound();
     }
     setIsOpen(nextState);
   };
 
-  // Cerrar al hacer clic fuera de la nubecita
+  // --------------------------------------------------------------------------
+  // ESCUCHA DE CLICS EXTERNOS Y TECLA ESCAPE PARA CERRAR
+  // --------------------------------------------------------------------------
   useEffect(() => {
+    // Si el usuario hace clic fuera de la nubecita, la cierra
     function handleClickOutside(event) {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     }
 
+    // Si el usuario presiona la tecla Escape, la cierra
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
         setIsOpen(false);
@@ -80,6 +130,7 @@ export default function HelpModal({
       document.addEventListener('keydown', handleKeyDown);
     }
 
+    // Limpieza de eventos
     return () => {
       document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
@@ -94,7 +145,7 @@ export default function HelpModal({
         display: 'inline-block'
       }}
     >
-      {/* Botón / Anchor disparador */}
+      {/* Botón Disparador */}
       <button
         type="button"
         onClick={handleToggle}
@@ -117,7 +168,7 @@ export default function HelpModal({
         {buttonText}
       </button>
 
-      {/* Nubecita flotante anclada al botón con animación de desplazamiento */}
+      {/* Nubecita Flotante con Animación de Desplazamiento */}
       {isOpen && (
         <div
           role="dialog"
@@ -127,7 +178,7 @@ export default function HelpModal({
             top: 'calc(100% + 12px)',
             right: '-10px',
             width: '320px',
-            backgroundColor: '#ffffff',
+            backgroundColor: '#FFFFFF',
             borderRadius: '14px',
             padding: '18px 20px',
             boxShadow: '0 16px 36px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06)',
@@ -138,7 +189,7 @@ export default function HelpModal({
             transformOrigin: 'top right'
           }}
         >
-          {/* Triangulito de la nube apuntando al anchor */}
+          {/* Triangulito superior apuntando al botón */}
           <div
             style={{
               position: 'absolute',
@@ -146,7 +197,7 @@ export default function HelpModal({
               right: '24px',
               width: '14px',
               height: '14px',
-              backgroundColor: '#ffffff',
+              backgroundColor: '#FFFFFF',
               transform: 'rotate(45deg)',
               borderTop: '1px solid rgba(0, 0, 0, 0.08)',
               borderLeft: '1px solid rgba(0, 0, 0, 0.08)',
@@ -154,16 +205,13 @@ export default function HelpModal({
             }}
           />
 
-          {/* Encabezado de la Nubecita */}
+          {/* Encabezado */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '18px' }}>💬</span>
-              <div>
-                <strong style={{ fontSize: '14px', fontWeight: 800, color: '#09090B', display: 'block', lineHeight: 1.2 }}>
-                  ¿Necesitas Ayuda?
-                </strong>
-                <span style={{ fontSize: '11px', color: '#71717A' }}>Soporte de Residencia ULEAM</span>
-              </div>
+            <div>
+              <strong style={{ fontSize: '14px', fontWeight: 800, color: '#09090B', display: 'block', lineHeight: 1.2 }}>
+                ¿Necesitas Ayuda?
+              </strong>
+              <span style={{ fontSize: '11px', color: '#71717A' }}>Soporte de Residencia ULEAM</span>
             </div>
 
             <button
@@ -188,31 +236,32 @@ export default function HelpModal({
             </button>
           </div>
 
+          {/* Canales de Contacto */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#27272A', padding: '10px 0', borderTop: '1px solid #F4F4F5', borderBottom: '1px solid #F4F4F5' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div>
               <span><strong>Tel:</strong> (+593) 098 564 2153</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div>
               <span>
                 <strong>Email:</strong>{' '}
-                <a href="mailto:residencia@uleam.edu.ec" style={{ color: '#000000', textDecoration: 'none', fontWeight: 600 }}>
+                <a href="mailto:residencia@uleam.edu.ec" style={{ color: '#BA181B', textDecoration: 'none', fontWeight: 600 }}>
                   residencia@uleam.edu.ec
                 </a>
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div>
               <span><strong>Horario:</strong> Lun a Vie · 08:00 - 17:00</span>
             </div>
           </div>
 
-          {/* Pastilla de tip */}
-          <div style={{ marginTop: '10px', backgroundColor: '#FFFFFF', border: '1px solid #000000', borderRadius: '8px', padding: '8px 10px', fontSize: '11px', color: '#000000', lineHeight: '1.4' }}>
+          {/* Pastilla informativa */}
+          <div style={{ marginTop: '10px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 10px', fontSize: '11px', color: '#334155', lineHeight: '1.4' }}>
             <strong>Tip:</strong> Puedes guardar tu borrador y continuar llenando tus documentos en cualquier momento.
           </div>
 
-          {/* Estilos de animación embebidos */}
+          {/* Keyframes de animación CSS */}
           <style>{`
             @keyframes nubecitaSlideDown {
               0% {

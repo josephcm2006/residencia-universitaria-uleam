@@ -1,0 +1,30 @@
+/**
+ * ============================================================================
+ * PAQUETE MAESTRO DE DISEÑO RESPONSIVE - RESIDENCIA UNIVERSITARIA ULEAM
+ * ============================================================================
+ * UBICACIÓN: src/styles/css-responsive/master.responsive.css
+ * 
+ * PROPÓSITO:
+ * Consolida todas las reglas de diseño adaptable y responsive de la plataforma,
+ * garantizando que cualquier interfaz se visualice de forma óptima en:
+ * - Computadoras de escritorio (Desktop > 1024px)
+ * - Laptops y Tablets (768px - 1024px)
+ * - Teléfonos inteligentes en vertical y horizontal (320px - 768px)
+ * 
+ * MÓDULOS INCLUIDOS:
+ * 1. global.responsive.css         -> Headers, Topbars, Footers y Modales compartidos
+ * 2. index.responsive.css          -> Pantalla de Inicio y Login Microsoft 365 (/)
+ * 3. portal-init.responsive.css    -> Portal Estudiantil y Bienvenida (/portal-init)
+ * 4. postulation.responsive.css    -> Formulario de Postulación de 9 pasos (/postulation)
+ * 5. residente-dashboard.responsive.css -> Panel del Estudiante Residente (/residente-dashboard)
+ * 6. dashboard.responsive.css      -> Consola del Administrador (/dashboard)
+ * 7. postulado.responsive.css      -> Comprobante oficial y Mis Solicitudes
+ */
+
+@import './global.responsive.css';
+@import './index.responsive.css';
+@import './portal-init.responsive.css';
+@import './postulation.responsive.css';
+@import './residente-dashboard.responsive.css';
+@import './dashboard.responsive.css';
+@import './postulado.responsive.css';

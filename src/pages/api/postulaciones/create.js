@@ -1,19 +1,61 @@
+/**
+ * ============================================================================
+ * ENDPOINT API: CREACIÓN DE POSTULACIÓN A RESIDENCIA UNIVERSITARIA
+ * ============================================================================
+ * UBICACIÓN: src/pages/api/postulaciones/create.js
+ * MÉTODO HTTP: POST
+ * FORMATO ENTRADA / SALIDA: JSON
+ * 
+ * FUNCIONAMIENTO GENERAL:
+ * Este endpoint procesa la creación de un nuevo expediente de postulación:
+ * 1. Recibe el payload JSON enviado por el cliente.
+ * 2. Valida obligatoriedad de cédula, correo institucional y nombre del postulante.
+ * 3. Aplica la segunda barrera de seguridad contra duplicados en el servidor (HTTP 409).
+ * 4. Consulta 'usuarios.json' para vincular la facultad y carrera real del estudiante.
+ * 5. Genera un identificador formal correlativo (ej: 'POST-2026-001').
+ * 6. Construye el objeto completo de la postulación y lo inserta al inicio de la lista.
+ * 7. Guarda de forma atómica en 'src/data/postulaciones.json' y responde HTTP 200 OK.
+ * 
+ * FLUJO DE EJECUCIÓN:
+ * - Solicitud entrante -> request.json()
+ * - Validación obligatoria de datos del alumno (si falla -> HTTP 400)
+ * - Verificación de coincidencia por cédula o correo (si existe -> HTTP 409)
+ * - Mapeo de archivos y datos socioeconómicos
+ * - fs.writeFile() en disco
+ * - Respuesta JSON con { success: true, postulacion: nuevaPostulacion }
+ */
+
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import postulacionesIniciales from '../../../data/postulaciones.json';
 import usuariosIniciales from '../../../data/usuarios.json';
 
+// Indicador para Astro de que este endpoint se ejecuta dinámicamente en servidor (Node.js SSR)
 export const prerender = false;
 
 export async function POST({ request }) {
   try {
+    // ------------------------------------------------------------------------
+    // PASO 1: PARSEO Y LECTURA DEL PAYLOAD JSON ENTRANTE
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'body': Guarda el objeto JSON decodificado de la petición HTTP.
     const body = await request.json();
 
-    // 1. Validar que vengan los datos obligatorios del postulante
+    // ------------------------------------------------------------------------
+    // PASO 2: VALIDACIÓN DE CAMPOS OBLIGATORIOS DEL POSTULANTE
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'cedulaPostulante': Cédula recibida sin espacios externos.
     const cedulaPostulante = String(body.estudiante?.cedula || '').trim();
+
+    // VARIABLE 'correoPostulante': Correo recibido en minúsculas y sin espacios.
     const correoPostulante = String(body.estudiante?.correo || '').trim().toLowerCase();
+
+    // VARIABLE 'nombrePostulante': Nombre completo del postulante sin espacios externos.
     const nombrePostulante = String(body.estudiante?.nombre || '').trim();
 
+    // Si falta alguno de los tres pilares de identidad, rechaza la solicitud (HTTP 400 Bad Request)
     if (!cedulaPostulante || !correoPostulante || !nombrePostulante) {
       return new Response(
         JSON.stringify({
@@ -24,24 +66,38 @@ export async function POST({ request }) {
       );
     }
 
-    // 2. Leer archivo actual de postulaciones para validar duplicados
+    // ------------------------------------------------------------------------
+    // PASO 3: LECTURA DEL ARCHIVO DE POSTULACIONES EXISTENTES
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'filePath': Ruta absoluta calculada al archivo físico 'src/data/postulaciones.json'.
     const filePath = path.resolve('src/data/postulaciones.json');
+
+    // VARIABLE 'lista': Almacena el arreglo en memoria con las solicitudes existentes.
     let lista = postulacionesIniciales;
 
     try {
+      // VARIABLE 'dataRaw': Contenido crudo de texto leído desde el archivo físico en disco.
       const dataRaw = await fs.readFile(filePath, 'utf-8');
       lista = JSON.parse(dataRaw);
     } catch (e) {
+      // Si el archivo no existe o está vacío, usa el fallback inicial
       lista = postulacionesIniciales;
     }
 
-    // 3. Regla institucional: Validar que el estudiante no postule dos veces
+    // ------------------------------------------------------------------------
+    // PASO 4: CONTROL DE SEGURIDAD SERVER-SIDE CONTRA POSTULACIONES DUPLICADAS
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'postExistente':
+    // Busca si ya existe alguna postulación con la misma cédula o con el mismo correo institucional.
     const postExistente = lista.find((p) => {
       const pCedula = p.estudiante?.cedula ? String(p.estudiante.cedula).trim() : '';
       const pCorreo = p.estudiante?.correo ? String(p.estudiante.correo).trim().toLowerCase() : '';
       return (cedulaPostulante && pCedula === cedulaPostulante) || (correoPostulante && pCorreo === correoPostulante);
     });
 
+    // Si ya existe un registro previo, devuelve código HTTP 409 Conflict impidiendo duplicados
     if (postExistente) {
       return new Response(
         JSON.stringify({
@@ -54,7 +110,11 @@ export async function POST({ request }) {
       );
     }
 
-    // 4. Obtener información institucional del estudiante desde usuarios.json
+    // ------------------------------------------------------------------------
+    // PASO 5: CONSULTA DEL PERFIL REAL EN LA BASE DE DATOS DE USUARIOS
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'listaUsuarios': Colección de usuarios institucionales de la universidad.
     let listaUsuarios = usuariosIniciales;
     try {
       const userPath = path.resolve('src/data/usuarios.json');
@@ -64,13 +124,21 @@ export async function POST({ request }) {
       listaUsuarios = usuariosIniciales;
     }
 
+    // VARIABLE 'perfilEstudiante':
+    // Registro del estudiante encontrado en usuarios.json para vincular su facultad y carrera real.
     const perfilEstudiante = listaUsuarios.find(
       (u) => (u.cedula && String(u.cedula).trim() === cedulaPostulante) ||
              (u.email && String(u.email).trim().toLowerCase() === correoPostulante)
     );
 
-    // 5. Construir lista de documentos cargados en el formulario
+    // ------------------------------------------------------------------------
+    // PASO 6: PROCESAMIENTO DINÁMICO DE ARCHIVOS ADJUNTOS
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'documentos':
+    // Arreglo donde se estructuran los documentos cargados por el postulante en el formulario.
     const documentos = [];
+
     if (body.archivosAdjuntos && typeof body.archivosAdjuntos === 'object') {
       let docIndex = 1;
       for (const [key, doc] of Object.entries(body.archivosAdjuntos)) {
@@ -86,18 +154,29 @@ export async function POST({ request }) {
       }
     }
 
-    // 6. Generar correlativo formal de postulación
+    // ------------------------------------------------------------------------
+    // PASO 7: GENERACIÓN DEL CORRELATIVO INSTITUCIONAL
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'nuevoNumero': Índice secuencial (total de elementos actuales + 1).
     const nuevoNumero = lista.length + 1;
+
+    // VARIABLE 'nuevoId': Código formal formateado a 3 dígitos (ej: 'POST-2026-001').
     const nuevoId = `POST-2026-${String(nuevoNumero).padStart(3, '0')}`;
 
-    // 7. Formatear fecha oficial de emisión
+    // VARIABLE 'fechaEmision': Fecha oficial con formato '19 oct 2026'.
     const fechaEmision = new Date().toLocaleDateString('es-EC', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
     });
 
-    // 8. Construir el nuevo expediente con datos 100% dinámicos del usuario
+    // ------------------------------------------------------------------------
+    // PASO 8: CONSTRUCCIÓN DEL EXPEDIENTE ESTUDIANTIL CON DATOS REALES
+    // ------------------------------------------------------------------------
+    
+    // VARIABLE 'nuevaPostulacion':
+    // Objeto consolidado del expediente estudiantil que se almacenará en la base de datos.
     const nuevaPostulacion = {
       id: nuevoId,
       estudiante: {
@@ -130,20 +209,28 @@ export async function POST({ request }) {
       observacionesAdmin: 'Postulación registrada en línea por el estudiante. Pendiente de dictamen institucional.'
     };
 
-    // 9. Guardar al inicio de la lista
+    // ------------------------------------------------------------------------
+    // PASO 9: INSERCIÓN ATÓMICA Y ESCRITURA EN DISCO
+    // ------------------------------------------------------------------------
+    // Inserta al principio para que las solicitudes más recientes se consulten primero
     lista.unshift(nuevaPostulacion);
 
     try {
+      // Escribe el archivo en disco con sangría legible de 2 espacios
       await fs.writeFile(filePath, JSON.stringify(lista, null, 2), 'utf-8');
     } catch (err) {
       console.error('Error guardando en postulaciones.json:', err);
     }
 
+    // ------------------------------------------------------------------------
+    // PASO 10: RESPUESTA EXITOSA (HTTP 200 OK)
+    // ------------------------------------------------------------------------
     return new Response(
       JSON.stringify({ success: true, postulacion: nuevaPostulacion }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    // Captura de fallos imprevistos en tiempo de ejecución (HTTP 500)
     console.error('Error en POST /api/postulaciones/create:', error);
     return new Response(
       JSON.stringify({ success: false, message: 'Ocurrió un error en el servidor al registrar la postulación.' }),

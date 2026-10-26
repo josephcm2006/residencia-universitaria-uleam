@@ -1,0 +1,214 @@
+/**
+ * ============================================================================
+ * CSS RESPONSIVE: PANEL DE ADMINISTRACIÓN Y GESTIÓN (DASHBOARD ADMIN)
+ * ============================================================================
+ * UBICACIÓN: src/styles/css-responsive/dashboard.responsive.css
+ * PÁGINA ASOCIADA: src/pages/dashboard.astro (Ruta: /dashboard)
+ * DISPOSITIVOS: Tablets (<= 1024px), Móviles (<= 768px) y Pantallas pequeñas (<= 480px)
+ */
+
+@import './global.responsive.css';
+
+/* ----------------------------------------------------------------------------
+   1. TABLETS Y PANTALLAS MEDIANAS (<= 1024px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .admin-layout {
+    flex-direction: column !important;
+  }
+
+  /* El sidebar se transforma en una barra de navegación horizontal tipo pestañas */
+  .admin-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid #1E293B !important;
+    padding: 8px 16px !important;
+  }
+
+  .sidebar-header {
+    display: none !important; /* Ahorra espacio vertical en tablets/móviles */
+  }
+
+  .sidebar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding: 4px 0 !important;
+  }
+
+  .nav-btn {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+
+  .admin-content {
+    padding: 24px 20px 48px 20px !important;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   2. MÓVILES (<= 768px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 16px 12px 40px 12px !important;
+  }
+
+  .view-header {
+    margin-bottom: 18px !important;
+  }
+
+  .view-header h2 {
+    font-size: 20px !important;
+  }
+
+  .view-header p {
+    font-size: 13px !important;
+  }
+
+  /* Barra de herramientas y filtros */
+  .toolbar-container,
+  .filters-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .search-input-box,
+  .search-box {
+    width: 100% !important;
+  }
+
+  .search-input-box input {
+    font-size: 16px !important; /* Prevenir zoom en iOS */
+    min-height: 44px !important;
+  }
+
+  .filter-tabs-group {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .filter-chip-btn {
+    white-space: nowrap !important;
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
+  /* KPIs pasan a 1 sola columna vertical */
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .kpi-card {
+    padding: 16px !important;
+    border-radius: 10px !important;
+  }
+
+  .kpi-number {
+    font-size: 24px !important;
+  }
+
+  /* Tablas con scroll horizontal táctil suave */
+  .table-responsive-container,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 10px !important;
+    margin: 0 -4px 16px -4px !important;
+    border: 1px solid var(--admin-borde) !important;
+  }
+
+  .admin-table {
+    min-width: 600px !important;
+    font-size: 12.5px !important;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 10px 12px !important;
+  }
+
+  /* Habitaciones a 1 sola columna en móvil */
+  .rooms-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .room-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Cajón deslizante de expediente en móvil: Ocupa el 100% de pantalla */
+  .drawer-panel,
+  .expediente-modal-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    padding: 20px 16px !important;
+  }
+
+  .drawer-actions-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: #FFFFFF !important;
+    padding: 14px 16px !important;
+    border-top: 1px solid var(--admin-borde) !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin: 16px -16px -20px -16px !important;
+  }
+
+  .btn-aprobar-expediente,
+  .btn-rechazar-expediente {
+    width: 100% !important;
+    min-height: 48px !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+  }
+
+  /* Visor de documentos en móvil */
+  .doc-viewer-modal-card {
+    width: 96% !important;
+    max-height: 85vh !important;
+    padding: 16px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   3. PANTALLAS PEQUEÑAS (<= 480px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .view-header h2 {
+    font-size: 18px !important;
+  }
+
+  .nav-btn {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+}

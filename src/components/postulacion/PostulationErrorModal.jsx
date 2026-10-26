@@ -2,22 +2,54 @@ import React, { useState, useEffect } from 'react';
 
 /**
  * ============================================================================
- * MODAL DE ERROR / DUPLICADO EN POSTULACIÓN (CON FONDO BLUR)
+ * PÁGINA ASOCIADA: src/pages/postulation.astro (Ruta: /postulation)
+ * TIPO: Modal de errores y control de duplicados para el formulario de postulación
  * ============================================================================
- * Se despliega cuando el estudiante intenta postular dos veces o cuando
- * existen campos y documentos con errores de validación.
+ * UBICACIÓN: src/components/postulacion/PostulationErrorModal.jsx
+ * 
+ * FUNCIONAMIENTO GENERAL:
+ * Este componente React actúa como el centro de diagnóstico visual para el estudiante:
+ * 1. Permanece en espera escuchando el evento global 'abrir-modal-error-postulacion'.
+ * 2. Si se detecta un duplicado (esDuplicado === true):
+ *    - Adopta una paleta institucional ámbar (#D97706) con icono de advertencia.
+ *    - Informa el código de postulación previo y el estado actual del expediente.
+ * 3. Si se detectan campos vacíos o archivos inválidos:
+ *    - Adopta una paleta institucional roja ULEAM (#DC2626).
+ *    - Despliega un contenedor con scroll interno listando cada inconsistencia a corregir.
+ * 4. Implementa desenfoque de fondo (backdropFilter: 'blur(8px)') y cierre al pulsar fuera.
+ * 
+ * VARIABLES DE ESTADO:
+ * - 'isOpen': Booleano que define si el modal está visible en pantalla o desmontado.
+ * - 'titulo': Encabezado del modal ("Postulación Ya Registrada" o "Requisitos Incompletos").
+ * - 'mensaje': Texto explicativo principal para guiar al estudiante.
+ * - 'listaErrores': Arreglo de strings con los puntos específicos faltantes.
+ * - 'esDuplicado': Booleano para alternar entre el modo advertencia ámbar y modo error rojo.
  */
 export default function PostulationErrorModal() {
+  // VARIABLE 'isOpen': Estado de visibilidad (true = visible, false = cerrado).
   const [isOpen, setIsOpen] = useState(false);
+
+  // VARIABLE 'titulo': Título superior del modal.
   const [titulo, setTitulo] = useState('Error en la postulación');
+
+  // VARIABLE 'mensaje': Mensaje descriptivo del motivo del bloqueo.
   const [mensaje, setMensaje] = useState('');
+
+  // VARIABLE 'listaErrores': Lista de requisitos específicos que no pasaron la validación.
   const [listaErrores, setListaErrores] = useState([]);
+
+  // VARIABLE 'esDuplicado': Bandera que define el estilo y severidad (ámbar vs rojo).
   const [esDuplicado, setEsDuplicado] = useState(false);
 
+  // --------------------------------------------------------------------------
+  // ESCUCHA DEL EVENTO PERSONALIZADO DE ERROR
+  // --------------------------------------------------------------------------
   useEffect(() => {
-    // Escuchar evento personalizado emitido por el validador
+    // Función que captura los detalles emitidos por el validador cliente o API
     const manejarApertura = (e) => {
+      // VARIABLE 'detalle': Objeto transmitido dentro de CustomEvent.detail
       const detalle = e.detail || {};
+
       setTitulo(detalle.titulo || (detalle.esDuplicado ? 'Postulación Ya Registrada' : 'Revisión de Requisitos'));
       setMensaje(detalle.mensaje || '');
       setListaErrores(detalle.errores || []);
@@ -26,11 +58,14 @@ export default function PostulationErrorModal() {
     };
 
     window.addEventListener('abrir-modal-error-postulacion', manejarApertura);
+
+    // Limpieza de listener al desmontar el componente
     return () => {
       window.removeEventListener('abrir-modal-error-postulacion', manejarApertura);
     };
   }, []);
 
+  // Si no está abierto, no renderiza elementos en el DOM
   if (!isOpen) return null;
 
   return (
@@ -59,13 +94,13 @@ export default function PostulationErrorModal() {
           padding: '28px 24px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
           color: '#0F172A',
-          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
           textAlign: 'center',
           border: '1px solid #E2E8F0',
           animation: 'modalSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
-        {/* Icono de advertencia o error en círculo */}
+        {/* Icono superior circular: Ámbar para duplicado, Rojo para errores de campos */}
         <div
           style={{
             width: '56px',
@@ -94,7 +129,7 @@ export default function PostulationErrorModal() {
           )}
         </div>
 
-        {/* Título del Error */}
+        {/* Título del Diagnóstico */}
         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
           {titulo}
         </h3>
@@ -106,7 +141,7 @@ export default function PostulationErrorModal() {
           </p>
         )}
 
-        {/* Lista detallada de errores en caso de múltiples campos faltantes */}
+        {/* Lista detallada de inconsistencias con scroll interno si hay más de 3 fallos */}
         {listaErrores.length > 0 && (
           <div
             style={{
@@ -131,7 +166,7 @@ export default function PostulationErrorModal() {
           </div>
         )}
 
-        {/* Botón de acción */}
+        {/* Botón de acción para cerrar y continuar editando */}
         <button
           type="button"
           onClick={() => setIsOpen(false)}
@@ -150,9 +185,16 @@ export default function PostulationErrorModal() {
           onMouseOver={(e) => (e.currentTarget.style.opacity = '0.9')}
           onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
         >
-          {esDuplicado ? 'Entendido, volver' : 'Corregir formulario'}
+          {esDuplicado ? 'Entendido y cerrar' : 'Entendido, voy a corregirlos'}
         </button>
       </div>
+
+      <style>{`
+        @keyframes modalSlideIn {
+          from { opacity: 0; transform: translateY(14px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

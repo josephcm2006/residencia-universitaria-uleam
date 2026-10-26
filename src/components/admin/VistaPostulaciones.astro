@@ -1,0 +1,225 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/VistaPostulaciones.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente presenta la vista principal de la consola de administración donde se listan,
+// filtran y evalúan todas las postulaciones de alojamiento universitario enviadas por los estudiantes.
+//
+// PROPS RECIBIDAS:
+// * postulaciones {Array<Object>}: Lista de postulaciones leídas desde disco o memoria.
+// * pendientes {number}: Total de solicitudes con estado 'Pendiente'.
+// * aprobadas {number}: Total de solicitudes con estado 'Aprobada'.
+// * rechazadas {number}: Total de solicitudes con estado 'Rechazada'.
+// * habDisponibles {number}: Cantidad de dormitorios con camas libres.
+// ========================================================================================
+
+export interface Props {
+  postulaciones: Array<any>;
+  pendientes: number;
+  aprobadas: number;
+  rechazadas: number;
+  habDisponibles: number;
+}
+
+const {
+  postulaciones = [],
+  pendientes = 0,
+  aprobadas = 0,
+  rechazadas = 0,
+  habDisponibles = 0
+} = Astro.props;
+
+const totalPostulaciones = postulaciones.length;
+---
+
+<main class="admin-content-view" id="view-postulaciones">
+  <div class="view-header">
+    <div>
+      <h1>Revisión de Postulaciones</h1>
+      <p>Evalúa las solicitudes de alojamiento universitario, revisa los soportes y dictamina la asignación.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button type="button" id="btn-export-json" class="btn-inspect" style="background-color: #0F172A; padding: 9px 16px; border: 1px solid #334155;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Exportar JSON</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tarjetas KPI de Métricas Clave -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Por revisar</span>
+        <h2 id="kpi-pendientes">{pendientes}</h2>
+      </div>
+      <div class="kpi-icon yellow">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Aprobadas</span>
+        <h2 id="kpi-aprobadas">{aprobadas}</h2>
+      </div>
+      <div class="kpi-icon green">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Rechazadas</span>
+        <h2 id="kpi-rechazadas">{rechazadas}</h2>
+      </div>
+      <div class="kpi-icon red">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-info">
+        <span>Habitaciones Libres</span>
+        <h2 id="kpi-habitaciones-libres">{habDisponibles}</h2>
+      </div>
+      <div class="kpi-icon blue">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 4v16"></path>
+          <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
+          <path d="M2 17h20"></path>
+          <path d="M6 8v9"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="filters-bar">
+    <div class="search-input-wrapper">
+      <span class="search-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input type="text" id="input-search-postulacion" class="search-input" placeholder="Buscar por estudiante, cédula o carrera..." />
+    </div>
+
+    <div class="filter-tags">
+      <button type="button" class="filter-btn active" data-filter="todos">Todas ({totalPostulaciones})</button>
+      <button type="button" class="filter-btn" data-filter="Pendiente">Pendientes ({pendientes})</button>
+      <button type="button" class="filter-btn" data-filter="Aprobada">Aprobadas ({aprobadas})</button>
+      <button type="button" class="filter-btn" data-filter="Rechazada">Rechazadas ({rechazadas})</button>
+    </div>
+  </div>
+
+  <!-- Tabla de Solicitudes -->
+  <div class="table-card">
+    <table class="data-table" id="tabla-postulaciones">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Cédula</th>
+          <th>Carrera</th>
+          <th>Fecha</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th style="text-align: right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-postulaciones">
+        {postulaciones.length === 0 ? (
+          <tr id="row-empty-state">
+            <td colspan="7" style="text-align: center; padding: 54px 20px; color: #64748B;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                  </svg>
+                </div>
+                <strong style="font-size: 15px; color: #1E293B;">No hay postulaciones registradas aún</strong>
+                <p style="font-size: 13px; margin: 0; max-width: 440px; color: #64748B;">
+                  Las solicitudes que los estudiantes envíen desde el formulario del portal aparecerán aquí de forma inmediata para su revisión.
+                </p>
+              </div>
+            </td>
+          </tr>
+        ) : (
+          postulaciones.map((post) => (
+            <tr data-post-id={post.id} data-status={post.estado}>
+              <td>
+                <div class="student-meta">
+                  <strong>{post.estudiante.nombre}</strong>
+                  <span>{post.estudiante.correo}</span>
+                </div>
+              </td>
+              <td>
+                <span style="font-family: monospace; font-weight: 700; color: #334155;">{post.estudiante.cedula}</span>
+              </td>
+              <td>
+                <span style="font-size: 12.5px;">{post.estudiante.carrera}</span>
+              </td>
+              <td>
+                <span style="color: #64748B; font-size: 12px;">{post.fechaPostulacion}</span>
+              </td>
+              <td>
+                <span class={`priority-tag ${(post.prioridad || 'Media').toLowerCase()}`}>{post.prioridad || 'Media'}</span>
+              </td>
+              <td>
+                <span class={`status-badge ${(post.estado || 'Pendiente').toLowerCase()}`} id={`status-badge-${post.id}`}>
+                  <span class="status-dot"></span>
+                  {post.estado}
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <div class="action-buttons" style="justify-content: flex-end;">
+                  <button type="button" class="btn-inspect" data-action="inspect" data-post-id={post.id}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Revisar expediente</span>
+                  </button>
+                  {post.estado === 'Pendiente' && (
+                    <>
+                      <button type="button" class="btn-quick-approve" title="Aprobar de inmediato" data-action="quick-approve" data-post-id={post.id} aria-label="Aprobar">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </button>
+                      <button type="button" class="btn-quick-reject" title="Rechazar" data-action="quick-reject" data-post-id={post.id} aria-label="Rechazar">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</main>

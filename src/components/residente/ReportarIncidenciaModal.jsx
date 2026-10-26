@@ -1,10 +1,74 @@
+// ========================================================================================
+// PÁGINA ASOCIADA: src/pages/residente-dashboard.astro (Ruta: /residente-dashboard)
+// TIPO: Modal interactivo para reporte de averías e incidencias del residente
+// UBICACIÓN: src/components/residente/ReportarIncidenciaModal.jsx
+// ========================================================================================
+//
+// 1. FUNCIONAMIENTO GENERAL DEL COMPONENTE:
+// ----------------------------------------------------------------------------------------
+// Este componente interactivo de React ("Island") implementa el modal flotante para que un
+// estudiante residente reporte anomalías, averías o necesidades de mantenimiento en su
+// habitación asignada (como fallas eléctricas, plomería, roturas de mobiliario o cerrajería).
+//
+// Cuenta con:
+// - Efecto visual tipo desenfoque en el fondo (backdrop-filter: blur) y animación fluida.
+// - Retroalimentación sonora institucional al desplegarse (usa pop.wav o síntesis Web Audio API).
+// - Validación en tiempo real de archivos adjuntos (límite de 10 MB, tipos JPG, PNG, WEBP, PDF).
+// - Validación estricta con el módulo 'validadorIncidencias.js' (asunto >= 5 caracteres,
+//   descripción >= 15 caracteres, categoría válida, urgencia permitida).
+// - Envío asíncrono vía HTTP POST a '/api/incidencias/create'.
+// - Al confirmarse con éxito, genera un código institucional (ej. INC-2026-001) y emite un
+//   CustomEvent 'incidencia-creada' en el objeto global 'window' para que otros componentes
+//   en la misma pantalla (como 'SolicitudesPreviasModal.jsx') actualicen su estado en vivo sin recargar.
+//
+// 2. VARIABLES Y ESTADOS DEL COMPONENTE:
+// ----------------------------------------------------------------------------------------
+// * estudiante {Object} (Prop): Objeto con los datos del residente (cedula, nombreCompleto, email).
+// * habitacion {Object} (Prop): Objeto con los datos de la habitación asignada (id, numero, edificio).
+// * buttonText {string} (Prop): Etiqueta textual visible en el botón disparador principal.
+// * className {string} (Prop): Clases CSS adicionales pasadas desde Astro o el componente padre.
+//
+// Estados locales de React (useState):
+// * isOpen {boolean}: 'true' si el modal con backdrop blur está visible; 'false' si está oculto.
+// * enviando {boolean}: 'true' mientras la petición HTTP POST está en tránsito hacia el backend.
+// * exito {boolean}: 'true' cuando el backend respondió éxito HTTP 201 y se muestra la pantalla de confirmación.
+// * codigoGenerado {string}: Almacena el identificador único emitido por el backend (ej. 'INC-2026-004').
+// * errores {Array<string>}: Lista de mensajes de error de validación para desplegar al estudiante.
+// * categoria {string}: Área de atención seleccionada por el estudiante (ej. 'Plomería', 'Electricidad').
+// * urgencia {string}: Nivel de prioridad asignado al reporte ('Baja', 'Media', 'Alta', 'Urgente').
+// * asunto {string}: Título breve de la incidencia ingresado por el usuario (máximo 80 caracteres).
+// * descripcion {string}: Explicación detallada del problema (mínimo 15 caracteres requeridos).
+// * archivos {Array<Object>}: Lista de evidencias cargadas [{ nombre: string, tamano: string }].
+//
+// Referencias de React (useRef):
+// * fileInputRef {RefObject}: Referencia directa al input oculto <input type="file" /> para disparar clics.
+//
+// 3. FLUJO DE EJECUCIÓN PASO A PASO:
+// ----------------------------------------------------------------------------------------
+// Paso 1: El estudiante pulsa el botón "Reportar incidencia". Se ejecuta 'handleOpen()'.
+// Paso 2: 'reproducirSonidoApertura()' intenta reproducir '/assets/sounds/pop.wav'.
+//         Si falla o está bloqueado, 'reproducirSintetizador()' genera un tono senoidal suave con Web Audio API.
+// Paso 3: Se abre el modal con transición CSS fluida y fondo oscurecido con desenfoque (blur).
+// Paso 4: El usuario ingresa categoría, urgencia, asunto y descripción.
+// Paso 5: Si adjunta un archivo, 'handleFileChange()' lo valida individualmente con 'validarArchivoEvidencia()'.
+// Paso 6: El usuario presiona "Enviar reporte de incidencia". 'handleSubmit()' intercepta el evento:
+//         - Valida los datos consolidados con 'validarReporteIncidencia()'.
+//         - Si hay inconsistencias, cancela el envío y muestra la lista de alertas rojas.
+//         - Si todo es correcto, activa 'enviando = true' y realiza un 'fetch' POST a '/api/incidencias/create'.
+// Paso 7: Al recibir respuesta positiva (HTTP 201):
+//         - Guarda el código en 'codigoGenerado'.
+//         - Activa la pantalla de confirmación verde ('exito = true').
+//         - Dispara 'window.dispatchEvent(new CustomEvent("incidencia-creada", ...))'.
+//         - Restablece el formulario a sus valores limpios por defecto.
+// ========================================================================================
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   CATEGORIAS_VALIDAS,
   URGENCIAS_VALIDAS,
   validarReporteIncidencia,
   validarArchivoEvidencia
-} from '../../errores-incidencias/validadorIncidencias.js';
+} from '../../scripts/residente/validadorIncidencias.js';
 
 export default function ReportarIncidenciaModal({
   estudiante = {},
@@ -12,28 +76,39 @@ export default function ReportarIncidenciaModal({
   buttonText = "Reportar incidencia",
   className = ""
 }) {
+  // // Estado que controla la visibilidad física del modal flotante con desenfoque de fondo
   const [isOpen, setIsOpen] = useState(false);
+
+  // // Estado booleano para bloquear botones e indicar animación de carga durante la petición HTTP
   const [enviando, setEnviando] = useState(false);
+
+  // // Estado booleano que conmuta entre el formulario de captura y la tarjeta de confirmación de éxito
   const [exito, setExito] = useState(false);
+
+  // // Almacena la clave generada devuelta por el servidor (ejemplo: 'INC-2026-005')
   const [codigoGenerado, setCodigoGenerado] = useState('');
+
+  // // Colección de advertencias o errores devueltos por las reglas de negocio para mostrarlos en pantalla
   const [errores, setErrores] = useState([]);
 
-  // Campos del formulario
+  // // Campos capturados del formulario de reporte
   const [categoria, setCategoria] = useState('');
   const [urgencia, setUrgencia] = useState('Media');
   const [asunto, setAsunto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [archivos, setArchivos] = useState([]);
 
+  // // Referencia al nodo DOM del input de archivos para invocar el selector nativo del sistema
   const fileInputRef = useRef(null);
 
-  // Reproducir sonido suave institucional al abrir (pop + sintetizador)
+  // // Reproduce retroalimentación sonora suave al abrir el modal (archivo .wav institucional)
   const reproducirSonidoApertura = () => {
     try {
       const audio = new Audio('/assets/sounds/pop.wav');
       audio.volume = 0.5;
       const p = audio.play();
       if (p !== undefined) {
+        // // Si la política de autoplay bloquea el archivo de audio, recurre a la síntesis nativa
         p.catch(() => reproducirSintetizador());
       }
     } catch (e) {
@@ -41,6 +116,7 @@ export default function ReportarIncidenciaModal({
     }
   };
 
+  // // Sintetizador fallback mediante Web Audio API nativo (onda senoidal con modulación de frecuencia)
   const reproducirSintetizador = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -51,10 +127,12 @@ export default function ReportarIncidenciaModal({
       const gain = ctx.createGain();
       const now = ctx.currentTime;
 
+      // // Genera un tono de apertura suave: sube de 520 Hz a 840 Hz en 100 ms
       osc.type = 'sine';
       osc.frequency.setValueAtTime(520, now);
       osc.frequency.exponentialRampToValueAtTime(840, now + 0.1);
 
+      // // Control de ganancia para atenuar gradualmente el volumen y evitar chasquidos acústicos
       gain.gain.setValueAtTime(0.2, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
@@ -62,9 +140,12 @@ export default function ReportarIncidenciaModal({
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.18);
-    } catch (e) {}
+    } catch (e) {
+      // // Si el navegador inhabilita Web Audio API, se continúa sin sonido sin interrumpir la interfaz
+    }
   };
 
+  // // Manejador de evento al pulsar el botón principal: reproduce sonido y abre el modal
   const handleOpen = () => {
     reproducirSonidoApertura();
     setIsOpen(true);
@@ -72,18 +153,21 @@ export default function ReportarIncidenciaModal({
     setErrores([]);
   };
 
+  // // Manejador de evento para cerrar el modal y limpiar estados volátiles
   const handleClose = () => {
     setIsOpen(false);
     setExito(false);
     setErrores([]);
   };
 
-  // Manejo de archivos adjuntos con validación en tiempo real
+  // // Manejador de selección de archivos adjuntos con validación preventiva en tiempo real
   const handleFileChange = (e) => {
+    // // Convierte la FileList nativa del navegador en un array de JavaScript estándar
     const files = Array.from(e.target.files || []);
     const nuevosArchivos = [];
     const nuevosErrores = [];
 
+    // // Itera cada archivo evaluando tamaño máximo (10MB) y extensiones autorizadas
     files.forEach((file) => {
       const errorArchivo = validarArchivoEvidencia(file);
       if (errorArchivo) {
@@ -96,25 +180,31 @@ export default function ReportarIncidenciaModal({
       }
     });
 
+    // // Actualiza la lista de errores si algún archivo fue rechazado
     if (nuevosErrores.length > 0) {
       setErrores(nuevosErrores);
     } else {
       setErrores([]);
     }
 
+    // // Concatena los archivos válidos a la lista actual del estado
     setArchivos((prev) => [...prev, ...nuevosArchivos]);
+
+    // // Resetea el valor del input nativo para permitir volver a seleccionar el mismo archivo si fue corregido
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // // Elimina un archivo individual previamente seleccionado según su índice numérico
   const handleEliminarArchivo = (index) => {
     setArchivos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Enviar el reporte
+  // // Enviar el reporte de incidencia hacia el backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrores([]);
 
+    // // Paso 1: Empaquetar los datos actuales del formulario para validación local
     const datosParaValidar = {
       categoria,
       urgencia,
@@ -123,15 +213,18 @@ export default function ReportarIncidenciaModal({
       archivos
     };
 
+    // // Paso 2: Invocar el validador estricto de incidencias
     const validacion = validarReporteIncidencia(datosParaValidar);
     if (!validacion.esValido) {
       setErrores(validacion.errores);
       return;
     }
 
+    // // Paso 3: Indicar estado de carga al usuario
     setEnviando(true);
 
     try {
+      // // Paso 4: Enviar petición asíncrona HTTP POST a la API de persistencia
       const response = await fetch('/api/incidencias/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -141,34 +234,37 @@ export default function ReportarIncidenciaModal({
           asunto,
           descripcion,
           evidencias: archivos,
-          estudianteCedula: estudiante.cedula || '0953920949',
-          estudianteNombre: estudiante.nombreCompleto || 'Joseph Coello Mendoza',
-          estudianteCorreo: estudiante.email || 'e0953920949@live.uleam.edu.ec',
-          habitacionId: habitacion.id || 'HAB-A101',
-          habitacion: `${habitacion.numero || 'A-101'} (${habitacion.edificio || 'Edificio A'})`
+          estudianteCedula: estudiante.cedula || estudiante.id || '',
+          estudianteNombre: estudiante.nombreCompleto || estudiante.nombre || 'Estudiante Residente',
+          estudianteCorreo: estudiante.email || estudiante.correo || '',
+          habitacionId: habitacion.id || 'HAB-ASIGNADA',
+          habitacion: `${habitacion.numero || 'Habitación'} (${habitacion.edificio || 'Residencia'})`
         })
       });
 
       const res = await response.json();
 
+      // // Paso 5: Evaluar respuesta del servidor
       if (res.success) {
+        // // Guardar el código institucional asignado
         setCodigoGenerado(res.incidencia.id);
         setExito(true);
 
-        // Disparar evento para que la cajita de solicitudes previas se refresque
+        // // Disparar evento global para que componentes hermanos (como SolicitudesPreviasModal) se refresquen en vivo
         window.dispatchEvent(
           new CustomEvent('incidencia-creada', {
             detail: { incidencia: res.incidencia }
           })
         );
 
-        // Limpiar campos
+        // // Limpiar los campos del formulario para futuros reportes
         setCategoria('');
         setUrgencia('Media');
         setAsunto('');
         setDescripcion('');
         setArchivos([]);
       } else {
+        // // Mostrar mensajes devueltos por el backend
         setErrores(res.errores || [res.message || 'Error al guardar la incidencia.']);
       }
     } catch (err) {
@@ -178,7 +274,7 @@ export default function ReportarIncidenciaModal({
     }
   };
 
-  // Cerrar con Escape
+  // // Cerrar el modal automáticamente al presionar la tecla Escape en el teclado
   useEffect(() => {
     const handleKeyDown = (ev) => {
       if (ev.key === 'Escape' && isOpen) handleClose();
@@ -187,6 +283,7 @@ export default function ReportarIncidenciaModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
+  // // Mapa de colores temáticos institucionales según el nivel de urgencia
   const colorUrgencia = {
     Baja: '#15803D',
     Media: '#0284C7',
@@ -196,7 +293,7 @@ export default function ReportarIncidenciaModal({
 
   return (
     <>
-      {/* Botón Disparador Principal */}
+      {/* Botón Disparador Principal en la interfaz de usuario */}
       <button
         type="button"
         onClick={handleOpen}
@@ -293,7 +390,7 @@ export default function ReportarIncidenciaModal({
               </button>
             </div>
 
-            {/* Mensaje de Éxito al Enviar */}
+            {/* Pantalla de Confirmación de Éxito al Enviar */}
             {exito ? (
               <div style={{ textAlign: 'center', padding: '24px 10px', animation: 'overlayFade 0.3s ease' }}>
                 <div
@@ -375,7 +472,7 @@ export default function ReportarIncidenciaModal({
             ) : (
               /* Formulario de Reporte */
               <form onSubmit={handleSubmit}>
-                {/* Errores */}
+                {/* Despliegue de Errores de Validación */}
                 {errores.length > 0 && (
                   <div
                     style={{
@@ -397,7 +494,7 @@ export default function ReportarIncidenciaModal({
                   </div>
                 )}
 
-                {/* 1. Categoría */}
+                {/* 1. Categoría de la Incidencia */}
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                     Categoría de la Incidencia *
@@ -637,7 +734,7 @@ export default function ReportarIncidenciaModal({
         </div>
       )}
 
-      {/* Keyframes animaciones CSS */}
+      {/* Estilos embebidos para transiciones suaves de entrada y salida */}
       <style>{`
         @keyframes overlayFade {
           from { opacity: 0; }

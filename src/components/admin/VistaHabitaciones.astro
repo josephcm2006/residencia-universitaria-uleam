@@ -1,0 +1,91 @@
+---
+// ========================================================================================
+// SISTEMA DE GESTIÓN DE RESIDENCIA UNIVERSITARIA - ULEAM
+// ARCHIVO: src/components/admin/VistaHabitaciones.astro
+// ========================================================================================
+//
+// FUNCIONAMIENTO GENERAL:
+// Este componente presenta el catálogo visual de todas las habitaciones de la residencia.
+// Muestra para cada dormitorio su capacidad física, porcentaje de ocupación, estado
+// (Disponible u Ocupada) y el listado de estudiantes que la habitan.
+//
+// PROPS RECIBIDAS:
+// * habitaciones {Array<Object>}: Lista de habitaciones sincronizadas.
+// * habDisponibles {number}: Cantidad de dormitorios que tienen al menos una vacante disponible.
+// ========================================================================================
+
+export interface Props {
+  habitaciones: Array<any>;
+  habDisponibles: number;
+}
+
+const {
+  habitaciones = [],
+  habDisponibles = 0
+} = Astro.props;
+---
+
+<main class="admin-content-view" id="view-habitaciones" style="display: none;">
+  <div class="view-header">
+    <div>
+      <h1>Catálogo de Habitaciones y Ocupación</h1>
+      <p>Consulta la ocupación y disponibilidad en tiempo real sincronizada con las admisiones aprobadas.</p>
+    </div>
+    <span style="font-size: 13px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 6px 14px; border-radius: 99px;">
+      ● {habDisponibles} Habitaciones Disponibles
+    </span>
+  </div>
+
+  <!-- Grid de Habitaciones -->
+  <div class="rooms-grid">
+    {habitaciones.map((hab) => (
+      <div class="room-card-admin">
+        <div class="room-thumb-wrapper">
+          <img src={hab.imagen} alt={`Habitación ${hab.numero}`} />
+          <span class={`room-status-pill ${hab.estado.toLowerCase()}`}>{hab.estado}</span>
+        </div>
+        <div class="room-card-content">
+          <div>
+            <h3>
+              <span>Habitación {hab.numero}</span>
+              <span style="font-size: 13px; color: #64748B;">{hab.tipo}</span>
+            </h3>
+            <p class="room-building">{hab.edificio} · {hab.piso}</p>
+
+            <div class="room-amenities">
+              {hab.amenidades.slice(0, 3).map((am) => (
+                <span class="amenity-chip">{am}</span>
+              ))}
+            </div>
+          </div>
+
+          <div class="room-capacity-track">
+            <div style="display: flex; justify-content: space-between; font-weight: 600;">
+              <span>Ocupación: {hab.ocupantesActuales}/{hab.capacidad} camas</span>
+              <span>{Math.round((hab.ocupantesActuales / hab.capacidad) * 100)}%</span>
+            </div>
+            <div class="cap-bar">
+              <div class="cap-fill" style={`width: ${(hab.ocupantesActuales / hab.capacidad) * 100}%`}></div>
+            </div>
+          </div>
+
+          <!-- Lista de Residentes asignados en esta habitación -->
+          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #E2E8F0; font-size: 12px;">
+            <span style="font-weight: 700; color: #475569; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">
+              Ocupantes Asignados:
+            </span>
+            {hab.residentes && hab.residentes.length > 0 ? (
+              <ul style="margin: 0; padding-left: 16px; color: #0F172A; font-weight: 600;">
+                {hab.residentes.map((res) => (
+                  <li>{res.nombreCompleto || res.nombre} ({res.cedula})</li>
+                ))}
+              </ul>
+            ) : (
+              <span style="color: #94A3B8; font-style: italic;">Sin ocupantes asignados (Vacante disponible)</span>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</main>

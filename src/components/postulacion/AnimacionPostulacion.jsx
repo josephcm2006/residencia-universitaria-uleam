@@ -2,44 +2,82 @@ import React, { useState, useEffect, useRef } from 'react';
 
 /**
  * ============================================================================
- * ANIMACIÓN DE POSTULACIÓN TIPO TRANSFERENCIA BANCARIA (VISTO VERDE FLUIDO)
+ * PÁGINA ASOCIADA: src/pages/postulation.astro (Ruta: /postulation)
+ * TIPO: Componente React para la animación de confirmación de postulación
  * ============================================================================
- * Ubicación: src/components/animations/AnimacionPostulacion.jsx
+ * UBICACIÓN: src/components/postulacion/AnimacionPostulacion.jsx
  * 
- * Flujo:
- * 1. 'cargando': Breve spinner institucional de procesamiento (1.2s).
- * 2. 'exito': Círculo verde trazado y visto verde fluido con sonido de
- *    verificación exitosa tipo app bancaria (3 segundos completos).
- * 3. Redirección automática inmediata a /postulado.astro.
+ * FUNCIONAMIENTO GENERAL:
+ * Este componente React gestiona la retroalimentación audiovisual cuando el estudiante
+ * envía su formulario de postulación:
+ * 1. Muestra un estado de procesamiento con desenfoque de fondo y spinner concéntrico (1.2s).
+ * 2. Transiciona a un visto verde animado vectorial fluido (estilo confirmación de pago móvil).
+ * 3. Ejecuta simultáneamente un sonido de confirmación institucional mediante Web Audio API.
+ * 4. Permanece en pantalla durante 3.0 segundos completos para que el alumno aprecie el éxito.
+ * 5. Redirige automáticamente al comprobante oficial (/postulado?id=POST-...).
+ * 
+ * VARIABLES DE ESTADO Y REFERENCIAS:
+ * - 'fase': Máquina de estados ('inactivo' | 'cargando' | 'exito').
+ * - 'codigoPostulacion': Código correlativo retornado por el servidor (ej: 'POST-2026-001').
+ * - 'codigoRef': Referencia mutable (useRef) para evitar re-renderizados accidentales en timers.
+ * - 'timerExitoRef': Manejador del setTimeout para la transición de carga a éxito.
+ * - 'timerRedirigirRef': Manejador del setTimeout de los 3.0 segundos para la redirección.
  */
 export default function AnimacionPostulacion() {
-  const [fase, setFase] = useState('inactivo'); // 'inactivo' | 'cargando' | 'exito'
+  // VARIABLE 'fase':
+  // Controla la etapa visual: 'inactivo' (oculto), 'cargando' (spinner), 'exito' (visto verde).
+  const [fase, setFase] = useState('inactivo');
+
+  // VARIABLE 'codigoPostulacion':
+  // Guarda el código oficial retornado por el backend para mostrarlo en el badge central.
   const [codigoPostulacion, setCodigoPostulacion] = useState('POST-2026-001');
+
+  // VARIABLE 'codigoRef':
+  // Almacena el código en un ref mutable para que las clausuras de setTimeout siempre lean el valor real.
   const codigoRef = useRef('POST-2026-001');
+
+  // VARIABLE 'timerExitoRef':
+  // Referencia para pausar o limpiar el temporizador de carga (1.2s) si el modal se desmonta.
   const timerExitoRef = useRef(null);
+
+  // VARIABLE 'timerRedirigirRef':
+  // Referencia para pausar o limpiar el temporizador de permanencia (3.0s) de la confirmación.
   const timerRedirigirRef = useRef(null);
 
-  // Sonido de verificación exitosa (Estilo campanada de transferencia bancaria)
+  // --------------------------------------------------------------------------
+  // SÍNTESIS SONORA TIPO APP BANCARIA (WEB AUDIO API + ARCHIVO POP)
+  // --------------------------------------------------------------------------
+  
+  /**
+   * Genera un chime armónico cristalino de 3 notas tipo verificación bancaria
+   * (Re 587.33Hz -> La 880Hz -> Mi 1318.51Hz) con curva de resonancia suave.
+   */
   const reproducirSonidoExito = () => {
-    // 1. Audio pop.wav
+    // 1. Reproducción de audio grabado como respaldo
     try {
       const audio = new Audio('/assets/sounds/pop.wav');
       audio.volume = 1.0;
       audio.play().catch(() => {});
     } catch (e) {}
 
-    // 2. Chime armónico y cristalino tipo app bancaria (D5 -> A5 -> E6)
+    // 2. Síntesis armónica en tiempo real mediante Web Audio API
     try {
+      // VARIABLE 'AudioCtx': Constructor nativo de audio del navegador.
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
+
+      // VARIABLE 'ctx': Contexto maestro de procesamiento de audio.
       const ctx = new AudioCtx();
+
+      // Si el navegador suspendió el audio por políticas de interacción, se reactiva
       if (ctx.state === 'suspended') {
         ctx.resume();
       }
 
+      // VARIABLE 'ahora': Tiempo base del reloj interno de audio en segundos.
       const ahora = ctx.currentTime;
 
-      // Nota 1: D5 preparatoria suave
+      // --- NOTA 1: D5 (587.33 Hz) - Tono senoidal preparatorio suave ---
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = 'sine';
@@ -51,7 +89,7 @@ export default function AnimacionPostulacion() {
       osc1.start(ahora);
       osc1.stop(ahora + 0.35);
 
-      // Nota 2: A5 brillante de confirmación
+      // --- NOTA 2: A5 (880.00 Hz) - Tono triangular brillante de confirmación ---
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.type = 'triangle';
@@ -64,7 +102,7 @@ export default function AnimacionPostulacion() {
       osc2.start(ahora + 0.1);
       osc2.stop(ahora + 0.85);
 
-      // Nota 3: Armónico E6 cristalino y resonante
+      // --- NOTA 3: E6 (1318.51 Hz) - Armónico cristalino con resonancia prolongada ---
       const osc3 = ctx.createOscillator();
       const gain3 = ctx.createGain();
       osc3.type = 'sine';
@@ -79,34 +117,47 @@ export default function AnimacionPostulacion() {
     } catch (err) {}
   };
 
+  /**
+   * Redirige el navegador a la página de comprobante oficial con el ID en URL.
+   * @param {string} codigo - Código de la postulación (ej: 'POST-2026-001').
+   */
   const redirigirAPostulado = (codigo) => {
+    // VARIABLE 'cod': Código prioritario para asegurar que nunca viaje undefined en la URL.
     const cod = codigo || codigoRef.current || codigoPostulacion || 'POST-2026-001';
     window.location.href = `/postulado?id=${encodeURIComponent(cod)}`;
   };
 
+  // --------------------------------------------------------------------------
+  // ESCUCHA DE EVENTOS PERSONALIZADOS DEL SISTEMA
+  // --------------------------------------------------------------------------
   useEffect(() => {
-    // Escuchar inicio de envío
+    // Evento disparado por postulacion.js al hacer clic en enviar
     const onIniciar = () => {
       setFase('cargando');
     };
 
-    // Escuchar confirmación exitosa
+    // Evento disparado por postulacion.js cuando el servidor responde HTTP 200 OK
     const onExito = (e) => {
+      // VARIABLE 'detalle': Datos adjuntos en el evento CustomEvent
       const detalle = e.detail || {};
+
+      // VARIABLE 'cod': Extrae el código correlativo formal generado
       const cod = detalle.codigo || (detalle.postulacion && detalle.postulacion.id) || 'POST-2026-001';
       codigoRef.current = cod;
       setCodigoPostulacion(cod);
 
-      // PASO 1: Carga breve (1.2s)
+      // PASO 1: Mantener spinner de carga durante 1.2 segundos para feedback visual
       if (timerExitoRef.current) clearTimeout(timerExitoRef.current);
       timerExitoRef.current = setTimeout(() => {
-        // PASO 2: Transición al visto verde fluido estilo app bancaria
+        // PASO 2: Transición a la fase de visto verde fluido
         setFase('exito');
+
+        // Suena el acorde cristalino justo cuando el trazo del visto empieza a dibujarse
         setTimeout(() => {
           reproducirSonidoExito();
-        }, 400); // Suena justo cuando el visto comienza a trazarse
+        }, 400);
 
-        // PASO 3: Mantener la animación durante exactamente 3 segundos completos
+        // PASO 3: Mantener la animación durante exactamente 3.0 segundos completos
         if (timerRedirigirRef.current) clearTimeout(timerRedirigirRef.current);
         timerRedirigirRef.current = setTimeout(() => {
           redirigirAPostulado(cod);
@@ -114,16 +165,19 @@ export default function AnimacionPostulacion() {
       }, 1200);
     };
 
+    // Evento para cerrar y resetear el modal en caso de error
     const onCerrar = () => {
       if (timerExitoRef.current) clearTimeout(timerExitoRef.current);
       if (timerRedirigirRef.current) clearTimeout(timerRedirigirRef.current);
       setFase('inactivo');
     };
 
+    // Registro de listeners globales en la ventana del navegador
     window.addEventListener('iniciar-envio-postulacion', onIniciar);
     window.addEventListener('postulacion-exitosa', onExito);
     window.addEventListener('cerrar-modal-exito-postulacion', onCerrar);
 
+    // Limpieza de listeners al desmontar el componente
     return () => {
       if (timerExitoRef.current) clearTimeout(timerExitoRef.current);
       if (timerRedirigirRef.current) clearTimeout(timerRedirigirRef.current);
@@ -133,6 +187,7 @@ export default function AnimacionPostulacion() {
     };
   }, []);
 
+  // Si está inactivo, no renderiza elementos en el DOM para ahorrar memoria
   if (fase === 'inactivo') return null;
 
   return (
@@ -224,7 +279,7 @@ export default function AnimacionPostulacion() {
              ======================================================== */
           <div style={{ animation: 'contentFadeIn 0.35s ease' }}>
             
-            {/* Animación del Círculo y Visto Verde Fluido (Estilo Transferencia Bancaria) */}
+            {/* Contenedor del Círculo y Visto Verde Vectorial */}
             <div
               style={{
                 position: 'relative',
@@ -236,7 +291,7 @@ export default function AnimacionPostulacion() {
                 justifyContent: 'center'
               }}
             >
-              {/* Resplandor y halo verde suave que late suavemente */}
+              {/* Halo verde pulsante de fondo */}
               <div
                 style={{
                   position: 'absolute',
@@ -247,7 +302,7 @@ export default function AnimacionPostulacion() {
                 }}
               />
 
-              {/* Círculo trazado fluidamente alrededor de 360 grados */}
+              {/* Círculo trazado en 360 grados (perímetro 2*PI*44 = 276.46) */}
               <svg
                 width="100"
                 height="100"
@@ -257,7 +312,6 @@ export default function AnimacionPostulacion() {
                   display: 'block'
                 }}
               >
-                {/* Fondo suave */}
                 <circle
                   cx="50"
                   cy="50"
@@ -267,7 +321,6 @@ export default function AnimacionPostulacion() {
                   strokeWidth="4"
                 />
 
-                {/* Trazo circular fluido animado */}
                 <circle
                   cx="50"
                   cy="50"
@@ -284,7 +337,7 @@ export default function AnimacionPostulacion() {
                 />
               </svg>
 
-              {/* Visto verde dibujado de forma fluida de izquierda a derecha */}
+              {/* Visto verde dibujado de izquierda a derecha (strokeDasharray 75) */}
               <svg
                 width="100"
                 height="100"
@@ -315,6 +368,7 @@ export default function AnimacionPostulacion() {
               ¡Postulación Exitosa!
             </h3>
 
+            {/* Badge con el código de postulación retornado */}
             <div
               style={{
                 display: 'inline-block',
@@ -336,7 +390,7 @@ export default function AnimacionPostulacion() {
               ¡Tu solicitud ha sido registrada correctamente! Cargando comprobante oficial...
             </p>
 
-            {/* Botón interactivo para avanzar sin esperar */}
+            {/* Botón de acceso inmediato si el estudiante no desea esperar los 3 segundos */}
             <button
               type="button"
               onClick={() => redirigirAPostulado(codigoPostulacion)}
@@ -366,7 +420,7 @@ export default function AnimacionPostulacion() {
         )}
       </div>
 
-      {/* Animaciones CSS Keyframes */}
+      {/* Keyframes animaciones CSS */}
       <style>{`
         @keyframes overlayFadeIn {
           from { opacity: 0; }

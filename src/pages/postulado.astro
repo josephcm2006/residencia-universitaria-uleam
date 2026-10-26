@@ -3,6 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import '../styles/postulation.css';
+import '../styles/css-responsive/postulado.responsive.css';
 import usuarios from '../data/usuarios.json';
 import fallbackPostulaciones from '../data/postulaciones.json';
 import HelpModal from '../components/shared/HelpModal.jsx';
@@ -11,8 +12,14 @@ import Footer from '../components/shared/Footer.astro';
 
 export const prerender = false;
 
-// 1. Obtener usuario en sesión
+// ----------------------------------------------------------------------------------------
+// 1. GESTIÓN DE SESIÓN Y AUTENTICACIÓN DINÁMICA
+// ----------------------------------------------------------------------------------------
+
+// // Variable 'sessionCookie': Almacena la cookie de sesión institucional
 const sessionCookie = Astro.cookies.get('uleam_session')?.value;
+
+// // Variable 'userSession': Objeto deserializado del usuario logueado
 let userSession = null;
 if (sessionCookie) {
   try {
@@ -22,26 +29,38 @@ if (sessionCookie) {
   }
 }
 
-const defaultUser = usuarios.find((u) => u.email === 'e0953920949@live.uleam.edu.ec') || usuarios[0];
-const activeUser = userSession || defaultUser;
+// // Si hay sesión activa, sincronizamos con usuarios.json. Si no hay sesión (visita directa en pruebas),
+// // seleccionamos el estudiante postulante para que la interfaz se previsualice correctamente.
+const estudiantePostulado = usuarios.find((u) => u.aceptado === 0) || usuarios[0];
+const usuarioEncontrado = userSession
+  ? (usuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  : estudiantePostulado;
 
-// REGLA CRÍTICA DE NEGOCIO: Si el usuario ha sido ACEPTADO (aceptado: 1),
-// ya NO se le muestra la interfaz de espera de postulado, sino que se le redirige
-// inmediatamente a su nuevo Dashboard de Residente (/residente-dashboard).
-if (activeUser.aceptado === 1) {
+const activeUser = usuarioEncontrado ? { ...usuarioEncontrado, ...(userSession || {}) } : estudiantePostulado;
+
+// // REGLA CRÍTICA DE NEGOCIO: Si un usuario con sesión ya fue ACEPTADO (aceptado: 1),
+// // ya NO se le muestra la interfaz de espera de postulado, sino que se le redirige
+// // inmediatamente a su nuevo Dashboard de Residente (/residente-dashboard).
+if (userSession && activeUser.aceptado === 1) {
   return Astro.redirect('/residente-dashboard');
 }
-const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Joseph Coello Mendoza";
-const nombreCorto = activeUser.nombre || nombreCompleto.split(' ')[0] || "Joseph";
+
+// // Variables de perfil 100% dinámicas del usuario autenticado
+const nombreCompleto = activeUser.nombreCompleto || activeUser.nombre || "Estudiante ULEAM";
+const nombreCorto = activeUser.nombre || (nombreCompleto ? nombreCompleto.split(' ')[0] : "Estudiante");
 const rol = activeUser.rol || "Estudiante";
-const correo = activeUser.email || activeUser.correo || "e0953920949@live.uleam.edu.ec";
-const cedula = activeUser.cedula || "0953920949";
-const carrera = activeUser.carrera || "Ingeniería en Tecnologías de la Información";
+const correo = activeUser.email || activeUser.correo || "";
+const cedula = activeUser.cedula || "";
+const carrera = activeUser.carrera || "Carrera Universitaria";
 
-const partes = nombreCompleto.split(' ');
-const iniciales = (partes[0]?.charAt(0) + (partes[1]?.charAt(0) || '')).toUpperCase() || 'JC';
+const partes = nombreCompleto.split(' ').filter(Boolean);
+const iniciales = partes.length >= 2
+  ? (partes[0].charAt(0) + partes[1].charAt(0)).toUpperCase()
+  : (partes[0]?.charAt(0) || 'U').toUpperCase();
 
-// 2. Obtener la postulación registrada desde el archivo JSON
+// ----------------------------------------------------------------------------------------
+// 2. OBTENER LA POSTULACIÓN REGISTRADA DEL ESTUDIANTE DESDE EL ARCHIVO JSON
+// ----------------------------------------------------------------------------------------
 let listaPostulaciones = fallbackPostulaciones;
 try {
   const filePath = path.resolve('src/data/postulaciones.json');
@@ -51,24 +70,24 @@ try {
   listaPostulaciones = fallbackPostulaciones;
 }
 
-// Buscar por id en query param o por cédula del estudiante
+// // Buscar por id en query param o por cédula / correo del estudiante autenticado
 const url = new URL(Astro.request.url);
 const paramId = url.searchParams.get('id');
 
 const postulaciónActiva =
   (paramId && listaPostulaciones.find((p) => p.id === paramId)) ||
-  listaPostulaciones.find((p) => p.estudiante?.cedula === cedula) ||
+  listaPostulaciones.find((p) => (cedula && p.estudiante?.cedula === cedula) || (correo && p.estudiante?.correo === correo)) ||
   listaPostulaciones[0] || {
     id: 'POST-2026-001',
-    fechaPostulacion: '19 oct 2026',
-    estado: 'Pendiente',
-    habitacionSugerida: 'HAB-A101',
+    fechaPostulacion: '20 oct 2026',
+    estado: 'En Revisión',
+    habitacionSugerida: 'HAB-A101 (Edificio A)',
     estudiante: {
       nombre: nombreCompleto,
       correo: correo,
       cedula: cedula,
       carrera: carrera,
-      semestre: '6to Semestre · Periodo 2026-2'
+      semestre: 'Periodo 2026-2'
     },
     situacionSocioeconomica: {
       ingresoMensual: '$ 450.00',

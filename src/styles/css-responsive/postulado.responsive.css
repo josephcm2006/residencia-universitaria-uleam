@@ -1,0 +1,149 @@
+/**
+ * ============================================================================
+ * CSS RESPONSIVE: COMPROBANTE DE POSTULADO Y MIS SOLICITUDES
+ * ============================================================================
+ * UBICACIÓN: src/styles/css-responsive/postulado.responsive.css
+ * PÁGINAS ASOCIADAS: 
+ *   - src/pages/postulado.astro (Ruta: /postulado)
+ *   - src/pages/mis-solicitudes.astro (Ruta: /mis-solicitudes)
+ * DISPOSITIVOS: Tablets (<= 1024px), Móviles (<= 768px) y Pantallas pequeñas (<= 480px)
+ */
+
+@import './global.responsive.css';
+
+/* ----------------------------------------------------------------------------
+   1. TABLETS Y PANTALLAS MEDIANAS (<= 1024px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .hero-banner {
+    padding: 32px 24px !important;
+  }
+
+  .form-wrapper,
+  .main-wrapper {
+    max-width: 100% !important;
+    padding: 0 20px 48px 20px !important;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  /* Métricas de 4 columnas en mis-solicitudes pasan a 2x2 */
+  .main-wrapper section[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   2. MÓVILES (<= 768px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* Hero de confirmación / historial */
+  .hero-banner {
+    padding: 24px 16px 36px 16px !important;
+    text-align: left !important;
+  }
+
+  .hero-banner h1 {
+    font-size: 22px !important;
+    line-height: 1.25 !important;
+  }
+
+  .hero-banner p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  .hero-kicker {
+    font-size: 10.5px !important;
+    letter-spacing: 0.05em !important;
+  }
+
+  /* Contenedor principal de la ficha */
+  .form-wrapper,
+  .main-wrapper {
+    margin-top: -16px !important;
+    padding: 0 12px 40px 12px !important;
+  }
+
+  /* Cabecera del comprobante */
+  .form-wrapper > div > div:first-child {
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .form-wrapper > div > div:first-child > div:last-child {
+    text-align: left !important;
+  }
+
+  /* Cuerpo del comprobante */
+  .form-wrapper > div > div:last-child {
+    padding: 16px !important;
+  }
+
+  /* Grillas pasan a 1 sola columna vertical */
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Métricas de Mis Solicitudes a 1 o 2 columnas compactas */
+  .main-wrapper section[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Pasos a seguir (timeline) */
+  .timeline-container,
+  div[style*="border-left: 2px dashed"] {
+    margin-left: 4px !important;
+    padding-left: 16px !important;
+  }
+
+  /* Botones de acción del comprobante */
+  .action-buttons-postulado,
+  .form-wrapper div[style*="display: flex; justify-content: flex-end"] {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .action-buttons-postulado a,
+  .action-buttons-postulado button,
+  .form-wrapper div[style*="display: flex; justify-content: flex-end"] a,
+  .form-wrapper div[style*="display: flex; justify-content: flex-end"] button {
+    width: 100% !important;
+    min-height: 48px !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Tarjetas de incidencias previas en Mis Solicitudes */
+  .incidencia-ticket-card {
+    padding: 16px 14px !important;
+    border-radius: 10px !important;
+  }
+
+  .ticket-header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   3. PANTALLAS PEQUEÑAS (<= 480px)
+   ---------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .hero-banner h1 {
+    font-size: 19px !important;
+  }
+
+  .main-wrapper section[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: 1fr !important;
+  }
+}
