@@ -46,11 +46,21 @@ if (sessionCookie) {
   }
 }
 
+// Cargar lista actualizada de usuarios desde disco
+let listaUsuarios = usuarios;
+try {
+  const userPath = path.resolve('src/data/usuarios.json');
+  const rawUsers = await fs.readFile(userPath, 'utf-8');
+  listaUsuarios = JSON.parse(rawUsers);
+} catch (e) {
+  listaUsuarios = usuarios;
+}
+
 // // Si hay sesión activa, se sincroniza con usuarios.json. Si no hay sesión (pruebas directas en navegador),
 // // se toma el estudiante postulante de usuarios.json sin datos quemados para permitir previsualizar el formulario.
-const estudiantePostulante = usuarios.find((u) => u.aceptado === 0) || usuarios[0];
+const estudiantePostulante = listaUsuarios.find((u) => u.aceptado === 0) || listaUsuarios[0];
 const usuarioEncontrado = userSession
-  ? (usuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  ? (listaUsuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
   : estudiantePostulante;
 
 const activeUser = usuarioEncontrado ? { ...usuarioEncontrado, ...(userSession || {}) } : estudiantePostulante;
@@ -97,7 +107,10 @@ try {
   listaPostulaciones = fallbackPostulaciones;
 }
 
-const postExistente = listaPostulaciones.find((p) => p.estudiante?.cedula === cedula);
+const postExistente = listaPostulaciones.find(
+  (p) => (cedula && String(p.estudiante?.cedula).trim() === String(cedula).trim()) ||
+         (correo && String(p.estudiante?.correo).trim().toLowerCase() === String(correo).trim().toLowerCase())
+);
 
 // Si el estudiante ya tiene una postulación registrada, redirigir inmediatamente a /postulado
 // sin mostrar el formulario ni avisos verdes en la cabecera

@@ -31,8 +31,8 @@ const {
       <h1>Catálogo de Habitaciones y Ocupación</h1>
       <p>Consulta la ocupación y disponibilidad en tiempo real sincronizada con las admisiones aprobadas.</p>
     </div>
-    <span style="font-size: 13px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 6px 14px; border-radius: 99px;">
-      ● {habDisponibles} Habitaciones Disponibles
+    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #111827; background: #F3F4F6; border: 1px solid #D1D5DB; padding: 6px 12px; border-radius: 0; display: inline-flex; align-items: center; gap: 6px;">
+      <span style="width: 6px; height: 6px; background-color: #059669; display: inline-block;"></span> {habDisponibles} Habitaciones Disponibles
     </span>
   </div>
 
@@ -83,6 +83,24 @@ const {
             ) : (
               <span style="color: #94A3B8; font-style: italic;">Sin ocupantes asignados (Vacante disponible)</span>
             )}
+          </div>
+
+          <!-- Botón de Gestión Directa y Asignación de Postulantes -->
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+            <button
+              type="button"
+              class="btn-manage-room"
+              data-room-id={hab.id}
+              style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background-color: #111827; color: #FFFFFF; border: 1px solid #111827; padding: 10px 14px; border-radius: 0; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: background-color 0.15s ease;"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="11" cy="7" r="4"></circle>
+                <line x1="19" y1="8" x2="19" y2="14"></line>
+                <line x1="22" y1="11" x2="16" y2="11"></line>
+              </svg>
+              <span>Gestionar y Asignar Postulante</span>
+            </button>
           </div>
         </div>
       </div>

@@ -56,7 +56,8 @@ export async function POST({ request }) {
     // id: Código de la postulación a dictaminar (ej: 'POST-2026-001').
     // estado: Nuevo dictamen institucional ('Aprobada', 'Rechazada', 'Pendiente').
     // observaciones: Justificación o notas técnicas del evaluador.
-    const { id, estado, observaciones } = body;
+    // habitacionId: ID de la habitación elegida manualmente por el administrador.
+    const { id, estado, observaciones, habitacionId } = body;
 
     // Validación de obligatoriedad: id y estado son indispensables
     if (!id || !estado) {
@@ -138,11 +139,20 @@ export async function POST({ request }) {
     // ------------------------------------------------------------------------
     
     if (estado === 'Aprobada') {
-      // Buscar habitación sugerida o la primera disponible con vacantes
-      let habAsignada = listaHabitaciones.find(
-        (h) => h.id === post.habitacionSugerida && (h.ocupantesActuales || 0) < h.capacidad
-      );
+      // Prioridad 1: Habitación seleccionada manualmente por el administrador
+      let habAsignada = null;
+      if (habitacionId) {
+        habAsignada = listaHabitaciones.find((h) => h.id === habitacionId);
+      }
 
+      // Prioridad 2: Buscar habitación sugerida con vacantes
+      if (!habAsignada) {
+        habAsignada = listaHabitaciones.find(
+          (h) => h.id === post.habitacionSugerida && (h.ocupantesActuales || 0) < h.capacidad
+        );
+      }
+
+      // Prioridad 3: Primera habitación disponible con vacantes
       if (!habAsignada) {
         habAsignada = listaHabitaciones.find((h) => (h.ocupantesActuales || 0) < h.capacidad) || listaHabitaciones[0];
       }

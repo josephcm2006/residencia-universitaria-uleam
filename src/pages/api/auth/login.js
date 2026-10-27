@@ -24,6 +24,8 @@
  * 8. Responde con HTTP 200 OK y la ruta de destino.
  */
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import usuarios from '../../../data/usuarios.json';
 import administradores from '../../../data/administradores.json';
 
@@ -65,8 +67,27 @@ export async function POST({ request, cookies }) {
     // ------------------------------------------------------------------------
     // PASO 4: BUSCAR EN ESTUDIANTES Y ADMINISTRADORES
     // ------------------------------------------------------------------------
+    // Cargar listas actualizadas desde disco
+    let listaUsuarios = usuarios;
+    try {
+      const uPath = path.resolve('src/data/usuarios.json');
+      const rawU = await fs.readFile(uPath, 'utf-8');
+      listaUsuarios = JSON.parse(rawU);
+    } catch (e) {
+      listaUsuarios = usuarios;
+    }
+
+    let listaAdmins = administradores;
+    try {
+      const aPath = path.resolve('src/data/administradores.json');
+      const rawA = await fs.readFile(aPath, 'utf-8');
+      listaAdmins = JSON.parse(rawA);
+    } catch (e) {
+      listaAdmins = administradores;
+    }
+
     // Buscar primero en la lista de estudiantes
-    let usuarioEncontrado = usuarios.find(
+    let usuarioEncontrado = listaUsuarios.find(
       (u) => u.email.toLowerCase().trim() === correoNormalizado && u.password === claveNormalizada
     );
 
@@ -75,7 +96,7 @@ export async function POST({ request, cookies }) {
 
     // Si no fue un estudiante, buscar en la lista de administradores
     if (!usuarioEncontrado) {
-      usuarioEncontrado = administradores.find(
+      usuarioEncontrado = listaAdmins.find(
         (a) => a.email.toLowerCase().trim() === correoNormalizado && a.password === claveNormalizada
       );
       if (usuarioEncontrado) {

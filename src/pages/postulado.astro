@@ -74,7 +74,7 @@ try {
 const url = new URL(Astro.request.url);
 const paramId = url.searchParams.get('id');
 
-const postulaciónActiva =
+const postulacionActiva =
   (paramId && listaPostulaciones.find((p) => p.id === paramId)) ||
   listaPostulaciones.find((p) => (cedula && p.estudiante?.cedula === cedula) || (correo && p.estudiante?.correo === correo)) ||
   listaPostulaciones[0] || {
@@ -170,7 +170,7 @@ const postulaciónActiva =
           <div>
             <span style="font-size: 11px; font-weight: 700; color: #71717A; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px;">Comprobante de Postulación</span>
             <div style="display: flex; align-items: center; gap: 12px;">
-              <h2 style="font-size: 22px; font-weight: 800; color: #111111; margin: 0;">{postulaciónActiva.id}</h2>
+              <h2 style="font-size: 22px; font-weight: 800; color: #111111; margin: 0;">{postulacionActiva.id}</h2>
               <span style="display: inline-block; background-color: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 4px; border: 1px solid #86EFAC;">
                 ● Estado: En Revisión
               </span>
@@ -178,7 +178,7 @@ const postulaciónActiva =
           </div>
           <div style="text-align: right;">
             <span style="font-size: 11.5px; color: #71717A; display: block;">Fecha de ingreso</span>
-            <strong style="font-size: 13.5px; color: #18181B;">{postulaciónActiva.fechaPostulacion || '19 oct 2026'}</strong>
+            <strong style="font-size: 13.5px; color: #18181B;">{postulacionActiva.fechaPostulacion || '19 oct 2026'}</strong>
           </div>
         </div>
 
@@ -189,19 +189,19 @@ const postulaciónActiva =
           <div class="grid-3" style="margin-bottom: 28px;">
             <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
               <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Postulante</span>
-              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.estudiante?.nombre || nombreCompleto}</strong>
-              <span style="font-size: 12px; color: #64748B;">Cédula: {postulaciónActiva.estudiante?.cedula || cedula}</span>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulacionActiva.estudiante?.nombre || nombreCompleto}</strong>
+              <span style="font-size: 12px; color: #64748B;">Cédula: {postulacionActiva.estudiante?.cedula || cedula}</span>
             </div>
 
             <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
               <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Carrera y Semestre</span>
-              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.estudiante?.carrera || carrera}</strong>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulacionActiva.estudiante?.carrera || carrera}</strong>
               <span style="font-size: 12px; color: #64748B;">Periodo: 2026-2 (Campus Matriz)</span>
             </div>
 
             <div style="background: #F8FAFC; padding: 16px; border: 1px solid #E2E8F0; border-radius: 4px;">
               <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; display: block; margin-bottom: 4px;">Habitación Sugerida</span>
-              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulaciónActiva.habitacionSugerida || 'HAB-A101 (Edificio A)'}</strong>
+              <strong style="font-size: 14px; color: #0F172A; display: block;">{postulacionActiva.habitacionSugerida || 'HAB-A101 (Edificio A)'}</strong>
               <span style="font-size: 12px; color: #64748B;">Habitación Compartida Estándar</span>
             </div>
           </div>
@@ -214,11 +214,11 @@ const postulaciónActiva =
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
               <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
                 <span style="font-size: 11.5px; color: #6B7280; display: block;">Ingreso mensual familiar</span>
-                <strong style="font-size: 14px; color: #111827;">{postulaciónActiva.situacionSocioeconomica?.ingresoMensual || '$ 450.00'}</strong>
+                <strong style="font-size: 14px; color: #111827;">{postulacionActiva.situacionSocioeconomica?.ingresoMensual || '$ 450.00'}</strong>
               </div>
               <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
                 <span style="font-size: 11.5px; color: #6B7280; display: block;">Composición del hogar</span>
-                <strong style="font-size: 14px; color: #111827;">{postulaciónActiva.situacionSocioeconomica?.integrantes || '4 personas'}</strong>
+                <strong style="font-size: 14px; color: #111827;">{postulacionActiva.situacionSocioeconomica?.integrantes || '4 personas'}</strong>
               </div>
               <div style="border-left: 3px solid #15803D; padding: 10px 14px; background: #F9FAFB;">
                 <span style="font-size: 11.5px; color: #6B7280; display: block;">Prioridad institucional</span>
@@ -233,7 +233,7 @@ const postulaciónActiva =
               Documentación Digital en Custodia
             </h4>
             <div style="display: flex; flex-direction: column; gap: 8px;">
-              {(postulaciónActiva.documentos || []).map((doc) => (
+              {(postulacionActiva.documentos || []).map((doc) => (
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 4px;">
                   <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="color: #15803D; font-weight: 800;">✓</span>

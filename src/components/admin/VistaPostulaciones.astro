@@ -150,7 +150,7 @@ const totalPostulaciones = postulaciones.length;
           <tr id="row-empty-state">
             <td colspan="7" style="text-align: center; padding: 54px 20px; color: #64748B;">
               <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8;">
+                <div style="width: 48px; height: 48px; border-radius: 0; background-color: #F3F4F6; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: center; color: #6B7280;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
                     <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
@@ -165,7 +165,7 @@ const totalPostulaciones = postulaciones.length;
           </tr>
         ) : (
           postulaciones.map((post) => (
-            <tr data-post-id={post.id} data-status={post.estado}>
+            <tr data-post-id={post.id} data-status={post.estado} data-postulacion={JSON.stringify(post)}>
               <td>
                 <div class="student-meta">
                   <strong>{post.estudiante.nombre}</strong>
@@ -173,7 +173,7 @@ const totalPostulaciones = postulaciones.length;
                 </div>
               </td>
               <td>
-                <span style="font-family: monospace; font-weight: 700; color: #334155;">{post.estudiante.cedula}</span>
+                <span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; color: #111827;">{post.estudiante.cedula}</span>
               </td>
               <td>
                 <span style="font-size: 12.5px;">{post.estudiante.carrera}</span>

@@ -1,16 +1,16 @@
 [
   {
-    "id": "POST-2026-002",
+    "id": "POST-2026-004",
     "estudiante": {
-      "nombre": "María Elena Zambrano",
-      "correo": "e1314567890@live.uleam.edu.ec",
-      "cedula": "1314567890",
-      "carrera": "Medicina · 2026-2",
-      "facultad": "Facultad de Ciencias de la Salud",
+      "nombre": "Mateo Sebastián Alarcón Zambrano",
+      "correo": "e1316789452@live.uleam.edu.ec",
+      "cedula": "1316789452",
+      "carrera": "Ingeniería de Software · 2026-2",
+      "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
       "semestre": "2026-2",
       "ciudadOrigen": "Foráneo"
     },
-    "fechaPostulacion": "20 oct 2026",
+    "fechaPostulacion": "26 oct 2026",
     "estado": "Aprobada",
     "prioridad": "Alta",
     "situacionSocioeconomica": {
@@ -36,63 +36,292 @@
     ],
     "accesibilidad": {
       "requiere": true,
-      "detalle": "fkefjfe",
-      "grupoVulnerable": "ninguno"
+      "detalle": "ddddddddddddddddddddd",
+      "grupoVulnerable": "movilidad"
+    },
+    "condicionesConvivencia": {
+      "configurado": true,
+      "mascotas": "tolera_asistencia",
+      "climatizacion": "templado",
+      "audio": "moderado",
+      "humo": "tolera_fuera",
+      "salud": {
+        "refrigeracionMedica": true,
+        "alergiaAlimentos": true,
+        "sensibilidadOlores": true
+      },
+      "fecha": "2026-10-27T04:54:45.590Z"
     },
     "habitacionSugerida": "HAB-A101",
     "documentos": [
       {
         "id": "doc-auto-1",
         "tipo": "Cédula de identidad",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-2",
         "tipo": "Certificado de matrícula",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-3",
         "tipo": "Declaración de núcleo familiar",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-4",
         "tipo": "Carta de referencia",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-5",
         "tipo": "Comprobante de ingresos",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-6",
         "tipo": "Planilla de servicios",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-7",
         "tipo": "Certificado de accesibilidad",
-        "archivo": "Capture001.png",
-        "tamano": "2.95 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       }
     ],
     "observacionesAdmin": "Aprobado de forma directa por el coordinador.",
-    "fechaRevision": "20 oct 2026"
+    "fechaRevision": "27 oct 2026"
+  },
+  {
+    "id": "POST-2026-003",
+    "estudiante": {
+      "nombre": "Carlos Andrés Delgado Vélez",
+      "correo": "e1315928374@live.uleam.edu.ec",
+      "cedula": "1315928374",
+      "carrera": "Arquitectura · 2026-2",
+      "facultad": "Facultad de Ingeniería, Industria y Construcción",
+      "semestre": "2026-2",
+      "ciudadOrigen": "Foráneo"
+    },
+    "fechaPostulacion": "26 oct 2026",
+    "estado": "Aprobada",
+    "prioridad": "Alta",
+    "situacionSocioeconomica": {
+      "ingresoMensual": "$ 250",
+      "egresosMensuales": "$ 233",
+      "integrantes": "4 personas",
+      "dependientes": "2 dependientes",
+      "quintil": "Quintil 1"
+    },
+    "referencias": [
+      {
+        "tipo": "Emergencia / Familiar",
+        "nombre": "rosita",
+        "parentesco": "madre",
+        "telefono": "09886161614"
+      },
+      {
+        "tipo": "Personal / Académica",
+        "nombre": "carlos",
+        "vinculo": "tutor",
+        "telefono": "0988616164"
+      }
+    ],
+    "accesibilidad": {
+      "requiere": true,
+      "detalle": "aaaaaaaaaaaaaaaaaaaaaaa",
+      "grupoVulnerable": "movilidad"
+    },
+    "condicionesConvivencia": {
+      "configurado": true,
+      "mascotas": "posee_asistencia",
+      "climatizacion": "templado",
+      "audio": "moderado",
+      "humo": "vapeador",
+      "salud": {
+        "refrigeracionMedica": true,
+        "alergiaAlimentos": true,
+        "sensibilidadOlores": true
+      },
+      "fecha": "2026-10-27T00:44:05.357Z"
+    },
+    "habitacionSugerida": "HAB-A201",
+    "documentos": [
+      {
+        "id": "doc-auto-1",
+        "tipo": "Cédula de identidad",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-2",
+        "tipo": "Certificado de matrícula",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-3",
+        "tipo": "Declaración de núcleo familiar",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-4",
+        "tipo": "Carta de referencia",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-5",
+        "tipo": "Comprobante de ingresos",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-6",
+        "tipo": "Planilla de servicios",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-7",
+        "tipo": "Certificado de accesibilidad",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      }
+    ],
+    "observacionesAdmin": "Asignación manual en Habitación A-201 por el administrador.",
+    "fechaRevision": "27 oct 2026"
+  },
+  {
+    "id": "POST-2026-002",
+    "estudiante": {
+      "nombre": "María Elena Zambrano",
+      "correo": "e1314567890@live.uleam.edu.ec",
+      "cedula": "1314567890",
+      "carrera": "Medicina · 2026-2",
+      "facultad": "Facultad de Ciencias de la Salud",
+      "semestre": "2026-2",
+      "ciudadOrigen": "Foráneo"
+    },
+    "fechaPostulacion": "26 oct 2026",
+    "estado": "Pendiente",
+    "prioridad": "Alta",
+    "situacionSocioeconomica": {
+      "ingresoMensual": "$ 250",
+      "egresosMensuales": "$ 233",
+      "integrantes": "4 personas",
+      "dependientes": "2 dependientes",
+      "quintil": "Quintil 1"
+    },
+    "referencias": [
+      {
+        "tipo": "Emergencia / Familiar",
+        "nombre": "rosita",
+        "parentesco": "madre",
+        "telefono": "09886161614"
+      },
+      {
+        "tipo": "Personal / Académica",
+        "nombre": "carlos",
+        "vinculo": "tutor",
+        "telefono": "0988616164"
+      }
+    ],
+    "accesibilidad": {
+      "requiere": true,
+      "detalle": "hhhhhhhhhhhhhhhhhhh",
+      "grupoVulnerable": "movilidad"
+    },
+    "condicionesConvivencia": {
+      "configurado": true,
+      "mascotas": "posee_asistencia",
+      "climatizacion": "ventilador",
+      "audio": "moderado",
+      "humo": "vapeador",
+      "salud": {
+        "refrigeracionMedica": true,
+        "alergiaAlimentos": true,
+        "sensibilidadOlores": true
+      },
+      "fecha": "2026-10-27T00:42:46.599Z"
+    },
+    "habitacionSugerida": "HAB-A102",
+    "documentos": [
+      {
+        "id": "doc-auto-1",
+        "tipo": "Cédula de identidad",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-2",
+        "tipo": "Certificado de matrícula",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-3",
+        "tipo": "Declaración de núcleo familiar",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-4",
+        "tipo": "Carta de referencia",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-5",
+        "tipo": "Comprobante de ingresos",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-6",
+        "tipo": "Planilla de servicios",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      },
+      {
+        "id": "doc-auto-7",
+        "tipo": "Certificado de accesibilidad",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
+        "estado": "Cargado"
+      }
+    ],
+    "observacionesAdmin": "Cupo liberado por reasignación administrativa.",
+    "fechaRevision": "27 oct 2026"
   },
   {
     "id": "POST-2026-001",
@@ -105,12 +334,12 @@
       "semestre": "2026-2",
       "ciudadOrigen": "Foráneo"
     },
-    "fechaPostulacion": "20 oct 2026",
+    "fechaPostulacion": "26 oct 2026",
     "estado": "Aprobada",
     "prioridad": "Alta",
     "situacionSocioeconomica": {
-      "ingresoMensual": "$ 12",
-      "egresosMensuales": "$ 12",
+      "ingresoMensual": "$ 250",
+      "egresosMensuales": "$ 233",
       "integrantes": "4 personas",
       "dependientes": "2 dependientes",
       "quintil": "Quintil 1"
@@ -118,75 +347,88 @@
     "referencias": [
       {
         "tipo": "Emergencia / Familiar",
-        "nombre": "",
-        "parentesco": "",
-        "telefono": ""
+        "nombre": "rosita",
+        "parentesco": "madre",
+        "telefono": "09886161614"
       },
       {
         "tipo": "Personal / Académica",
-        "nombre": "",
-        "vinculo": "",
-        "telefono": ""
+        "nombre": "carlos",
+        "vinculo": "tutor",
+        "telefono": "0988616164"
       }
     ],
     "accesibilidad": {
-      "requiere": false,
-      "detalle": "Sin requerimientos específicos de movilidad",
-      "grupoVulnerable": "ninguno"
+      "requiere": true,
+      "detalle": "uuuuuuuuu",
+      "grupoVulnerable": "movilidad"
+    },
+    "condicionesConvivencia": {
+      "configurado": true,
+      "mascotas": "sin_mascotas",
+      "climatizacion": "frio",
+      "audio": "audifonos",
+      "humo": "no_tolera",
+      "salud": {
+        "refrigeracionMedica": true,
+        "alergiaAlimentos": true,
+        "sensibilidadOlores": false
+      },
+      "fecha": "2026-10-27T00:26:39.909Z"
     },
     "habitacionSugerida": "HAB-A101",
     "documentos": [
       {
         "id": "doc-auto-1",
-        "tipo": "Comprobante de ingresos",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Cédula de identidad",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-2",
-        "tipo": "Planilla de servicios",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Certificado de matrícula",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-3",
-        "tipo": "Carta de referencia",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Declaración de núcleo familiar",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-4",
-        "tipo": "Declaración de núcleo familiar",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Carta de referencia",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-5",
-        "tipo": "Certificado de matrícula",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Comprobante de ingresos",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-6",
-        "tipo": "Cédula de identidad",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "tipo": "Planilla de servicios",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       },
       {
         "id": "doc-auto-7",
         "tipo": "Certificado de accesibilidad",
-        "archivo": "WhatsApp Image 2026-10-18 at 8.00.20 PM.jpeg",
-        "tamano": "0.07 MB",
+        "archivo": "WhatsApp Image 2026-10-23 at 10.54.14 PM.jpeg",
+        "tamano": "0.02 MB",
         "estado": "Cargado"
       }
     ],
-    "observacionesAdmin": "",
-    "fechaRevision": "20 oct 2026"
+    "observacionesAdmin": "Asignación manual en Habitación A-101 por el administrador.",
+    "fechaRevision": "26 oct 2026"
   }
 ]

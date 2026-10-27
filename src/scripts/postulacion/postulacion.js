@@ -258,9 +258,15 @@ import { validarArchivoIndividual } from './validadorArchivos.js';
       puntos += 1;
     }
 
+    // Evaluación Sección 6: Condiciones de Convivencia (1 punto)
+    var inputConvCheck = document.getElementById('input-condiciones-convivencia');
+    if (inputConvCheck && inputConvCheck.value) {
+      puntos += 1;
+    }
+
     // VARIABLE 'porcentaje':
     // Convierte los puntos a escala de 0 a 100 asegurando no sobrepasar el 100%.
-    var porcentaje = Math.min(100, Math.round((puntos / totalPuntos) * 100));
+    var porcentaje = Math.min(100, Math.round((puntos / 11) * 100));
 
     // VARIABLE 'fill': Barra de color que se ensancha horizontalmente.
     var fill = document.getElementById('progress-fill');
@@ -339,10 +345,170 @@ import { validarArchivoIndividual } from './validadorArchivos.js';
         tratamientoDatos: document.getElementById('check-tratamiento') ? document.getElementById('check-tratamiento').checked : false,
         reglamento: document.getElementById('check-reglamento') ? document.getElementById('check-reglamento').checked : false
       },
+      condicionesConvivencia: (function () {
+        try {
+          var val = document.getElementById('input-condiciones-convivencia')?.value;
+          return val ? JSON.parse(val) : null;
+        } catch (e) {
+          return null;
+        }
+      })(),
       archivosAdjuntos: archivosCargados,
       ultimaActualizacion: new Date().toLocaleString()
     };
   }
+
+  // --------------------------------------------------------------------------
+  // GESTIÓN DEL MODAL DE CONDICIONES Y PREFERENCIAS DE CONVIVENCIA
+  // --------------------------------------------------------------------------
+  var btnAbrirConv = document.getElementById('btn-abrir-modal-convivencia');
+  var btnCerrarConv = document.getElementById('btn-cerrar-modal-convivencia');
+  var btnCancelarConv = document.getElementById('btn-cancelar-convivencia');
+  var btnGuardarConv = document.getElementById('btn-guardar-convivencia');
+  var modalConv = document.getElementById('modal-condiciones-convivencia');
+  var inputConv = document.getElementById('input-condiciones-convivencia');
+  var chipsContainer = document.getElementById('contenedor-chips-convivencia');
+  var badgeConv = document.getElementById('badge-convivencia-status');
+  var btnTextConv = document.getElementById('btn-text-convivencia');
+  var errorMsgConv = document.getElementById('conv-error-msg');
+
+  function renderizarChipsConvivencia(data) {
+    if (!data || !data.configurado) return;
+    if (badgeConv) {
+      badgeConv.className = 'status-pill-complete';
+      badgeConv.innerHTML = '<span class="dot"></span><span class="text">Condiciones configuradas (Listo)</span>';
+    }
+    if (btnTextConv) {
+      btnTextConv.textContent = 'Modificar Condiciones de Convivencia';
+    }
+    if (!chipsContainer) return;
+
+    var chips = [];
+
+    // 1. Mascotas
+    if (data.mascotas === 'sin_mascotas') {
+      chips.push('<span class="conv-chip chip-alert">Habitación libre de mascotas</span>');
+    } else if (data.mascotas === 'posee_asistencia') {
+      chips.push('<span class="conv-chip chip-health">Usuario con animal de asistencia</span>');
+    } else if (data.mascotas === 'tolera_asistencia') {
+      chips.push('<span class="conv-chip">Tolerante con animales de asistencia</span>');
+    }
+
+    // 2. Climatización
+    if (data.climatizacion === 'frio') chips.push('<span class="conv-chip">A/C Frío continuo (18°C-20°C)</span>');
+    else if (data.climatizacion === 'ventilador') chips.push('<span class="conv-chip">Solo ventilador / Sensible</span>');
+    else chips.push('<span class="conv-chip">A/C Templado (22°C-24°C)</span>');
+
+    // 3. Audio / Estudio
+    if (data.audio === 'audifonos') chips.push('<span class="conv-chip">Audífonos obligatorios</span>');
+    else chips.push('<span class="conv-chip">Volumen moderado flexible</span>');
+
+    // 4. Humo / Tabaco
+    if (data.humo === 'no_tolera') chips.push('<span class="conv-chip">100% Libre de humo y vapor</span>');
+    else if (data.humo === 'vapeador') chips.push('<span class="conv-chip">Vapeador ocasional</span>');
+    else chips.push('<span class="conv-chip">Tolerante en exteriores</span>');
+
+    // 5. Salud y Medicación
+    if (data.salud && data.salud.refrigeracionMedica) chips.push('<span class="conv-chip chip-health">Refrigeración médica</span>');
+    if (data.salud && data.salud.alergiaAlimentos) chips.push('<span class="conv-chip chip-alert">Alergia alimentaria severa</span>');
+    if (data.salud && data.salud.sensibilidadOlores) chips.push('<span class="conv-chip">Sensible a olores/químicos</span>');
+
+    chipsContainer.innerHTML = chips.join('');
+    chipsContainer.style.display = 'flex';
+  }
+
+  function restaurarValoresEnModal(data) {
+    if (!data) return;
+    if (data.salud) {
+      var checkRefri = document.getElementById('conv-refrigeracion-medica');
+      var checkAlim = document.getElementById('conv-alergia-alimentos');
+      var checkOlores = document.getElementById('conv-sensibilidad-olores');
+      if (checkRefri) checkRefri.checked = Boolean(data.salud.refrigeracionMedica);
+      if (checkAlim) checkAlim.checked = Boolean(data.salud.alergiaAlimentos);
+      if (checkOlores) checkOlores.checked = Boolean(data.salud.sensibilidadOlores);
+    }
+    
+    // Radios principales
+    ['conv_mascotas', 'conv_climatizacion', 'conv_audio', 'conv_humo'].forEach(function (name) {
+      var key = name.replace('conv_', '');
+      var val = data[key];
+      if (val) {
+        var radio = document.querySelector('input[name="' + name + '"][value="' + val + '"]');
+        if (radio) radio.checked = true;
+      }
+    });
+  }
+
+  function abrirModalConvivencia() {
+    if (modalConv) modalConv.style.display = 'flex';
+  }
+
+  function cerrarModalConvivencia() {
+    if (modalConv) modalConv.style.display = 'none';
+    if (errorMsgConv) errorMsgConv.style.display = 'none';
+  }
+
+  if (btnAbrirConv) btnAbrirConv.addEventListener('click', abrirModalConvivencia);
+  if (btnCerrarConv) btnCerrarConv.addEventListener('click', cerrarModalConvivencia);
+  if (btnCancelarConv) btnCancelarConv.addEventListener('click', cerrarModalConvivencia);
+
+  if (modalConv) {
+    modalConv.addEventListener('click', function (e) {
+      if (e.target === modalConv) cerrarModalConvivencia();
+    });
+  }
+
+  if (btnGuardarConv) {
+    btnGuardarConv.addEventListener('click', function () {
+      var mascotas = document.querySelector('input[name="conv_mascotas"]:checked');
+      var clima = document.querySelector('input[name="conv_climatizacion"]:checked');
+      var audio = document.querySelector('input[name="conv_audio"]:checked');
+      var humo = document.querySelector('input[name="conv_humo"]:checked');
+
+      if (!mascotas || !clima || !audio || !humo) {
+        if (errorMsgConv) errorMsgConv.style.display = 'block';
+        return;
+      }
+
+      if (errorMsgConv) errorMsgConv.style.display = 'none';
+
+      var data = {
+        configurado: true,
+        mascotas: mascotas.value,
+        climatizacion: clima.value,
+        audio: audio.value,
+        humo: humo.value,
+        salud: {
+          refrigeracionMedica: Boolean(document.getElementById('conv-refrigeracion-medica')?.checked),
+          alergiaAlimentos: Boolean(document.getElementById('conv-alergia-alimentos')?.checked),
+          sensibilidadOlores: Boolean(document.getElementById('conv-sensibilidad-olores')?.checked)
+        },
+        fecha: new Date().toISOString()
+      };
+
+      if (inputConv) {
+        inputConv.value = JSON.stringify(data);
+      }
+
+      renderizarChipsConvivencia(data);
+      cerrarModalConvivencia();
+      actualizarProgreso();
+      mostrarToast('Condiciones de convivencia configuradas.');
+    });
+  }
+
+  // Restaurar de borrador si existe en localStorage
+  try {
+    var rawDraft = localStorage.getItem('postulacion_borrador_uleam');
+    if (rawDraft) {
+      var draft = JSON.parse(rawDraft);
+      if (draft.condicionesConvivencia && draft.condicionesConvivencia.configurado) {
+        if (inputConv) inputConv.value = JSON.stringify(draft.condicionesConvivencia);
+        renderizarChipsConvivencia(draft.condicionesConvivencia);
+        restaurarValoresEnModal(draft.condicionesConvivencia);
+      }
+    }
+  } catch (err) {}
 
   // --------------------------------------------------------------------------
   // GUARDAR BORRADOR EN LOCALSTORAGE
@@ -487,10 +653,10 @@ import { validarArchivoIndividual } from './validadorArchivos.js';
 
           // Redirección de respaldo por si el navegador bloquea la navegación automática
           setTimeout(function () {
-            if (window.location.pathname.includes('/postulation')) {
+            if (!window.location.pathname.includes('/postulado')) {
               window.location.href = '/postulado?id=' + encodeURIComponent(result.postulacion.id);
             }
-          }, 4300);
+          }, 1800);
         } else {
           // Error controlado retornado por el servidor
           window.dispatchEvent(new CustomEvent('cerrar-modal-exito-postulacion'));

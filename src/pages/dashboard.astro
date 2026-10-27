@@ -36,6 +36,7 @@ import VistaHabitaciones from '../components/admin/VistaHabitaciones.astro';
 import VistaResidentes from '../components/admin/VistaResidentes.astro';
 import VistaReportes from '../components/admin/VistaReportes.astro';
 import ExpedienteModal from '../components/admin/ExpedienteModal.astro';
+import RoomManageModal from '../components/admin/RoomManageModal.astro';
 import DocViewerModal from '../components/admin/DocViewerModal.astro';
 
 // Componentes Compartidos
@@ -192,8 +193,13 @@ const porcentajeOcupacion = totalCamas > 0 ? Math.round((camasOcupadas / totalCa
       </div>
     </div>
 
+    <!-- Contenedor de Datos de Habitaciones y Postulantes para el Asistente de Compatibilidad -->
+    <div id="admin-habitaciones-data" data-habitaciones={JSON.stringify(habitacionesSincronizadas)} style="display: none;"></div>
+    <div id="admin-postulantes-data" data-postulantes={JSON.stringify(usuarios.filter((u) => u.aceptado === 0))} style="display: none;"></div>
+
     <!-- Modales Flotantes de Inspección y Visor -->
     <ExpedienteModal />
+    <RoomManageModal />
     <DocViewerModal />
 
     <!-- Footer Institucional Unificado -->

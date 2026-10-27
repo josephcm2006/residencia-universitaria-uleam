@@ -146,7 +146,7 @@ export default function AnimacionPostulacion() {
       codigoRef.current = cod;
       setCodigoPostulacion(cod);
 
-      // PASO 1: Mantener spinner de carga durante 1.2 segundos para feedback visual
+      // PASO 1: Mantener spinner de carga durante 600ms para feedback visual
       if (timerExitoRef.current) clearTimeout(timerExitoRef.current);
       timerExitoRef.current = setTimeout(() => {
         // PASO 2: Transición a la fase de visto verde fluido
@@ -155,14 +155,14 @@ export default function AnimacionPostulacion() {
         // Suena el acorde cristalino justo cuando el trazo del visto empieza a dibujarse
         setTimeout(() => {
           reproducirSonidoExito();
-        }, 400);
+        }, 200);
 
-        // PASO 3: Mantener la animación durante exactamente 3.0 segundos completos
+        // PASO 3: Mantener la animación de éxito durante 1.0 segundo y redirigir
         if (timerRedirigirRef.current) clearTimeout(timerRedirigirRef.current);
         timerRedirigirRef.current = setTimeout(() => {
           redirigirAPostulado(cod);
-        }, 3000);
-      }, 1200);
+        }, 1000);
+      }, 600);
     };
 
     // Evento para cerrar y resetear el modal en caso de error

@@ -161,7 +161,15 @@ export function validarCamposFormulario(datos = {}) {
   }
 
   // --------------------------------------------------------------------------
-  // PASO 5: RETORNO DEL ESTADO FINAL CONSOLIDADO
+  // PASO 5: VALIDACIÓN DE CONDICIONES Y PREFERENCIAS DE CONVIVENCIA
+  // --------------------------------------------------------------------------
+  const convivencia = datos.condicionesConvivencia || {};
+  if (!convivencia || !convivencia.configurado) {
+    errores.push('Debes configurar tus condiciones y preferencias de convivencia en el Bloque de Habitación.');
+  }
+
+  // --------------------------------------------------------------------------
+  // PASO 6: RETORNO DEL ESTADO FINAL CONSOLIDADO
   // --------------------------------------------------------------------------
   return {
     // esValido es true únicamente cuando no se agregó ningún mensaje al arreglo de errores.

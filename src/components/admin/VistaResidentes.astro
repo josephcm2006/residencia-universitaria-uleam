@@ -26,8 +26,8 @@ const { residentes = [] } = Astro.props;
       <h1>Estudiantes Residentes Asignados</h1>
       <p>Padrón oficial de estudiantes con admisión aprobada y habitación adjudicada en el periodo 2026-2.</p>
     </div>
-    <span style="font-size: 13px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 6px 14px; border-radius: 99px;">
-      ● {residentes.length} Residentes con Plaza Activa
+    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #111827; background: #F3F4F6; border: 1px solid #D1D5DB; padding: 6px 12px; border-radius: 0; display: inline-flex; align-items: center; gap: 6px;">
+      <span style="width: 6px; height: 6px; background-color: #059669; display: inline-block;"></span> {residentes.length} Residentes con Plaza Activa
     </span>
   </div>
 
@@ -50,7 +50,7 @@ const { residentes = [] } = Astro.props;
           <tr>
             <td colspan="7" style="text-align: center; padding: 50px 20px; color: #64748B;">
               <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #F1F5F9; display: flex; align-items: center; justify-content: center; color: #94A3B8;">
+                <div style="width: 48px; height: 48px; border-radius: 0; background-color: #F3F4F6; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: center; color: #6B7280;">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                     <circle cx="9" cy="7" r="4"></circle>
@@ -75,24 +75,24 @@ const { residentes = [] } = Astro.props;
                 </div>
               </td>
               <td>
-                <span style="font-family: monospace; font-weight: 700; color: #334155;">{res.cedula}</span>
+                <span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; color: #111827;">{res.cedula}</span>
               </td>
               <td>
                 <span style="font-size: 12.5px;">{res.carrera}</span>
               </td>
               <td>
-                <span style="background-color: #F1F5F9; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 12px; color: #0F172A; border: 1px solid #CBD5E1;">
+                <span style="background-color: #F3F4F6; padding: 4px 8px; border-radius: 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; font-size: 12px; color: #111827; border: 1px solid #D1D5DB;">
                   Habitación {res.habitacionNumero || 'Asignada'} ({res.edificio || 'Edificio A'})
                 </span>
               </td>
               <td>
-                <span style="color: #15803D; font-weight: 700; font-size: 12.5px;">
+                <span style="color: #111827; font-weight: 600; font-size: 12px;">
                   {res.becaPorcentaje || 100}% Beca Completa
                 </span>
               </td>
               <td>
-                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #15803D; background: #DCFCE7; padding: 2px 8px; border-radius: 4px;">
-                  ● Al día
+                <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #111827; background: #F3F4F6; border: 1px solid #D1D5DB; padding: 3px 8px; border-radius: 0;">
+                  <span style="width: 5px; height: 5px; background-color: #059669; display: inline-block;"></span> Al día
                 </span>
               </td>
               <td>

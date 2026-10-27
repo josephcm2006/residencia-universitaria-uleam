@@ -1,8 +1,11 @@
 ---
 // src/pages/portal-init.astro
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import '../styles/portal-init.css';
 import '../styles/css-responsive/portal-init.responsive.css';
 import usuarios from '../data/usuarios.json';
+import fallbackPostulaciones from '../data/postulaciones.json';
 import HelpModal from '../components/shared/HelpModal.jsx';
 import ExitConfirmModal from '../components/shared/ExitConfirmModal.jsx';
 import Footer from '../components/shared/Footer.astro';
@@ -25,14 +28,40 @@ if (sessionCookie) {
   }
 }
 
+// Cargar lista actualizada de usuarios desde disco
+let listaUsuarios = usuarios;
+try {
+  const userPath = path.resolve('src/data/usuarios.json');
+  const rawUsers = await fs.readFile(userPath, 'utf-8');
+  listaUsuarios = JSON.parse(rawUsers);
+} catch (e) {
+  listaUsuarios = usuarios;
+}
+
 // // Si hay sesión activa en el navegador, se sincroniza con usuarios.json.
 // // Si no hay sesión (visita directa en desarrollo/pruebas), se usa el estudiante de usuarios.json sin datos quemados
-const estudianteBase = usuarios[0];
+const estudianteBase = listaUsuarios[0];
 const match = userSession
-  ? (usuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
+  ? (listaUsuarios.find((u) => u.email?.toLowerCase().trim() === userSession.email?.toLowerCase().trim() || u.cedula === userSession.cedula) || userSession)
   : estudianteBase;
 
 const estudiante = match ? { ...match, ...(userSession || {}) } : estudianteBase;
+
+// // 2. CONSULTAR ESTADO DE POSTULACIÓN DEL ESTUDIANTE EN POSTULACIONES.JSON
+let listaPostulaciones = fallbackPostulaciones;
+try {
+  const postPath = path.resolve('src/data/postulaciones.json');
+  const rawPost = await fs.readFile(postPath, 'utf-8');
+  listaPostulaciones = JSON.parse(rawPost);
+} catch (e) {
+  listaPostulaciones = fallbackPostulaciones;
+}
+
+const miPostulacion = listaPostulaciones.find(
+  (p) => (estudiante.cedula && String(p.estudiante?.cedula).trim() === String(estudiante.cedula).trim()) ||
+         (estudiante.email && String(p.estudiante?.correo).trim().toLowerCase() === String(estudiante.email).trim().toLowerCase())
+);
+const esPostulado = Boolean(miPostulacion);
 
 // // Determinación de estado de aceptación e iniciales dinámicas
 const esAceptado = estudiante.aceptado === 1;
@@ -62,7 +91,7 @@ const iniciales = partesNombre.length >= 2
         </div>
         <div class="divider"></div>
         <span class="portal-tag">
-          {esAceptado ? "Residente Aceptado 2026-2" : "Portal Estudiantil"}
+          {esAceptado ? "Residente Aceptado 2026-2" : esPostulado ? "Expediente en Revisión" : "Portal Estudiantil"}
         </span>
       </div>
 
@@ -88,6 +117,8 @@ const iniciales = partesNombre.length >= 2
         <p>
           {esAceptado
             ? "Tu plaza de residencia estudiantil está activa. Puedes acceder a tu panel de habitación y servicios."
+            : esPostulado
+            ? "Tu postulación para el periodo 2026-2 se encuentra registrada formalmente y en proceso de revisión institucional."
             : "Tu acceso institucional está listo. Desde aquí puedes iniciar tu solicitud de alojamiento."}
         </p>
       </section>
@@ -95,14 +126,29 @@ const iniciales = partesNombre.length >= 2
       <!-- Tarjeta Principal Dividida (Rojo Izquierda / Blanco Derecha) -->
       <section class="postulacion-card">
         
-        <!-- Lado Izquierdo: Banner Rojo o Esmeralda según estado -->
-        <div class="card-left-red" style={esAceptado ? "background: linear-gradient(135deg, #15803D 0%, #166534 100%);" : ""}>
+        <!-- Lado Izquierdo: Banner según estado -->
+        <div
+          class="card-left-red"
+          style={
+            esAceptado
+              ? "background: linear-gradient(135deg, #15803D 0%, #166534 100%);"
+              : esPostulado
+              ? "background: linear-gradient(135deg, #1E3A8A 0%, #0F172A 100%);"
+              : ""
+          }
+        >
           <span class="convocatoria-tag">
-            {esAceptado ? "PLAZA ADJUDICADA · PERIODO 2026-2" : "CONVOCATORIA PERIODO 2026-2"}
+            {esAceptado
+              ? "PLAZA ADJUDICADA · PERIODO 2026-2"
+              : esPostulado
+              ? "EXPEDIENTE REGISTRADO · PERIODO 2026-2"
+              : "CONVOCATORIA PERIODO 2026-2"}
           </span>
           <h2>
             {esAceptado ? (
               <>Habitación asignada<br />y activa</>
+            ) : esPostulado ? (
+              <>¡Ya te encuentras<br />postulado/a!</>
             ) : (
               <>Postula a residencia<br />universitaria</>
             )}
@@ -110,6 +156,8 @@ const iniciales = partesNombre.length >= 2
           <p class="desc">
             {esAceptado ? (
               "Tu solicitud fue aprobada por Bienestar Estudiantil. Tu beca cubre el 100% del alojamiento. Administra tu habitación y reporta incidencias de mantenimiento."
+            ) : esPostulado ? (
+              `Tu expediente formal (${miPostulacion.id}) fue recibido correctamente. El comité de Bienestar Estudiantil está verificando tus datos socioeconómicos y condiciones de convivencia.`
             ) : (
               "Completa tus datos, adjunta la documentación y revisa todo antes de enviar. Puedes guardar tu avance y continuar después."
             )}
@@ -118,6 +166,11 @@ const iniciales = partesNombre.length >= 2
           {esAceptado ? (
             <a href="/residente-dashboard" class="btn-postular" style="background-color: #0F172A;">
               <span>Ir a mi Dashboard de Residente</span>
+              <span>&rarr;</span>
+            </a>
+          ) : esPostulado ? (
+            <a href={`/postulado?id=${miPostulacion.id}`} class="btn-postular" style="background-color: #15803D;">
+              <span>Ver mi comprobante de postulación</span>
               <span>&rarr;</span>
             </a>
           ) : (
@@ -129,30 +182,34 @@ const iniciales = partesNombre.length >= 2
 
           <div class="steps-divider"></div>
           <span class="steps-time">
-            {esAceptado ? "HABITACIÓN A-101 (EDIFICIO A)" : "EL PROCESO TOMA ENTRE 15 Y 20 MINUTOS"}
+            {esAceptado
+              ? "HABITACIÓN A-101 (EDIFICIO A)"
+              : esPostulado
+              ? `CÓDIGO OFICIAL: ${miPostulacion.id}`
+              : "EL PROCESO TOMA ENTRE 15 Y 20 MINUTOS"}
           </span>
 
           <!-- Los 3 pasos inferiores -->
           <div class="steps-grid">
             <div class="step-item">
               <span class="step-num">1</span>
-              <strong>{esAceptado ? "Habitación" : "Completa tus datos"}</strong>
-              <p>{esAceptado ? "Asignada en Planta Baja." : "Información personal y de tu hogar."}</p>
+              <strong>{esAceptado ? "Habitación" : esPostulado ? "Expediente enviado" : "Completa tus datos"}</strong>
+              <p>{esAceptado ? "Asignada en Planta Baja." : esPostulado ? "Datos y requisitos cargados." : "Información personal y de tu hogar."}</p>
             </div>
             <div class="step-item">
               <span class="step-num">2</span>
-              <strong>{esAceptado ? "Beca 100%" : "Adjunta documentos"}</strong>
-              <p>{esAceptado ? "Beneficio completo activo." : "Sube archivos PDF o JPG legibles."}</p>
+              <strong>{esAceptado ? "Beca 100%" : esPostulado ? "En revisión técnica" : "Adjunta documentos"}</strong>
+              <p>{esAceptado ? "Beneficio completo activo." : esPostulado ? "Bienestar Estudiantil valida." : "Sube archivos PDF o JPG legibles."}</p>
             </div>
             <div class="step-item">
               <span class="step-num">3</span>
-              <strong>{esAceptado ? "Mantenimiento" : "Revisa y envía"}</strong>
-              <p>{esAceptado ? "Soporte e incidencias 24/7." : "Confirma tus datos antes del envío."}</p>
+              <strong>{esAceptado ? "Mantenimiento" : esPostulado ? "Dictamen y cupo" : "Revisa y envía"}</strong>
+              <p>{esAceptado ? "Soporte e incidencias 24/7." : esPostulado ? "Asignación según cupos." : "Confirma tus datos antes del envío."}</p>
             </div>
           </div>
         </div>
 
-        <!-- Lado Derecho: Requisitos o Información del Residente -->
+        <!-- Lado Derecho: Requisitos o Información del Residente o Estado de Postulación -->
         <div class="card-right-white">
           {esAceptado ? (
             <>
@@ -194,6 +251,55 @@ const iniciales = partesNombre.length >= 2
                 <span class="deadline-label" style="color: #15803D;">ESTADO DE CUENTA</span>
                 <strong class="deadline-date" style="color: #166534;">Al día · $0.00 pendiente</strong>
                 <span class="deadline-note" style="color: #15803D;">Beneficio de residencia activo para 2026-2.</span>
+              </div>
+            </>
+          ) : esPostulado ? (
+            <>
+              <h3>Estado de tu Solicitud</h3>
+              <p class="right-subtitle">Información registrada en el sistema de admisiones ULEAM:</p>
+
+              <ul class="req-list">
+                <li>
+                  <span class="check-icon" style="color:#15803D;background:#DCFCE7;">✓</span>
+                  <div>
+                    <strong>Código de Expediente</strong>
+                    <span style="font-family:monospace;font-weight:700;color:#18181B;">{miPostulacion.id}</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon" style="color:#15803D;background:#DCFCE7;">✓</span>
+                  <div>
+                    <strong>Estado de Solicitud</strong>
+                    <span style="color:#15803D;font-weight:700;">● {miPostulacion.estado || 'En Revisión'}</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon" style="color:#15803D;background:#DCFCE7;">✓</span>
+                  <div>
+                    <strong>Fecha de Postulación</strong>
+                    <span>{miPostulacion.fechaPostulacion}</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon" style="color:#15803D;background:#DCFCE7;">✓</span>
+                  <div>
+                    <strong>Habitación Solicitada</strong>
+                    <span>{miPostulacion.habitacionSugerida || 'HAB-A101'}</span>
+                  </div>
+                </li>
+                <li>
+                  <span class="check-icon" style="color:#15803D;background:#DCFCE7;">✓</span>
+                  <div>
+                    <strong>Documentos Verificados</strong>
+                    <span>{(miPostulacion.documentos || []).length} archivos digitales en custodia</span>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="deadline-box" style="background:#F0FDF4;border:1px solid #BBF7D0;">
+                <span class="deadline-label" style="color: #15803D;">PRÓXIMO PASO</span>
+                <strong class="deadline-date" style="color: #166534;">Publicación de Dictamen</strong>
+                <span class="deadline-note" style="color: #15803D;">Recibirás la resolución y asignación en tu correo institucional.</span>
               </div>
             </>
           ) : (

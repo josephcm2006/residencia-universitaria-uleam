@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const alertText = document.getElementById('ms-alert-text');
   // btnSubmit: Botón principal de "Iniciar sesión"
   const btnSubmit = document.getElementById('btn-submit-ms');
+  // btnFillNewStudent: Botón de acceso rápido para estudiante nuevo sin postular
+  const btnFillNewStudent = document.getElementById('btn-fill-new-student-creds');
   // btnFillStudent: Botón de acceso rápido con credenciales de estudiante
   const btnFillStudent = document.getElementById('btn-fill-student-creds');
   // btnFillAdmin: Botón de acceso rápido con credenciales de administrador
@@ -161,6 +163,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // ACCESO RÁPIDO CON CREDENCIALES DE PRUEBA (DEMO)
   // --------------------------------------------------------------------------
+
+  // Rellenar datos de estudiante nuevo sin postulación previa
+  if (btnFillNewStudent) {
+    btnFillNewStudent.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (inputEmail) inputEmail.value = 'e1318765432@live.uleam.edu.ec';
+      if (inputPassword) {
+        inputPassword.value = 'contraUSER123';
+        inputPassword.focus();
+      }
+      ocultarAlerta();
+    });
+  }
 
   // Rellenar datos de estudiante
   if (btnFillStudent) {

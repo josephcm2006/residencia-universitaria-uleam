@@ -50,7 +50,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
       <h1>Auditoría y Estadísticas de Ocupación</h1>
       <p>Métricas consolidadas sobre camas, disponibilidad y balance de admisiones del periodo 2026-2.</p>
     </div>
-    <span style="font-size: 13px; font-weight: 700; color: #0284C7; background: #E0F2FE; padding: 6px 14px; border-radius: 99px;">
+    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #111827; background: #F3F4F6; border: 1px solid #D1D5DB; padding: 6px 12px; border-radius: 0;">
       Periodo Académico 2026-2
     </span>
   </div>
@@ -74,7 +74,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
     <div class="kpi-card">
       <div class="kpi-info">
         <span>Camas Ocupadas</span>
-        <h2 style="color: #15803D;">{camasOcupadas}</h2>
+        <h2>{camasOcupadas}</h2>
       </div>
       <div class="kpi-icon green">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -87,7 +87,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
     <div class="kpi-card">
       <div class="kpi-info">
         <span>Camas Libres</span>
-        <h2 style="color: #0284C7;">{camasLibres}</h2>
+        <h2>{camasLibres}</h2>
       </div>
       <div class="kpi-icon blue">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -99,7 +99,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
     <div class="kpi-card">
       <div class="kpi-info">
         <span>Tasa de Ocupación</span>
-        <h2 style="color: #BA181B;">{porcentajeOcupacion}%</h2>
+        <h2>{porcentajeOcupacion}%</h2>
       </div>
       <div class="kpi-icon red">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,7 +114,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
   <!-- Tarjetas de Detalle por Edificio -->
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
     <!-- Edificio A -->
-    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 20px;">
+    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 0; padding: 20px;">
       <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 12px;">Edificio A (Residencias Matriz)</h3>
       <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">Módulo adaptado con rampas y accesibilidad física.</p>
       <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
@@ -127,12 +127,12 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
         <span>Camas habitadas:</span>
-        <strong style="color: #15803D;">{ocupadasEdificioA} camas</strong>
+        <strong style="color: #111827; font-family: 'JetBrains Mono', ui-monospace, monospace;">{ocupadasEdificioA} camas</strong>
       </div>
     </div>
 
     <!-- Edificio B -->
-    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 20px;">
+    <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 0; padding: 20px;">
       <h3 style="font-size: 15px; font-weight: 800; color: #0F172A; margin-bottom: 12px;">Edificio B (Residencias Matriz)</h3>
       <p style="font-size: 13px; color: #64748B; margin-bottom: 12px;">Módulo estándar para estudiantes foráneos.</p>
       <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
@@ -145,7 +145,7 @@ const ocupadasEdificioB = habsEdificioB.reduce((sum, h) => sum + (h.ocupantesAct
       </div>
       <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
         <span>Camas habitadas:</span>
-        <strong style="color: #15803D;">{ocupadasEdificioB} camas</strong>
+        <strong style="color: #111827; font-family: 'JetBrains Mono', ui-monospace, monospace;">{ocupadasEdificioB} camas</strong>
       </div>
     </div>
   </div>

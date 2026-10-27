@@ -1,5 +1,6 @@
 ---
 // src/components/postulacion/HabitacionPreferenciaSection.astro
+import ModalCondicionesConvivencia from './ModalCondicionesConvivencia.astro';
 ---
 
 <!-- BLOQUE 8: Habitación y periodo -->
@@ -23,4 +24,233 @@
       <span class="mono-tag">Disponible para postulación</span>
     </div>
   </div>
+
+  <!-- TARJETA DESTACADA: CONDICIONES DE CONVIVENCIA Y COMPATIBILIDAD (REQUERIDO) -->
+  <div class="convivencia-card-box">
+    <div class="convivencia-card-head">
+      <div class="convivencia-card-title">
+        <div class="convivencia-badge-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="11" cy="7" r="4"></circle>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div>
+          <h4>Condiciones de Convivencia y Compatibilidad de Compañero</h4>
+          <p>Indica tus restricciones sanitarias (enfermedades/alergias/mascotas), horarios de sueño y preferencias de clima para asignarte un compañero afín.</p>
+        </div>
+      </div>
+      <div id="badge-convivencia-status" class="status-pill-incomplete">
+        <span class="dot"></span>
+        <span class="text">Pendiente de configurar *</span>
+      </div>
+    </div>
+
+    <!-- Contenedor dinámico de chips resumen -->
+    <div id="contenedor-chips-convivencia" class="convivencia-chips-list" style="display: none;">
+      <!-- Se inyectan dinámicamente mediante postulacion.js al guardar en el modal -->
+    </div>
+
+    <div class="convivencia-card-footer">
+      <button type="button" id="btn-abrir-modal-convivencia" class="btn-config-convivencia">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span id="btn-text-convivencia">Configurar Condiciones de Convivencia</span>
+      </button>
+      <span class="convivencia-hint">Requisito obligatorio para completar tu expediente de residencia.</span>
+    </div>
+
+    <!-- Input Oculto donde se serializa el JSON de condiciones -->
+    <input type="hidden" id="input-condiciones-convivencia" name="condiciones_convivencia" value="" />
+  </div>
+
+  <!-- Modal Flotante de Convivencia -->
+  <ModalCondicionesConvivencia />
 </section>
+
+<style>
+/* Estilos integrados de la tarjeta de convivencia en el bloque de habitación */
+.convivencia-card-box {
+  margin-top: 20px;
+  background-color: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.convivencia-card-box:hover {
+  border-color: #CBD5E1;
+}
+
+.convivencia-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.convivencia-card-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.convivencia-badge-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #F1F5F9;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.convivencia-card-title h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 4px 0;
+}
+
+.convivencia-card-title p {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.45;
+  max-width: 580px;
+}
+
+/* Status Pill */
+.status-pill-incomplete {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill-incomplete .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #DC2626;
+}
+
+.status-pill-complete {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background-color: #F0FDF4;
+  color: #166534;
+  border: 1px solid #BBF7D0;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill-complete .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #16A34A;
+}
+
+/* Chips Resumen */
+.convivencia-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+
+:global(.conv-chip) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #1E293B;
+}
+
+:global(.conv-chip.chip-alert) {
+  background-color: #FEF3C7;
+  border-color: #FCD34D;
+  color: #92400E;
+}
+
+:global(.conv-chip.chip-health) {
+  background-color: #EFF6FF;
+  border-color: #BFDBFE;
+  color: #1E40AF;
+}
+
+/* Footer y Botón */
+.convivencia-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.btn-config-convivencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #0F172A;
+  color: #FFFFFF;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-config-convivencia:hover {
+  background-color: #1E293B;
+  transform: translateY(-1px);
+}
+
+.convivencia-hint {
+  font-size: 12px;
+  color: #64748B;
+}
+
+@media (max-width: 640px) {
+  .convivencia-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .convivencia-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+</style>

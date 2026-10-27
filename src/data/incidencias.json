@@ -1,18 +1,1 @@
-[
-  {
-    "id": "INC-2026-001",
-    "estudianteCedula": "0953920949",
-    "estudianteNombre": "Joseph Coello Mendoza",
-    "estudianteCorreo": "e0953920949@live.uleam.edu.ec",
-    "habitacionId": "HAB-A101",
-    "habitacion": "A-101 (Edificio A (Residencias Matriz))",
-    "categoria": "Plomería y Agua",
-    "urgencia": "Media",
-    "asunto": "hola prueba 1",
-    "descripcion": "aaassssssssssssssssssss",
-    "evidencias": [],
-    "fechaReporte": "20 oct 2026 · 10:14",
-    "estado": "Pendiente",
-    "respuestaAdmin": "Reporte registrado. En cola de asignación de técnico por Bienestar Estudiantil."
-  }
-]
+[]

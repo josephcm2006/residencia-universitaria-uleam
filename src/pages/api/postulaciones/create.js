@@ -204,6 +204,7 @@ export async function POST({ request }) {
         detalle: body.accesibilidad?.necesidad || 'Sin requerimientos específicos de movilidad',
         grupoVulnerable: body.accesibilidad?.grupoVulnerable || 'Ninguno'
       },
+      condicionesConvivencia: body.condicionesConvivencia || null,
       habitacionSugerida: body.habitacionPreferencia?.codigo || perfilEstudiante?.habitacionId || 'HAB-A101',
       documentos: documentos,
       observacionesAdmin: 'Postulación registrada en línea por el estudiante. Pendiente de dictamen institucional.'
@@ -220,6 +221,24 @@ export async function POST({ request }) {
       await fs.writeFile(filePath, JSON.stringify(lista, null, 2), 'utf-8');
     } catch (err) {
       console.error('Error guardando en postulaciones.json:', err);
+    }
+
+    // Actualiza el perfil del estudiante en usuarios.json
+    try {
+      if (perfilEstudiante) {
+        perfilEstudiante.postulacionId = nuevoId;
+        perfilEstudiante.documentosRenovacion = {
+          requiereRenovacion: false,
+          estado: 'Postulado - En Revisión',
+          postulacionId: nuevoId,
+          mensaje: 'Tu solicitud ha sido registrada y está en revisión por Bienestar Estudiantil.',
+          proximaFecha: '30 oct 2026'
+        };
+        const userPath = path.resolve('src/data/usuarios.json');
+        await fs.writeFile(userPath, JSON.stringify(listaUsuarios, null, 2), 'utf-8');
+      }
+    } catch (errUser) {
+      console.error('Error actualizando usuarios.json:', errUser);
     }
 
     // ------------------------------------------------------------------------

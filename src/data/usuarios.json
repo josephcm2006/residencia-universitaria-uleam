@@ -22,7 +22,7 @@
     "documentosRenovacion": {
       "requiereRenovacion": false,
       "estado": "Al día",
-      "mensaje": "Postulación aprobada por Bienestar Estudiantil. Plaza activa.",
+      "mensaje": "Plaza adjudicada en Habitación A-101.",
       "proximaFecha": "15 Mar 2027"
     }
   },
@@ -38,20 +38,21 @@
     "facultad": "Facultad de Ciencias de la Salud",
     "estado": "Activo",
     "periodo": "2026-2",
-    "aceptado": 1,
-    "habitacionId": "HAB-A101",
-    "habitacionNumero": "A-101",
-    "edificio": "Edificio A (Residencias Matriz)",
-    "piso": "Planta Baja",
+    "aceptado": 0,
+    "habitacionId": null,
+    "habitacionNumero": null,
+    "edificio": null,
+    "piso": null,
     "pagosAlDia": true,
     "montoPendiente": 0,
     "becaPorcentaje": 100,
     "documentosRenovacion": {
       "requiereRenovacion": false,
-      "estado": "Al día",
-      "mensaje": "Postulación aprobada por Bienestar Estudiantil. Plaza activa.",
-      "proximaFecha": "15 Mar 2027"
-    }
+      "estado": "Pendiente de postulación",
+      "mensaje": "Aún no cuentas con una plaza habitacional adjudicada.",
+      "proximaFecha": "N/A"
+    },
+    "postulacionId": "POST-2026-002"
   },
   {
     "id": "est-1315928374",
@@ -66,19 +67,20 @@
     "estado": "Activo",
     "periodo": "2026-2",
     "aceptado": 1,
-    "habitacionId": "HAB-A102",
-    "habitacionNumero": "A-102",
+    "habitacionId": "HAB-A201",
+    "habitacionNumero": "A-201",
     "edificio": "Edificio A (Residencias Matriz)",
-    "piso": "Planta Baja",
+    "piso": "Piso 2",
     "pagosAlDia": true,
     "montoPendiente": 0,
     "becaPorcentaje": 100,
     "documentosRenovacion": {
       "requiereRenovacion": false,
       "estado": "Al día",
-      "mensaje": "Postulación aprobada por Bienestar Estudiantil. Plaza activa.",
+      "mensaje": "Plaza adjudicada en Habitación A-201.",
       "proximaFecha": "15 Mar 2027"
-    }
+    },
+    "postulacionId": "POST-2026-003"
   },
   {
     "id": "est-1309876543",
@@ -126,12 +128,67 @@
     "piso": "Piso 2",
     "pagosAlDia": true,
     "montoPendiente": 0,
-    "becaPorcentaje": 75,
+    "becaPorcentaje": 100,
+    "documentosRenovacion": {
+      "requiereRenovacion": false,
+      "estado": "Al día",
+      "mensaje": "Plaza adjudicada en Habitación A-201.",
+      "proximaFecha": "15 Mar 2027"
+    }
+  },
+  {
+    "id": "est-1316789452",
+    "email": "e1316789452@live.uleam.edu.ec",
+    "password": "contraUSER123",
+    "rol": "Estudiante",
+    "cedula": "1316789452",
+    "nombre": "Mateo",
+    "nombreCompleto": "Mateo Sebastián Alarcón Zambrano",
+    "carrera": "Ingeniería de Software",
+    "facultad": "Facultad de Ciencias de la Vida y Tecnologías",
+    "estado": "Activo",
+    "periodo": "2026-2",
+    "aceptado": 1,
+    "habitacionId": "HAB-A101",
+    "habitacionNumero": "A-101",
+    "edificio": "Edificio A (Residencias Matriz)",
+    "piso": "Planta Baja",
+    "pagosAlDia": true,
+    "montoPendiente": 0,
+    "becaPorcentaje": 100,
     "documentosRenovacion": {
       "requiereRenovacion": false,
       "estado": "Al día",
       "mensaje": "Postulación aprobada por Bienestar Estudiantil. Plaza activa.",
       "proximaFecha": "15 Mar 2027"
+    },
+    "postulacionId": "POST-2026-004"
+  },
+  {
+    "id": "est-1318765432",
+    "email": "e1318765432@live.uleam.edu.ec",
+    "password": "contraUSER123",
+    "rol": "Estudiante",
+    "cedula": "1318765432",
+    "nombre": "Camila",
+    "nombreCompleto": "Camila Valentina Cedeño Mendoza",
+    "carrera": "Psicología",
+    "facultad": "Facultad de Ciencias Sociales, Derecho y Bienestar",
+    "estado": "Activo",
+    "periodo": "2026-2",
+    "aceptado": 0,
+    "habitacionId": null,
+    "habitacionNumero": null,
+    "edificio": null,
+    "piso": null,
+    "pagosAlDia": true,
+    "montoPendiente": 0,
+    "becaPorcentaje": 100,
+    "documentosRenovacion": {
+      "requiereRenovacion": false,
+      "estado": "Pendiente de postulación",
+      "mensaje": "Aún no cuentas con una plaza habitacional adjudicada.",
+      "proximaFecha": "N/A"
     }
   }
 ]
